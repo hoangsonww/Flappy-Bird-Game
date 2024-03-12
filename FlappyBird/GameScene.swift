@@ -244,4 +244,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             newGameButton.isHidden = false
         }
     }
+    
 }
