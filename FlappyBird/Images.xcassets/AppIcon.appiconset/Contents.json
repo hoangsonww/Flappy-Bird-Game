@@ -1,102 +1,102 @@
 {
-  "images" : [
+  "images": [
     {
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "20x20"
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "20x20"
     },
     {
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "20x20"
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "20x20"
     },
     {
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "29x29"
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "29x29"
     },
     {
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "29x29"
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "29x29"
     },
     {
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "40x40"
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "40x40"
     },
     {
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "40x40"
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "40x40"
     },
     {
-      "filename" : "DALL·E 2024-02-27 14.25.43 - Design a vibrant and engaging app icon that captures the essence of the Flappy Bird game. The icon should feature a stylized, cartoonish bird mid-flig-3.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "60x60"
+      "filename": "icon-3.png",
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "60x60"
     },
     {
-      "filename" : "DALL·E 2024-02-27 14.25.43 - Design a vibrant and engaging app icon that captures the essence of the Flappy Bird game. The icon should feature a stylized, cartoonish bird mid-flig-2.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "60x60"
+      "filename": "icon-2.png",
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "60x60"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "20x20"
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "20x20"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "20x20"
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "20x20"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "29x29"
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "29x29"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "29x29"
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "29x29"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "40x40"
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "40x40"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "40x40"
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "40x40"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "76x76"
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "76x76"
     },
     {
-      "filename" : "DALL·E 2024-02-27 14.25.43 - Design a vibrant and engaging app icon that captures the essence of the Flappy Bird game. The icon should feature a stylized, cartoonish bird mid-flig-4.png",
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "76x76"
+      "filename": "icon-4.png",
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "76x76"
     },
     {
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "83.5x83.5"
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "83.5x83.5"
     },
     {
-      "filename" : "DALL·E 2024-02-27 14.25.43 - Design a vibrant and engaging app icon that captures the essence of the Flappy Bird game. The icon should feature a stylized, cartoonish bird mid-flig.png",
-      "idiom" : "ios-marketing",
-      "scale" : "1x",
-      "size" : "1024x1024"
+      "filename": "icon-1.png",
+      "idiom": "ios-marketing",
+      "scale": "1x",
+      "size": "1024x1024"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }
