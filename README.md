@@ -36,6 +36,10 @@ open FlappyBirdGame.xcodeproj
 
 4. Press `Cmd + R` to build and run the project on your selected device or simulator.
 
+## User Interface
+
+![Flappy Bird Game](img/ios-ui.png)
+
 ## How to Play
 
 - Tap anywhere on the screen to make the bird flap its wings and fly.
