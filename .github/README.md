@@ -1,13 +1,13 @@
 # Flappy Bird Game in Swift
 
-This project is a version of the popular mobile game Flappy Bird, developed using Swift and SpriteKit for iOS. The game aims to replicate the original's gameplay, featuring a bird that the player navigates between a series of obstacles by tapping the screen to make the bird fly. The goal is to achieve the highest possible score by avoiding the pipes.
+Created by [Son Nguyen](https://github.com/hoangsonww) in 2024, this project is a whole new version of the popular mobile game Flappy Bird, developed using Swift and SpriteKit for iOS. The game aims to replicate the original's gameplay, featuring a bird that the player navigates between a series of obstacles by tapping the screen to make the bird fly. The goal is to achieve the highest possible score by avoiding the pipes.
 
 ## Features
 
 - Classic Flappy Bird gameplay
 - Score tracking with high score memory
 - Simple tap control
-- Endless game mode
+- Endless game mode (for now)
 - Sound effects and background music
 
 ## Requirements
@@ -15,6 +15,7 @@ This project is a version of the popular mobile game Flappy Bird, developed usin
 - iOS 14.0+
 - Xcode 12.0+
 - Swift 5.3+
+- SpriteKit Framework
 
 ## Installation
 
@@ -23,7 +24,7 @@ To run this game on your device, follow these steps:
 1. Clone the repository to your local machine:
 
 ```
-git clone https://github.com/hoangsonww/FlappyBirdGame.git
+git clone https://github.com/hoangsonww/Flappy-Bird-Game.git
 ```
 
 2. Open the project in Xcode:
@@ -32,13 +33,15 @@ git clone https://github.com/hoangsonww/FlappyBirdGame.git
 open FlappyBirdGame.xcodeproj
 ```
 
-3. Select your target device or simulator.
+3. Select your target device or simulator. Ideally, use an iPhone with iOS 14.0 or later for the best experience.
 
 4. Press `Cmd + R` to build and run the project on your selected device or simulator.
 
+5. Play the game and enjoy! If you wish to display FPS and node count, press `Cmd + F` to toggle the debug information.
+
 ## User Interface
 
-![Flappy Bird Game](img/ios-ui.png)
+![Flappy Bird Game](../img/ios-ui.png)
 
 ## How to Play
 
@@ -61,7 +64,7 @@ To contribute to Flappy Bird Game Clone, follow these steps:
 
 ## License
 
-Distributed under the MIT License. See `LICENSE.md` for more information.
+This project is distributed under the MIT License. See [LICENSE](../LICENSE) for more information.
 
 ## Acknowledgements
 
