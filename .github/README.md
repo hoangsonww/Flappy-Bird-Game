@@ -73,3 +73,5 @@ This project is distributed under the MIT License. See [LICENSE](../LICENSE) for
 - [Swift Programming Language](https://swift.org/documentation/)
 
 ---
+
+Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in Spring 2024.
