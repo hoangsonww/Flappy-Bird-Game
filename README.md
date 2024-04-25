@@ -41,7 +41,7 @@ To run this game on your device, follow these steps:
 
 ## User Interface
 
-![Flappy Bird Game](../img/ios-ui.png)
+![Flappy Bird Game](img/ios-ui.png)
 
 ## How to Play
 
@@ -64,7 +64,7 @@ To contribute to Flappy Bird Game Clone, follow these steps:
 
 ## License
 
-This project is distributed under the MIT License. See [LICENSE](../LICENSE) for more information.
+This project is distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Acknowledgements
 
