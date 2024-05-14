@@ -41,7 +41,9 @@ To run this game on your device, follow these steps:
 
 ## User Interface
 
-![Flappy Bird Game](img/ios-ui.png)
+<p align="center" style="cursor: pointer">
+ <img src="../utils/recipegenie.png" alt="The RecipeGenie App Interface" width="100%" />
+</p>
 
 ## How to Play
 
