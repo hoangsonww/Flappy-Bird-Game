@@ -15,6 +15,7 @@ Created by [Son Nguyen](https://github.com/hoangsonww) in 2024, this project is 
 - Simple tap control
 - Endless game mode (for now)
 - Sound effects and background music
+- FPS counter for easier debugging
 
 ## Requirements
 
