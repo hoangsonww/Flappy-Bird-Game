@@ -4,7 +4,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let verticalPipeGap = 150.0
     
     var newGameButton: SKLabelNode!
-    
     var bird:SKSpriteNode!
     var skyColor:SKColor!
     var pipeTextureUp:SKTexture!
@@ -126,7 +125,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         newGameButton = SKLabelNode(fontNamed: "VT323")
         newGameButton.text = "New Game"
-        newGameButton.fontSize = 20
+        newGameButton.fontSize = 22
         newGameButton.fontColor = SKColor.white
         newGameButton.position = CGPoint(x: self.frame.midX, y: scoreLabelNode.frame.minY - newGameButton.frame.height - 70)
         newGameButton.isHidden = true
@@ -191,6 +190,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         moving.speed = 1
     }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if moving.speed > 0  {
             for _ in touches {
