@@ -77,4 +77,4 @@ This project is distributed under the MIT License. See [LICENSE](LICENSE) for mo
 
 ---
 
-Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in Spring 2024.
+Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in Spring 2024. Thanks for stopping by! 🚀
