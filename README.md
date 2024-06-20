@@ -2,6 +2,16 @@
 
 Created by [Son Nguyen](https://github.com/hoangsonww) in 2024, this project is a whole new version of the popular mobile game Flappy Bird, developed using Swift and SpriteKit for iOS. The game aims to replicate the original's gameplay, featuring a bird that the player navigates between a series of obstacles by tapping the screen to make the bird fly. The goal is to achieve the highest possible score by avoiding the pipes.
 
+## Table of Contents
+- [User Interface](#user-interface)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [How to Play](#how-to-play)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
 ## User Interface
 
 <p align="center">
@@ -26,7 +36,7 @@ Created by [Son Nguyen](https://github.com/hoangsonww) in 2024, this project is 
 
 ## Installation
 
-To run this game on your device, follow these steps:
+To run this game on your device, follow these **very simple** steps:
 
 1. Clone the repository to your local machine:
 
