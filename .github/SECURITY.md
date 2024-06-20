@@ -1,7 +1,7 @@
 # Flappy Bird Game - Security Policies
 
 ## Introduction
-Flappy Bird Game is a dynamic mobile (iOS) application designed to provide users with an engaging platform to explore and learn about various movies, directors, actors, and more. Ensuring the security of our users and the application is of paramount importance. This document outlines the security measures, policies, and best practices implemented in Flappy Bird Game.
+Flappy Bird Game is a dynamic mobile (iOS) application designed to replicate the classic and legendary Flappy Bird game. The project was created by [Son Nguyen](https://github.com/hoangsonww) in 2024, using Swift and SpriteKit for iOS. The game features a bird that the player navigates between a series of obstacles by tapping the screen to make the bird fly. The goal is to achieve the highest possible score by avoiding the pipes.
 
 Current Version: `1.1.2`
 
