@@ -67,7 +67,7 @@ To run this game on your device, follow these **very simple** steps:
 
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-To contribute to Flappy Bird Game Clone, follow these steps:
+To contribute to Flappy Bird Game, follow these steps:
 
 1. Fork the project.
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
