@@ -9,3 +9,4 @@ This branch applies SOLID design principles to improve code structure.
 - Dependency Inversion
 
 Last touched: 2026-06-17T04:39:11Z
+- SOLID review pass: SRP, OCP, LSP, ISP, DIP verified across modules.
