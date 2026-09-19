@@ -79,7 +79,26 @@ class GameUITestCase: XCTestCase {
     }
 
     func tap(_ label: String, timeout: TimeInterval = GameUITestCase.uiTimeout) {
-        waitFor(label, timeout: timeout).tap()
+        tap(element: waitFor(label, timeout: timeout))
+    }
+
+    /// Tap the centre of `element`.
+    ///
+    /// Not `element.tap()`: that first asks whether the element is hittable and,
+    /// deciding it is not, tries to scroll it into view. SpriteKit publishes no
+    /// scrollable container to service that, so the request fails outright with
+    /// `kAXErrorCannotComplete` — on some Xcode versions only, which made it a
+    /// green local run and a red CI one. A coordinate tap skips the question and
+    /// synthesises a touch at the point, which is all any of these controls need
+    /// now that their frames are correct.
+    func tap(element: XCUIElement) {
+        // A coordinate tap lands wherever the point is, so an element scrolled
+        // off the screen would silently tap whatever is there instead. Say so.
+        XCTAssertTrue(
+            app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)),
+            "\"\(element.label)\" is off screen at \(element.frame); scroll to it before tapping"
+        )
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
     /// Assert a label is gone, which is how a scene transition is confirmed.

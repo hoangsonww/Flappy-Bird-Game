@@ -26,13 +26,14 @@ final class ShopUITests: GameUITestCase {
         )
 
         // Only the skins the wallet can afford are enabled, and they are not
-        // first in the list — the dearer ones are dimmed and inert.
+        // first in the list — the dearer ones are dimmed and inert. The rows
+        // scroll, so an affordable one also has to be on screen to tap.
         let buy = try XCTUnwrap(
-            buys.allElementsBoundByIndex.first(where: \.isEnabled),
-            "No affordable skin on the shop screen"
+            buys.allElementsBoundByIndex.first { $0.isEnabled && app.frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) },
+            "No affordable skin visible on the shop screen"
         )
         let lockedBefore = buys.count
-        buy.tap()
+        tap(element: buy)
 
         let fewerLocked = expectation(
             for: NSPredicate(format: "count < %d", lockedBefore),
@@ -47,10 +48,17 @@ final class ShopUITests: GameUITestCase {
 
     func testEquippingAnOwnedSkin() throws {
         launch(screen: "shop")
-        let equip = app.buttons["EQUIP"].firstMatch
-        try XCTSkipUnless(equip.waitForExistence(timeout: GameUITestCase.uiTimeout), "No owned-but-unequipped skin")
+        let equips = app.buttons.matching(NSPredicate(format: "label == %@", "EQUIP"))
+        try XCTSkipUnless(
+            equips.firstMatch.waitForExistence(timeout: GameUITestCase.uiTimeout),
+            "No owned-but-unequipped skin"
+        )
+        let equip = try XCTUnwrap(
+            equips.allElementsBoundByIndex.first { app.frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) },
+            "No owned-but-unequipped skin visible on the shop screen"
+        )
 
-        equip.tap()
+        tap(element: equip)
         // The row it was tapped on becomes the equipped one, so a tick appears.
         XCTAssertTrue(
             app.buttons["✓"].firstMatch.waitForExistence(timeout: GameUITestCase.uiTimeout),

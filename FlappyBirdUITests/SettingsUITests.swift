@@ -28,7 +28,7 @@ final class SettingsUITests: GameUITestCase {
         let before = (toggle.value as? String) ?? ""
         let after = before == "on" ? "off" : "on"
 
-        toggle.tap()
+        tap(element: toggle)
         let flipped = expectation(
             for: NSPredicate(format: "value == %@", after),
             evaluatedWith: toggle

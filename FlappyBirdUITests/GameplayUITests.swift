@@ -58,7 +58,7 @@ final class GameplayUITests: GameUITestCase {
         XCTAssertTrue(control("MENU").exists, "The summary panel has no way back to the menu")
         capture("game-over")
 
-        retry.tap()
+        tap(element: retry)
         waitForDisappearance("PLAY AGAIN")
         XCTAssertTrue(waitFor("II").exists, "PLAY AGAIN did not start another run")
     }
