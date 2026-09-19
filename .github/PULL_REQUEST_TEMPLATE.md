@@ -1,22 +1,41 @@
-# Pull Request for Flappy Bird Game
+## What does this change?
 
-## Overview
-Briefly describe the purpose of this pull request. What features or bug fixes are included?
+<!-- One or two sentences. What is different after this PR? -->
 
-## Related Issue/Ticket
-Link any related issue or ticket here.
+## Why?
 
-## Files Changed
-List the files that have been added, deleted, or modified.
+<!-- The problem, the bug report, or the itch this scratches. -->
 
-## Testing
-Describe how you tested these changes.
+## Type of change
 
-## Screenshots (if applicable)
-Include screenshots or GIFs if you've made UI changes.
+- [ ] 🐛 Bug fix
+- [ ] ✨ New feature
+- [ ] ♻️ Refactor
+- [ ] 📚 Documentation
+- [ ] 🤖 Build / CI
+- [ ] ⚠️ Breaking change
 
-## Notes to Reviewers
-Add any notes for reviewers, such as areas to focus on, decisions you made, etc.
+## How was it tested?
 
-## Deployment Notes
-Include any necessary steps for deployment, configuration changes, etc.
+<!-- Commands you ran and what you saw. Screenshots or a clip for gameplay changes. -->
+
+```bash
+# e.g.
+make test          # Swift unit tests
+make api-test      # backend, in-memory driver
+make api-test-pg   # backend, against Postgres
+make smoke         # end-to-end against a running API
+```
+
+## Checklist
+
+- [ ] The commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) — the release version is derived from them
+- [ ] `make check` passes locally
+- [ ] New Swift files were added by re-running `make xcodegen` (never by hand-editing the `.pbxproj`)
+- [ ] Backend changes are reflected in `backend/openapi/openapi.yaml` and covered by tests
+- [ ] Documentation under `docs/` is updated if behaviour changed
+- [ ] The game still runs with **no backend at all**
+
+## Screenshots / recording
+
+<!-- `make media` regenerates img/screens and img/demo.gif from the simulator. -->

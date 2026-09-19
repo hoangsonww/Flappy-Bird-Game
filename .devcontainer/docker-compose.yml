@@ -1,0 +1,44 @@
+# Dev container stack: a Node workspace plus the same Postgres the app uses.
+#
+# Deliberately separate from the repository's docker-compose.yml so opening the
+# folder in a container never fights with `make up` on the host.
+name: flappy-bird-devcontainer
+
+services:
+  workspace:
+    image: mcr.microsoft.com/devcontainers/javascript-node:22
+    volumes:
+      - ../..:/workspaces:cached
+      - ..:/workspace:cached
+    command: sleep infinity
+    environment:
+      NODE_ENV: development
+      DB_DRIVER: postgres
+      DATABASE_URL: postgres://flappy:flappy@postgres:5432/flappybird
+      PUBLIC_URL: http://localhost:4000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [devcontainer]
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: flappy
+      POSTGRES_PASSWORD: flappy
+      POSTGRES_DB: flappybird
+    volumes:
+      - devcontainer-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flappy -d flappybird"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [devcontainer]
+
+networks:
+  devcontainer:
+
+volumes:
+  devcontainer-postgres:

@@ -1,90 +1,353 @@
-# Flappy Bird Game in Swift
+<div align="center">
 
-Created by [Son Nguyen](https://github.com/hoangsonww) in 2024, this project is a whole new version of the popular mobile game Flappy Bird, developed using Swift and SpriteKit for iOS. The game aims to replicate the original's gameplay, featuring a bird that the player navigates between a series of obstacles by tapping the screen to make the bird fly. The goal is to achieve the highest possible score by avoiding the pipes.
+# 🐦 Flappy Bird
 
-## Table of Contents
-- [User Interface](#user-interface)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [How to Play](#how-to-play)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+### A Swift + SpriteKit tribute with modes, power-ups, weather, ghost replays — and an optional backend for leaderboards
 
-## User Interface
+[![CI](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/ci.yml)
+[![Release](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/release.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/release.yml)
+[![CodeQL](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/codeql.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/codeql.yml)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-2ea44f.svg)](LICENSE)
 
-<p align="center">
- <img src="img/ios-ui.png" alt="The Flappy Bird Game Interface" width="100%" style="border-radius: 8px" />
-</p>
+[![Swift](https://img.shields.io/badge/Swift-5.9-F05138?logo=swift&logoColor=white)](https://swift.org)
+[![SpriteKit](https://img.shields.io/badge/SpriteKit-iOS%2016%2B-147EFB?logo=apple&logoColor=white)](https://developer.apple.com/spritekit/)
+[![Xcode](https://img.shields.io/badge/Xcode-16%2B-1575F9?logo=xcode&logoColor=white)](https://developer.apple.com/xcode/)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)](https://expressjs.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?logo=openapiinitiative&logoColor=white)](backend/openapi/openapi.yaml)
+[![Tests](https://img.shields.io/badge/tests-228%20passing-2ea44f)](docs/TESTING.md)
 
-## Features
+<img src="img/demo.gif" alt="Flappy Bird gameplay" width="280" />
 
-- Classic Flappy Bird gameplay
-- Score tracking with high score memory
-- Simple tap control
-- Endless game mode (for now)
-- Sound effects and background music
-- FPS counter for easier debugging
+**[Play the browser demo →](https://hoangsonww.github.io/Flappy-Bird-Game/)** · **[Documentation →](docs/)** · **[API reference →](docs/API.md)**
 
-## Requirements
-
-- iOS 14.0+
-- Xcode 12.0+
-- Swift 5.3+
-- SpriteKit Framework
-
-## Installation
-
-To run this game on your device, follow these **very simple** steps:
-
-1. Clone the repository to your local machine:
-
-    ```bash
-    git clone https://github.com/hoangsonww/Flappy-Bird-Game.git
-    ```
-
-2. Open the project in Xcode:
-
-    ```bash
-    open FlappyBirdGame.xcodeproj
-    ```
-
-3. Select your target device or simulator. Ideally, use an iPhone with iOS 14.0 or later for the best experience.
-
-4. Press `Cmd + R` to build and run the project on your selected device or simulator.
-
-5. Play the game and enjoy! If you wish to display FPS and node count, press `Cmd + F` to toggle the debug information.
-
-## How to Play
-
-- Tap anywhere on the screen to make the bird flap its wings and fly.
-- Avoid the pipes by flying through the gaps between them.
-- The game ends if the bird touches the pipes or falls to the ground.
-- Try to beat your highest score!
-
-## Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-To contribute to Flappy Bird Game, follow these steps:
-
-1. Fork the project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request if you want to merge your changes.
-
-## License
-
-This project is distributed under the MIT License. See [LICENSE](LICENSE) for more information.
-
-## Acknowledgements
-
-- [Original Flappy Bird Game](https://en.wikipedia.org/wiki/Flappy_Bird)
-- [SpriteKit Documentation](https://developer.apple.com/documentation/spritekit)
-- [Swift Programming Language](https://swift.org/documentation/)
+</div>
 
 ---
 
-Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in Spring 2024. Thanks for stopping by! 🚀
+## What this is
+
+The original Flappy Bird loop — tap, dodge, repeat — rebuilt in Swift and
+SpriteKit, and then taken seriously: six modes, five power-ups, a coin economy,
+weather, a day/night cycle, 18 achievements, and a ghost of your best run flying
+alongside you.
+
+There is also a complete Node.js backend for accounts and leaderboards. **You do
+not need it.** Clone, open, press ⌘R.
+
+```bash
+git clone https://github.com/hoangsonww/Flappy-Bird-Game.git
+cd Flappy-Bird-Game
+open "Flappy Bird.xcodeproj"   # then ⌘R
+```
+
+That is the entire setup. Everything saves locally. If you *also* want
+leaderboards, `make up` starts the backend and the game finds it by itself.
+
+---
+
+## Screenshots
+
+<div align="center">
+
+| Menu | In flight | Game over |
+|:---:|:---:|:---:|
+| <img src="img/screens/menu.png" width="215" alt="Main menu" /> | <img src="img/screens/gameplay.png" width="215" alt="Gameplay" /> | <img src="img/screens/gameover.png" width="215" alt="Game over summary" /> |
+
+| Leaderboard | Achievements | Shop |
+|:---:|:---:|:---:|
+| <img src="img/screens/leaderboard.png" width="215" alt="Leaderboard" /> | <img src="img/screens/achievements.png" width="215" alt="Achievements" /> | <img src="img/screens/shop.png" width="215" alt="Skin shop" /> |
+
+| Stats | Settings |
+|:---:|:---:|
+| <img src="img/screens/stats.png" width="215" alt="Lifetime stats" /> | <img src="img/screens/settings.png" width="215" alt="Settings" /> |
+
+*Every screenshot above is generated by `make media`, which drives the simulator
+and lets the bird fly itself.*
+
+</div>
+
+---
+
+## Features
+
+<table>
+<tr><td width="50%" valign="top">
+
+### 🎮 Gameplay
+
+- **Six modes** — Classic, Endless, Time Attack, Hardcore, Zen and a daily challenge
+- **Five power-ups** — shield, slow-motion, coin magnet, double points, shrink
+- **Coins and combos** — a coin streak multiplies rewards up to ×8
+- **Eight bird skins**, bought with coins
+- **Bounded difficulty** — gaps narrow and the world speeds up over 40 pipes, then plateaus
+- **Weather** — wind, rain and fog, rolled from the run seed
+- **Day → Sunset → Night → Dawn** every 20 pipes
+- **Ghost replay** of your best run, flying beside you
+- **18 achievements**, 955 points, one of them secret
+- **Medals** — bronze, silver, gold, platinum
+
+</td><td width="50%" valign="top">
+
+### ☁️ Backend *(optional)*
+
+- **Accounts** — password or instant device-bound guest
+- **Leaderboards** — global, daily, weekly, monthly, friends-only
+- **Live updates** over Server-Sent Events
+- **Achievement sync** that merges offline unlocks
+- **Daily challenge** board, identical for everyone
+- **Fair play** — impossible runs rejected, improbable ones flagged
+- **OpenAPI 3.1** with Swagger UI bundled locally
+- **Two storage drivers** — Postgres, or in-memory with zero setup
+- **Metrics, health probes**, structured logs, rate limits
+- **Moderation** — ban, flag, recompute
+
+</td></tr>
+</table>
+
+### 🛠 And the boring parts done properly
+
+`make doctor` · a generated Xcode project that never conflicts · Docker Compose
+with observability profiles · a dev container · 228 tests run on every push ·
+automatic releases from Conventional Commits · reproducible screenshots.
+
+---
+
+## Quick start
+
+### Just the game
+
+```bash
+make run      # build, install and launch in a simulator
+make demo     # the same, in self-playing attract mode
+make test     # 122 Swift unit tests
+```
+
+Or open `Flappy Bird.xcodeproj` and press ⌘R. Requires **Xcode 16+**; the
+deployment target is **iOS 16**.
+
+### With leaderboards
+
+```bash
+make up       # Postgres + API in Docker, migrations applied
+make seed     # demo players so the board is not empty
+```
+
+Relaunch the game. It probes `localhost:4000`, confirms the handshake and
+switches on the online features by itself — nothing to configure.
+
+<div align="center">
+
+```mermaid
+flowchart LR
+    A["git clone"] --> B["open in Xcode"] --> C["⌘R"]
+    C --> D{"Want leaderboards?"}
+    D -- "No" --> E["Play.<br/>Everything saves locally."]
+    D -- "Yes" --> F["make up"] --> G["The game detects it<br/>and signs you in"]
+
+    style E fill:#d1fae5,stroke:#059669,color:#065f46
+    style G fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+```
+
+</div>
+
+### Backend without Docker
+
+```bash
+cd backend && npm install && npm run dev
+```
+
+`DB_DRIVER` defaults to `memory`, so the API is fully functional with no
+database at all.
+
+---
+
+## How the two halves fit together
+
+```mermaid
+flowchart TB
+    subgraph Game["📱 iOS game — Swift + SpriteKit"]
+        direction LR
+        Scenes["Scenes"] --> Systems["Systems"] --> Entities["Entities"]
+        Scenes --> Store["GameStore<br/>UserDefaults"]
+        Scenes --> Online["OnlineService"]
+        Online --> Store
+    end
+
+    subgraph Backend["☁️ Backend — Node + TypeScript (optional)"]
+        direction LR
+        Routes["Routes"] --> Services["Services"] --> Repos["Repositories"]
+        Repos --> PG[("PostgreSQL")]
+        Repos --> Mem[["In-memory"]]
+    end
+
+    Online -. "HTTP/JSON, only when reachable" .-> Routes
+
+    style Game fill:#ecfdf5,stroke:#059669,color:#064e3b
+    style Backend fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+```
+
+The dotted line is the entire relationship. The game holds a `URL` and some
+`Codable` structs; the backend has never heard of SpriteKit. Runs queue locally
+while you are offline and upload when a server appears.
+
+More: [architecture](docs/ARCHITECTURE.md) · [why the backend is optional](docs/adr/0001-optional-backend.md)
+
+---
+
+## Project layout
+
+```
+FlappyBird/            the game
+├── App/               UIApplication + the single view controller
+├── Core/              config, modes, state, RNG, audio, haptics, persistence
+├── Entities/          Bird, PipePair, Collectible, ParallaxWorld
+├── Systems/           difficulty, power-ups, weather, achievements, ghost
+├── UI/                buttons, panels, HUD, scroll container, toasts
+├── Scenes/            one file per screen
+└── Backend/           the optional client: discovery, HTTP, models, sync
+
+FlappyBirdTests/       122 Swift tests
+backend/               the optional API — 106 tests, OpenAPI 3.1
+docs/                  14 guides + 3 decision records
+scripts/               project generation, media capture, bootstrap, release
+ops/                   Prometheus and Grafana configuration
+index.html             the landing page
+```
+
+---
+
+## Make targets
+
+<table>
+<tr><td width="50%" valign="top">
+
+**Game**
+
+| | |
+|---|---|
+| `make run` | Build and launch in a simulator |
+| `make demo` | Self-playing attract mode |
+| `make build` / `test` | Build / run the Swift tests |
+| `make xcodegen` | Regenerate the Xcode project |
+| `make media` | Screenshots + the demo GIF |
+
+**Quality**
+
+| | |
+|---|---|
+| `make doctor` | What is installed, what it unlocks |
+| `make check` | Everything CI runs but the iOS build |
+| `make ci` | The full local equivalent |
+
+</td><td width="50%" valign="top">
+
+**Backend**
+
+| | |
+|---|---|
+| `make dev` | Hot reload, no infrastructure |
+| `make api-test` / `api-test-pg` | Tests, in-memory / Postgres |
+| `make openapi` | Validate the specification |
+| `make smoke` | End-to-end against a live server |
+
+**Docker**
+
+| | |
+|---|---|
+| `make up` / `down` | Start / stop the stack |
+| `make up-tools` | + pgweb on :8081 |
+| `make up-observability` | + Prometheus and Grafana |
+| `make seed` / `psql` / `logs` | Demo data / shell / logs |
+
+</td></tr>
+</table>
+
+`make` on its own lists all of them with descriptions.
+
+---
+
+## A few things worth knowing
+
+**The Xcode project is generated.** `project.pbxproj` is derived from the file
+tree by a Python script with deterministic IDs, so adding a file is `touch` +
+`make xcodegen` and two branches adding files never conflict. CI fails if the
+committed project is stale. *([why](docs/adr/0002-generated-xcode-project.md))*
+
+**The backend has two storage drivers**, and the whole test suite runs against
+both. That is not ceremony — it has already caught a Postgres type-inference bug
+and a ranking difference that the in-memory driver hid.
+*([why](docs/adr/0003-two-storage-drivers.md))*
+
+**The sound effects are synthesised**, not sampled. `AudioManager` renders square
+and triangle waves into PCM buffers at launch. No audio assets, no licensing
+questions, and the chiptune character is deliberate.
+
+**The daily challenge needs no server.** Its parameters come from
+`SHA-256("flappy-bird-daily:YYYY-MM-DD")`, and the identical function runs in
+Swift and TypeScript — with a test pinning both against the same values.
+
+**The screenshots are reproducible.** The app takes launch arguments to open any
+screen and to fly itself, so `make media` regenerates every image and the GIF
+without a human tapping anything.
+
+---
+
+## Documentation
+
+| Guide | |
+|-------|---|
+| [Development](docs/DEVELOPMENT.md) | Clone → run → contribute |
+| [Gameplay](docs/GAMEPLAY.md) | Modes, power-ups, combos, weather, the numbers |
+| [Architecture](docs/ARCHITECTURE.md) | How it is put together |
+| [Backend](docs/BACKEND.md) | Running and operating the API |
+| [API reference](docs/API.md) | Every endpoint with examples |
+| [Database](docs/DATABASE.md) | Schema, indexes, the ranking query |
+| [Docker](docs/DOCKER.md) | Compose profiles, images, observability |
+| [Testing](docs/TESTING.md) | What is tested and why |
+| [CI/CD](docs/CI-CD.md) | The pipeline and automatic releases |
+| [Security model](docs/SECURITY-MODEL.md) | Tokens, fair play, threat model |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Symptoms → fixes |
+| [FAQ](docs/FAQ.md) · [Roadmap](docs/ROADMAP.md) · [Decisions](docs/adr/) | |
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome — see
+[CONTRIBUTING.md](.github/CONTRIBUTING.md).
+
+The one rule: **the game must keep working with no backend at all.**
+
+```bash
+make bootstrap   # hooks, dependencies, .env
+make check       # before you open a PR
+```
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/) —
+the release version is derived from them.
+
+---
+
+## Licence
+
+[MIT](LICENSE). Use it, fork it, learn from it.
+
+## Acknowledgements
+
+- Dong Nguyen's original **Flappy Bird**, for a loop that has never needed improving
+- Apple's [SpriteKit](https://developer.apple.com/spritekit/) documentation
+- Everyone who has filed an issue against this repository
+
+---
+
+<div align="center">
+
+Built with ❤️ by **[Son Nguyen](https://github.com/hoangsonww)** · Spring 2024, rebuilt 2026
+
+**[⬆ back to top](#-flappy-bird)**
+
+</div>

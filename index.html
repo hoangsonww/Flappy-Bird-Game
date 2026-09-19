@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Flappy Bird — a Swift &amp; SpriteKit tribute with an optional leaderboard backend</title>
+<meta name="description" content="An open-source Flappy Bird built with Swift and SpriteKit: six modes, power-ups, weather, ghost replays and 18 achievements — plus an optional Node.js backend for accounts and leaderboards. Play the demo in your browser." />
+<meta name="author" content="Son Nguyen" />
+<meta name="theme-color" content="#0b1220" />
+<link rel="canonical" href="https://hoangsonww.github.io/Flappy-Bird-Game/" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Flappy Bird — Swift &amp; SpriteKit, with an optional leaderboard backend" />
+<meta property="og:description" content="Six modes, power-ups, weather, ghost replays, 18 achievements — and a full Node.js backend you never have to run. Play the demo in your browser." />
+<meta property="og:url" content="https://hoangsonww.github.io/Flappy-Bird-Game/" />
+<meta property="og:image" content="https://raw.githubusercontent.com/hoangsonww/Flappy-Bird-Game/master/img/screens/gameplay.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Flappy Bird — Swift &amp; SpriteKit" />
+<meta name="twitter:description" content="Six modes, power-ups, weather, ghost replays — and an optional leaderboard backend. Play the demo in your browser." />
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hoangsonww/Flappy-Bird-Game/master/img/screens/gameplay.png" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%A6%3C/text%3E%3C/svg%3E" />
+
+<style>
+  /* ── Design tokens ────────────────────────────────────────────────────── */
+  :root {
+    --sky: #51c0c9;
+    --sky-deep: #3aa3ad;
+    --night: #0b1220;
+    --night-2: #111b2e;
+    --panel: #16233c;
+    --panel-2: #1c2c48;
+    --line: rgba(148, 178, 220, 0.16);
+    --gold: #fbca3d;
+    --gold-dim: #d9a520;
+    --green: #5ce39a;
+    --coral: #f2585c;
+    --violet: #a586ff;
+    --text: #eef4ff;
+    --muted: #9db0cd;
+    --muted-2: #6f86a8;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --maxw: 1160px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--night);
+    color: var(--text);
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  .wrap { width: min(100% - 2.5rem, var(--maxw)); margin-inline: auto; }
+
+  /* ── Skip link ────────────────────────────────────────────────────────── */
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 100;
+    background: var(--gold); color: #1a1205; padding: .7rem 1.1rem;
+    border-radius: 0 0 var(--radius-sm) 0; font-weight: 700;
+  }
+  .skip:focus { left: 0; }
+
+  /* ── Header ───────────────────────────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 40;
+    backdrop-filter: blur(14px);
+    background: rgba(11, 18, 32, .78);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; gap: 1.5rem; height: 64px; }
+  .brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; letter-spacing: -.02em; text-decoration: none; font-size: 1.05rem; white-space: nowrap; }
+  .brand span.mark { font-size: 1.35rem; }
+  .nav nav { margin-left: auto; display: flex; gap: 1.6rem; align-items: center; }
+  .nav nav a { color: var(--muted); text-decoration: none; font-size: .92rem; font-weight: 500; transition: color .18s; }
+  .nav nav a:hover, .nav nav a:focus-visible { color: var(--text); }
+  @media (max-width: 860px) { .nav nav a.hide-sm { display: none; } }
+
+  .ghbtn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--panel-2); border: 1px solid var(--line);
+    padding: .45rem .9rem; border-radius: 999px;
+    font-size: .88rem; font-weight: 600; text-decoration: none; color: var(--text);
+    transition: background .18s, border-color .18s, transform .18s;
+  }
+  .ghbtn:hover { background: #24375a; border-color: rgba(148,178,220,.3); transform: translateY(-1px); }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero { position: relative; padding: 4.5rem 0 4rem; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; inset: -30% -20% auto; height: 620px;
+    background:
+      radial-gradient(48% 55% at 22% 18%, rgba(81,192,201,.24), transparent 65%),
+      radial-gradient(42% 48% at 78% 12%, rgba(165,134,255,.2), transparent 62%),
+      radial-gradient(35% 40% at 55% 45%, rgba(251,202,61,.12), transparent 70%);
+    filter: blur(8px); pointer-events: none;
+  }
+  .hero-grid {
+    position: relative; display: grid; gap: 3.5rem;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: center;
+  }
+  @media (max-width: 940px) { .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold); background: rgba(251,202,61,.1);
+    border: 1px solid rgba(251,202,61,.26); padding: .35rem .8rem; border-radius: 999px;
+  }
+  .hero h1 {
+    margin: 1.2rem 0 0; font-size: clamp(2.5rem, 6vw, 4.2rem); line-height: 1.04;
+    letter-spacing: -.035em; font-weight: 800;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(120deg, var(--gold) 10%, var(--green) 55%, var(--sky) 95%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { margin: 1.3rem 0 0; font-size: clamp(1.02rem, 1.7vw, 1.16rem); color: var(--muted); max-width: 46ch; }
+  .lede strong { color: var(--text); font-weight: 600; }
+
+  .cta { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .55rem;
+    padding: .8rem 1.4rem; border-radius: 999px; text-decoration: none;
+    font-weight: 700; font-size: .95rem; border: 1px solid transparent;
+    transition: transform .18s, box-shadow .18s, background .18s, border-color .18s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--gold), #f5a623); color: #201704; box-shadow: 0 10px 28px rgba(251,202,61,.26); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(251,202,61,.34); }
+  .btn-ghost { background: rgba(255,255,255,.05); border-color: var(--line); color: var(--text); }
+  .btn-ghost:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+
+  .hero-meta { margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: 1.6rem; color: var(--muted-2); font-size: .85rem; }
+  .hero-meta b { color: var(--text); font-family: var(--mono); font-size: .95rem; display: block; }
+
+  /* ── Playable demo ────────────────────────────────────────────────────── */
+  .demo-shell { justify-self: center; width: 100%; max-width: 340px; }
+  .phone {
+    position: relative; border-radius: 40px; padding: 11px;
+    background: linear-gradient(160deg, #2b3a56, #131d31);
+    box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,.06) inset;
+  }
+  .phone::after {
+    content: ""; position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    width: 96px; height: 20px; border-radius: 999px; background: #0a0f1a; z-index: 3;
+  }
+  canvas#game { display: block; width: 100%; border-radius: 30px; background: var(--sky); touch-action: none; cursor: pointer; }
+
+  .demo-hint {
+    margin-top: .9rem; text-align: center; font-size: .82rem; color: var(--muted-2);
+    font-family: var(--mono);
+  }
+  .demo-hint kbd {
+    background: var(--panel-2); border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 6px; padding: .08rem .38rem; font-size: .78rem; color: var(--text);
+  }
+
+  /* ── Sections ─────────────────────────────────────────────────────────── */
+  section { padding: 5rem 0; position: relative; }
+  .section-head { max-width: 62ch; margin-bottom: 3rem; }
+  .section-head .kicker {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--green);
+  }
+  .section-head h2 { margin: .6rem 0 0; font-size: clamp(1.8rem, 3.6vw, 2.6rem); letter-spacing: -.028em; line-height: 1.15; }
+  .section-head p { margin: .9rem 0 0; color: var(--muted); font-size: 1.03rem; }
+
+  .alt { background: linear-gradient(180deg, transparent, var(--night-2) 12%, var(--night-2) 88%, transparent); }
+
+  /* ── Feature cards ────────────────────────────────────────────────────── */
+  .cards { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); }
+  .card {
+    background: linear-gradient(170deg, var(--panel), var(--night-2));
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 1.6rem;
+    transition: transform .22s, border-color .22s, box-shadow .22s;
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(148,178,220,.32); box-shadow: 0 18px 40px rgba(0,0,0,.34); }
+  .card .ico { font-size: 1.7rem; line-height: 1; }
+  .card h3 { margin: .85rem 0 .4rem; font-size: 1.08rem; letter-spacing: -.01em; }
+  .card p { margin: 0; color: var(--muted); font-size: .93rem; }
+
+  /* ── Screenshot gallery ───────────────────────────────────────────────── */
+  .shots {
+    display: grid; gap: 1.2rem;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
+  .shot { text-align: center; }
+  .shot img {
+    width: 100%; height: auto; border-radius: 16px; display: block;
+    border: 1px solid var(--line); box-shadow: 0 14px 32px rgba(0,0,0,.36);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .shot:hover img { transform: translateY(-6px) scale(1.015); box-shadow: 0 22px 46px rgba(0,0,0,.46); }
+  .shot figcaption { margin-top: .7rem; font-size: .82rem; color: var(--muted-2); font-family: var(--mono); }
+
+  /* ── Split / architecture ─────────────────────────────────────────────── */
+  .split { display: grid; gap: 2.6rem; grid-template-columns: 1fr 1fr; align-items: center; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+
+  .stack-card {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem;
+    background: linear-gradient(170deg, var(--panel), var(--night-2));
+  }
+  .stack-card h3 { margin: 0 0 1rem; font-size: 1rem; display: flex; align-items: center; gap: .5rem; }
+  .stack-card ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .92rem; }
+  .stack-card li { margin: .35rem 0; }
+  .stack-card li code { font-family: var(--mono); font-size: .85em; color: var(--gold); }
+
+  .arrow-note {
+    margin: 1.4rem 0 0; padding: .9rem 1.1rem; border-left: 3px solid var(--green);
+    background: rgba(92,227,154,.07); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--muted); font-size: .92rem;
+  }
+
+  /* ── Code blocks ──────────────────────────────────────────────────────── */
+  .code {
+    position: relative; background: #0a1120; border: 1px solid var(--line);
+    border-radius: var(--radius-sm); overflow: hidden;
+  }
+  .code header {
+    position: static; display: flex; align-items: center; gap: .5rem;
+    padding: .55rem .9rem; background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--line); backdrop-filter: none;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .code header span.name { margin-left: .5rem; font-family: var(--mono); font-size: .76rem; color: var(--muted-2); }
+  .code pre { margin: 0; padding: 1.1rem 1.2rem; overflow-x: auto; font-family: var(--mono); font-size: .86rem; line-height: 1.75; }
+  .code .c { color: var(--muted-2); }
+  .code .k { color: var(--green); }
+  .code .s { color: var(--gold); }
+  .copy {
+    position: absolute; top: .45rem; right: .55rem; z-index: 2;
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--muted);
+    border-radius: 8px; padding: .28rem .6rem; font-size: .74rem; cursor: pointer;
+    font-family: var(--mono); transition: color .16s, border-color .16s;
+  }
+  .copy:hover { color: var(--text); border-color: rgba(148,178,220,.35); }
+
+  /* ── Steps ────────────────────────────────────────────────────────────── */
+  .steps { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .step { position: relative; padding-left: 3rem; }
+  .step .n {
+    position: absolute; left: 0; top: 0; width: 2.1rem; height: 2.1rem; border-radius: 50%;
+    display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: .9rem;
+    background: rgba(251,202,61,.12); border: 1px solid rgba(251,202,61,.34); color: var(--gold);
+  }
+  .step h4 { margin: .25rem 0 .35rem; font-size: 1rem; }
+  .step p { margin: 0; color: var(--muted); font-size: .92rem; }
+
+  /* ── Stats strip ──────────────────────────────────────────────────────── */
+  .stats { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); text-align: center; }
+  .stat { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1.3rem .8rem; background: rgba(255,255,255,.025); }
+  .stat b { display: block; font-family: var(--mono); font-size: clamp(1.5rem, 3.2vw, 2rem); color: var(--gold); letter-spacing: -.02em; }
+  .stat span { font-size: .8rem; color: var(--muted-2); }
+
+  /* ── Table ────────────────────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .92rem; }
+  th, td { text-align: left; padding: .8rem 1rem; border-bottom: 1px solid var(--line); }
+  th { background: rgba(255,255,255,.035); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-family: var(--mono); font-size: .85em; color: var(--gold); }
+  .pill { display: inline-block; padding: .12rem .55rem; border-radius: 999px; font-size: .76rem; font-family: var(--mono); }
+  .pill.on { background: rgba(92,227,154,.14); color: var(--green); }
+  .pill.off { background: rgba(242,88,92,.14); color: var(--coral); }
+
+  /* ── Footer ───────────────────────────────────────────────────────────── */
+  footer { border-top: 1px solid var(--line); padding: 3rem 0 2.5rem; color: var(--muted-2); font-size: .9rem; }
+  .foot-grid { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; align-items: flex-start; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 1.3rem; }
+  .foot-links a { color: var(--muted); text-decoration: none; }
+  .foot-links a:hover { color: var(--text); }
+
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true">🐦</span> Flappy Bird</a>
+    <nav aria-label="Primary">
+      <a href="#play">Play</a>
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="#screens" class="hide-sm">Screens</a>
+      <a href="#backend" class="hide-sm">Backend</a>
+      <a href="#start">Get started</a>
+      <a class="ghbtn" href="https://github.com/hoangsonww/Flappy-Bird-Game">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ── Hero ───────────────────────────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Swift · SpriteKit · open source</span>
+      <h1>Tap. Dodge. <em>Repeat forever.</em></h1>
+      <p class="lede">
+        The Flappy Bird loop, rebuilt properly — six modes, five power-ups, weather,
+        a day/night cycle and a ghost of your best run flying beside you.
+        <strong>Plus a full Node.js backend for leaderboards that you never have to run.</strong>
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#play">▶ Play in your browser</a>
+        <a class="btn btn-ghost" href="https://github.com/hoangsonww/Flappy-Bird-Game">View the source</a>
+      </div>
+      <div class="hero-meta">
+        <div><b>228</b> tests passing</div>
+        <div><b>6</b> game modes</div>
+        <div><b>18</b> achievements</div>
+        <div><b>0</b> setup steps</div>
+      </div>
+    </div>
+
+    <div class="demo-shell" id="play">
+      <div class="phone">
+        <canvas id="game" width="300" height="534" role="img"
+                aria-label="A playable Flappy Bird demo. Tap or press space to flap."></canvas>
+      </div>
+      <p class="demo-hint">Click, tap or press <kbd>space</kbd> to flap</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ───────────────────────────────────────────────────────── -->
+<section class="alt" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">What is in it</div>
+      <h2>A small game, taken seriously</h2>
+      <p>
+        Everything below runs on the device with no account, no network and no
+        setup. The backend adds a social layer on top — it never gates the game.
+      </p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="ico" aria-hidden="true">🎮</div>
+        <h3>Six modes</h3>
+        <p>Classic, Endless, Time Attack, Hardcore, Zen for practice, and a daily challenge everyone plays identically.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">⚡</div>
+        <h3>Five power-ups</h3>
+        <p>Shield, slow-motion, coin magnet, double points and shrink. Re-collecting one extends it rather than replacing it.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">🪙</div>
+        <h3>Coins and combos</h3>
+        <p>A coin streak multiplies rewards up to ×8 — so the safest line through a gap is rarely the most interesting one.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">🌪️</div>
+        <h3>Weather and time of day</h3>
+        <p>Wind, rain and fog rolled from the run seed, and a world that cycles through sunset, night and dawn every 20 pipes.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">👻</div>
+        <h3>Ghost replays</h3>
+        <p>Your best run is recorded at 20 Hz and replays beside you. Outfly it to unlock the one secret achievement.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">🏆</div>
+        <h3>18 achievements</h3>
+        <p>955 points, unlocked offline and reconciled with the server later. The merge only ever moves progress forward.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">🐦</div>
+        <h3>Eight bird skins</h3>
+        <p>Bought with coins you actually earned. Cosmetic only — there is nothing to buy with real money.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true">♿</div>
+        <h3>Accessibility</h3>
+        <p>Reduce flashing, high contrast, VoiceOver labels, and full support for the system Reduce Motion setting.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── Screenshots ────────────────────────────────────────────────────── -->
+<section id="screens">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Screens</div>
+      <h2>Every screen, captured by a script</h2>
+      <p>
+        The app takes launch arguments to open any screen directly and to fly
+        itself, so <code>make media</code> regenerates all of this without anyone
+        tapping a simulator.
+      </p>
+    </div>
+
+    <div class="shots">
+      <figure class="shot"><img src="img/screens/menu.png" alt="The main menu, showing mode selection and the coin wallet" loading="lazy" /><figcaption>menu</figcaption></figure>
+      <figure class="shot"><img src="img/screens/gameplay.png" alt="A run in progress with pipes, coins and the HUD" loading="lazy" /><figcaption>in flight</figcaption></figure>
+      <figure class="shot"><img src="img/screens/gameover.png" alt="The game over summary with medal and statistics" loading="lazy" /><figcaption>summary</figcaption></figure>
+      <figure class="shot"><img src="img/screens/leaderboard.png" alt="The global leaderboard" loading="lazy" /><figcaption>leaderboard</figcaption></figure>
+      <figure class="shot"><img src="img/screens/achievements.png" alt="The achievements list with progress" loading="lazy" /><figcaption>achievements</figcaption></figure>
+      <figure class="shot"><img src="img/screens/shop.png" alt="The skin shop" loading="lazy" /><figcaption>shop</figcaption></figure>
+      <figure class="shot"><img src="img/screens/stats.png" alt="Lifetime statistics" loading="lazy" /><figcaption>stats</figcaption></figure>
+      <figure class="shot"><img src="img/screens/settings.png" alt="Settings, including the optional server configuration" loading="lazy" /><figcaption>settings</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ── Backend ────────────────────────────────────────────────────────── -->
+<section class="alt" id="backend">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Optional backend</div>
+      <h2>Leaderboards, if you want them</h2>
+      <p>
+        A complete Node.js + TypeScript API with accounts, ranked boards,
+        achievement sync and a daily challenge. Start it with one command — the
+        game finds it on its own.
+      </p>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="stack-card">
+          <h3><span aria-hidden="true">📱</span> The game</h3>
+          <ul>
+            <li>Swift 5.9, SpriteKit, iOS 16+</li>
+            <li>Saves to <code>UserDefaults</code> as one JSON document</li>
+            <li>Probes for a server in the background — never blocks</li>
+            <li>Queues runs offline, uploads when one appears</li>
+            <li>122 unit tests</li>
+          </ul>
+        </div>
+
+        <div class="arrow-note">
+          <strong>The only link between them</strong> is HTTP and a handshake. The game
+          requires <code>protocol: "flappy-bird/1"</code> before enabling anything
+          online, so pointing it at the wrong port fails clearly instead of
+          producing confusing errors later.
+        </div>
+
+        <div class="stack-card" style="margin-top:1.4rem">
+          <h3><span aria-hidden="true">☁️</span> The backend</h3>
+          <ul>
+            <li>Node 20+, TypeScript, Express 5, Zod</li>
+            <li>PostgreSQL 16 — or an in-memory driver with zero setup</li>
+            <li>OpenAPI 3.1, Swagger UI bundled locally</li>
+            <li>JWT access tokens, rotating hashed refresh tokens</li>
+            <li>106 tests, run against <em>both</em> storage drivers</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="code">
+          <header>
+            <span class="dot" style="background:#ff5f57"></span>
+            <span class="dot" style="background:#febc2e"></span>
+            <span class="dot" style="background:#28c840"></span>
+            <span class="name">terminal</span>
+          </header>
+          <button class="copy" data-copy="make up&#10;make seed&#10;make health">copy</button>
+<pre><span class="c"># Postgres + API + migrations, in Docker</span>
+<span class="k">make</span> up
+
+<span class="c"># 12 demo players so the board is not empty</span>
+<span class="k">make</span> seed
+
+<span class="c"># confirm it is alive</span>
+<span class="k">make</span> health
+<span class="s">{"status":"ok","driver":"postgres"}</span></pre>
+        </div>
+
+        <div class="table-wrap" style="margin-top:1.4rem">
+          <table>
+            <thead>
+              <tr><th>Feature</th><th>Offline</th><th>With a backend</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Play every mode</td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td></tr>
+              <tr><td>Scores, coins, skins</td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td></tr>
+              <tr><td>Achievements</td><td><span class="pill on">yes</span></td><td><span class="pill on">synced</span></td></tr>
+              <tr><td>Daily challenge</td><td><span class="pill on">yes</span></td><td><span class="pill on">ranked</span></td></tr>
+              <tr><td>Global leaderboards</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td></tr>
+              <tr><td>Friends board</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td></tr>
+              <tr><td>Cloud saves</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Get started ────────────────────────────────────────────────────── -->
+<section id="start">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Get started</div>
+      <h2>Three commands, or one keystroke</h2>
+      <p>You need Xcode. That is the whole dependency list for playing.</p>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="code">
+          <header>
+            <span class="dot" style="background:#ff5f57"></span>
+            <span class="dot" style="background:#febc2e"></span>
+            <span class="dot" style="background:#28c840"></span>
+            <span class="name">bash</span>
+          </header>
+          <button class="copy" data-copy="git clone https://github.com/hoangsonww/Flappy-Bird-Game.git&#10;cd Flappy-Bird-Game&#10;open &quot;Flappy Bird.xcodeproj&quot;">copy</button>
+<pre><span class="k">git</span> clone <span class="s">https://github.com/hoangsonww/Flappy-Bird-Game.git</span>
+<span class="k">cd</span> Flappy-Bird-Game
+<span class="k">open</span> <span class="s">"Flappy Bird.xcodeproj"</span>   <span class="c"># then ⌘R</span></pre>
+        </div>
+
+        <div class="code" style="margin-top:1.2rem">
+          <header>
+            <span class="dot" style="background:#ff5f57"></span>
+            <span class="dot" style="background:#febc2e"></span>
+            <span class="dot" style="background:#28c840"></span>
+            <span class="name">prefer the terminal?</span>
+          </header>
+          <button class="copy" data-copy="make doctor&#10;make run&#10;make test">copy</button>
+<pre><span class="k">make</span> doctor   <span class="c"># what you have, what it unlocks</span>
+<span class="k">make</span> run      <span class="c"># build + launch in a simulator</span>
+<span class="k">make</span> test     <span class="c"># 122 Swift unit tests</span></pre>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <h4>Clone and open</h4>
+          <p>No package manager, no dependency resolution, no generated files to fetch. The project opens and builds.</p>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <h4>Press ⌘R</h4>
+          <p>Everything saves locally — scores, coins, skins, achievements, your ghost, and the daily challenge.</p>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <h4>Optionally, <code>make up</code></h4>
+          <p>Postgres and the API start in Docker. Relaunch the game and it signs itself in as a guest.</p>
+        </div>
+        <div class="step">
+          <div class="n">4</div>
+          <h4>Read the docs</h4>
+          <p>Fourteen guides and three decision records covering architecture, the API, the schema, CI and the security model.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ──────────────────────────────────────────────────────────── -->
+<section class="alt">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b>228</b><span>tests passing</span></div>
+      <div class="stat"><b>42</b><span>Swift sources</span></div>
+      <div class="stat"><b>46</b><span>API endpoints</span></div>
+      <div class="stat"><b>18</b><span>achievements</span></div>
+      <div class="stat"><b>8</b><span>bird skins</span></div>
+      <div class="stat"><b>MIT</b><span>licence</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Docs ───────────────────────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Documentation</div>
+      <h2>Written down, not folklore</h2>
+    </div>
+
+    <div class="cards">
+      <a class="card" style="text-decoration:none" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/DEVELOPMENT.md">
+        <div class="ico" aria-hidden="true">🚀</div><h3>Development →</h3>
+        <p>Clone, run, add a file, open a pull request.</p>
+      </a>
+      <a class="card" style="text-decoration:none" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/GAMEPLAY.md">
+        <div class="ico" aria-hidden="true">🎯</div><h3>Gameplay →</h3>
+        <p>Every mode, power-up and number behind the feel.</p>
+      </a>
+      <a class="card" style="text-decoration:none" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/ARCHITECTURE.md">
+        <div class="ico" aria-hidden="true">🏗</div><h3>Architecture →</h3>
+        <p>How the two halves fit, with diagrams.</p>
+      </a>
+      <a class="card" style="text-decoration:none" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/API.md">
+        <div class="ico" aria-hidden="true">🔌</div><h3>API reference →</h3>
+        <p>46 endpoints, with request and response examples.</p>
+      </a>
+      <a class="card" style="text-decoration:none" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/DATABASE.md">
+        <div class="ico" aria-hidden="true">🗄</div><h3>Database →</h3>
+        <p>Schema, indexes and the ranking query, explained.</p>
+      </a>
+      <a class="card" style="text-decoration:none" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/adr/">
+        <div class="ico" aria-hidden="true">📐</div><h3>Decisions →</h3>
+        <p>Why the backend is optional and the project file is generated.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <div class="brand" style="margin-bottom:.6rem"><span class="mark" aria-hidden="true">🐦</span> Flappy Bird</div>
+      <div>MIT licensed · built by <a href="https://github.com/hoangsonww" style="color:var(--muted)">Son Nguyen</a></div>
+      <div style="margin-top:.4rem; color:var(--muted-2); font-size:.84rem">
+        An independent tribute. Not affiliated with the original Flappy Bird.
+      </div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/hoangsonww/Flappy-Bird-Game">Source</a>
+      <a href="https://github.com/hoangsonww/Flappy-Bird-Game/tree/master/docs">Docs</a>
+      <a href="https://github.com/hoangsonww/Flappy-Bird-Game/issues">Issues</a>
+      <a href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/LICENSE">Licence</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ──────────────────────────────────────────────────────────────────────────
+   A compact browser version of the game, so the landing page can be tried
+   rather than only read. Same palette and the same feel as the iOS build:
+   tap to flap, one point per pipe, coins in the gaps.
+   ────────────────────────────────────────────────────────────────────────── */
+(function () {
+  'use strict';
+
+  const canvas = document.getElementById('game');
+  if (!canvas || !canvas.getContext) return;
+
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+
+  const GROUND = 72;
+  const GRAVITY = 1500;          // px · s⁻²
+  const FLAP = -420;             // px · s⁻¹
+  const SPEED = 132;             // px · s⁻¹
+  const GAP = 132;
+  const PIPE_W = 46;
+  const SPAWN = 1.6;             // seconds
+  const BIRD_X = 78;
+  const BIRD_R = 13;
+
+  const COLORS = {
+    sky: '#51c0c9',
+    skyNight: '#101a33',
+    cloud: 'rgba(255,255,255,.34)',
+    pipe: '#63c221',
+    pipeDark: '#4a9417',
+    pipeLip: '#7ad62e',
+    ground: '#ded6a2',
+    grass: '#84d13c',
+    grassDark: '#5aa522',
+    bird: '#f2585c',
+    birdWing: '#ffd9a0',
+    beak: '#fbca3d',
+    coin: '#fbca3d',
+    coinCore: '#fff0b8',
+    text: '#ffffff',
+  };
+
+  let state = 'ready';           // ready · playing · dead
+  let birdY, birdV, score, best = 0, pipes, coins, clouds, spawnTimer, elapsed, flash;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function reset() {
+    birdY = H * 0.42;
+    birdV = 0;
+    score = 0;
+    pipes = [];
+    coins = [];
+    spawnTimer = SPAWN * 0.6;
+    elapsed = 0;
+    flash = 0;
+    clouds = [
+      { x: 40, y: 70, s: 1.0 },
+      { x: 180, y: 130, s: 0.8 },
+      { x: 280, y: 90, s: 1.15 },
+    ];
+  }
+
+  function flap() {
+    if (state === 'ready') { state = 'playing'; birdV = FLAP; return; }
+    if (state === 'playing') { birdV = FLAP; return; }
+    if (state === 'dead') { reset(); state = 'ready'; }
+  }
+
+  function spawn() {
+    // Keep the gap inside comfortable bounds so the demo stays winnable.
+    const min = 60;
+    const max = H - GROUND - GAP - 60;
+    const top = min + Math.random() * Math.max(10, max - min);
+    pipes.push({ x: W + PIPE_W, top: top, scored: false });
+    coins.push({ x: W + PIPE_W + PIPE_W / 2, y: top + GAP / 2, taken: false });
+  }
+
+  function circleHitsRect(cx, cy, r, rx, ry, rw, rh) {
+    const nx = Math.max(rx, Math.min(cx, rx + rw));
+    const ny = Math.max(ry, Math.min(cy, ry + rh));
+    const dx = cx - nx;
+    const dy = cy - ny;
+    return dx * dx + dy * dy < r * r;
+  }
+
+  function update(dt) {
+    elapsed += dt;
+    if (flash > 0) flash = Math.max(0, flash - dt * 3);
+
+    for (const c of clouds) {
+      c.x -= 12 * dt * c.s;
+      if (c.x < -70) { c.x = W + 40; c.y = 50 + Math.random() * 120; }
+    }
+
+    if (state === 'ready') {
+      birdY = H * 0.42 + Math.sin(elapsed * 3) * 7;
+      return;
+    }
+
+    if (state === 'dead') {
+      birdV += GRAVITY * dt;
+      birdY = Math.min(H - GROUND - BIRD_R, birdY + birdV * dt);
+      return;
+    }
+
+    birdV += GRAVITY * dt;
+    birdY += birdV * dt;
+
+    spawnTimer -= dt;
+    if (spawnTimer <= 0) { spawnTimer = SPAWN; spawn(); }
+
+    for (const p of pipes) p.x -= SPEED * dt;
+    for (const c of coins) c.x -= SPEED * dt;
+    pipes = pipes.filter((p) => p.x > -PIPE_W - 4);
+    coins = coins.filter((c) => c.x > -20);
+
+    for (const p of pipes) {
+      if (!p.scored && p.x + PIPE_W < BIRD_X) { p.scored = true; score += 1; }
+      if (
+        circleHitsRect(BIRD_X, birdY, BIRD_R, p.x, 0, PIPE_W, p.top) ||
+        circleHitsRect(BIRD_X, birdY, BIRD_R, p.x, p.top + GAP, PIPE_W, H)
+      ) { die(); }
+    }
+
+    for (const c of coins) {
+      if (c.taken) continue;
+      const dx = c.x - BIRD_X;
+      const dy = c.y - birdY;
+      if (dx * dx + dy * dy < (BIRD_R + 9) * (BIRD_R + 9)) { c.taken = true; score += 1; }
+    }
+
+    if (birdY + BIRD_R > H - GROUND || birdY - BIRD_R < 0) die();
+  }
+
+  function die() {
+    if (state !== 'playing') return;
+    state = 'dead';
+    best = Math.max(best, score);
+    if (!reduceMotion) flash = 1;
+  }
+
+  /* ── Drawing ──────────────────────────────────────────────────────────── */
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawPipe(p) {
+    const lip = 16;
+    ctx.fillStyle = COLORS.pipe;
+    ctx.fillRect(p.x, 0, PIPE_W, p.top - lip);
+    ctx.fillRect(p.x, p.top + GAP + lip, PIPE_W, H);
+    ctx.fillStyle = COLORS.pipeLip;
+    ctx.fillRect(p.x - 3, p.top - lip, PIPE_W + 6, lip);
+    ctx.fillRect(p.x - 3, p.top + GAP, PIPE_W + 6, lip);
+    ctx.fillStyle = COLORS.pipeDark;
+    ctx.fillRect(p.x + PIPE_W - 9, 0, 6, p.top - lip);
+    ctx.fillRect(p.x + PIPE_W - 9, p.top + GAP + lip, 6, H);
+  }
+
+  function drawBird() {
+    const tilt = Math.max(-0.5, Math.min(1.1, birdV / 620));
+    ctx.save();
+    ctx.translate(BIRD_X, birdY);
+    ctx.rotate(tilt);
+
+    ctx.fillStyle = COLORS.bird;
+    roundRect(-BIRD_R, -BIRD_R + 2, BIRD_R * 2, BIRD_R * 1.8, 7);
+    ctx.fill();
+
+    // Wing beats while alive, holds while falling.
+    const beat = state === 'playing' || state === 'ready' ? Math.sin(elapsed * 18) * 3 : 3;
+    ctx.fillStyle = COLORS.birdWing;
+    roundRect(-BIRD_R + 2, -2 + beat, 13, 7, 3);
+    ctx.fill();
+
+    ctx.fillStyle = COLORS.beak;
+    roundRect(BIRD_R - 3, -1, 8, 5, 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(5, -5, 4.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#12233d';
+    ctx.beginPath(); ctx.arc(6.4, -5, 2, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawCoin(c) {
+    if (c.taken) return;
+    const squash = Math.abs(Math.cos(elapsed * 3.2));
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(0.35 + squash * 0.65, 1);
+    ctx.fillStyle = COLORS.coin;
+    ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = COLORS.coinCore;
+    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawGround() {
+    const y = H - GROUND;
+    ctx.fillStyle = COLORS.grass;
+    ctx.fillRect(0, y, W, 16);
+    ctx.fillStyle = COLORS.grassDark;
+    const offset = (elapsed * SPEED) % 24;
+    for (let x = -24; x < W + 24; x += 24) {
+      ctx.fillRect(x - offset, y, 12, 16);
+    }
+    ctx.fillStyle = COLORS.ground;
+    ctx.fillRect(0, y + 16, W, GROUND - 16);
+  }
+
+  function drawHUD() {
+    ctx.fillStyle = COLORS.text;
+    ctx.textAlign = 'center';
+    ctx.font = '700 34px ui-monospace, Menlo, monospace';
+    ctx.shadowColor = 'rgba(0,0,0,.35)';
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(String(score), W / 2, 62);
+    ctx.shadowOffsetY = 0;
+    ctx.shadowColor = 'transparent';
+
+    ctx.font = '500 11px ui-monospace, Menlo, monospace';
+    ctx.fillStyle = 'rgba(255,255,255,.75)';
+    ctx.fillText('BEST ' + best, W / 2, 80);
+
+    if (state === 'ready') {
+      ctx.font = '700 15px ui-monospace, Menlo, monospace';
+      ctx.fillStyle = 'rgba(255,255,255,.95)';
+      ctx.fillText('TAP TO FLAP', W / 2, H * 0.62);
+    }
+
+    if (state === 'dead') {
+      const w = 190, h = 104, x = (W - w) / 2, y = H * 0.32;
+      ctx.fillStyle = 'rgba(11,18,32,.92)';
+      roundRect(x, y, w, h, 14); ctx.fill();
+      ctx.strokeStyle = 'rgba(251,202,61,.85)'; ctx.lineWidth = 2;
+      roundRect(x, y, w, h, 14); ctx.stroke();
+
+      ctx.fillStyle = COLORS.coin;
+      ctx.font = '700 17px ui-monospace, Menlo, monospace';
+      ctx.fillText('GAME OVER', W / 2, y + 30);
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 30px ui-monospace, Menlo, monospace';
+      ctx.fillText(String(score), W / 2, y + 66);
+      ctx.fillStyle = 'rgba(255,255,255,.6)';
+      ctx.font = '500 11px ui-monospace, Menlo, monospace';
+      ctx.fillText('tap to play again', W / 2, y + 88);
+    }
+  }
+
+  function render() {
+    // Night falls past 15 points, mirroring the day/night cycle in the game.
+    const night = Math.min(1, Math.max(0, (score - 15) / 18));
+    ctx.fillStyle = night > 0 ? mix(COLORS.sky, COLORS.skyNight, night) : COLORS.sky;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = COLORS.cloud;
+    for (const c of clouds) {
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, 34 * c.s, 13 * c.s, 0, 0, Math.PI * 2);
+      ctx.ellipse(c.x + 22 * c.s, c.y + 4, 24 * c.s, 10 * c.s, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (const p of pipes) drawPipe(p);
+    for (const c of coins) drawCoin(c);
+    drawGround();
+    drawBird();
+    drawHUD();
+
+    if (flash > 0) {
+      ctx.fillStyle = 'rgba(242,88,92,' + (flash * 0.45).toFixed(3) + ')';
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function mix(a, b, t) {
+    const pa = [parseInt(a.slice(1, 3), 16), parseInt(a.slice(3, 5), 16), parseInt(a.slice(5, 7), 16)];
+    const pb = [parseInt(b.slice(1, 3), 16), parseInt(b.slice(3, 5), 16), parseInt(b.slice(5, 7), 16)];
+    return 'rgb(' + pa.map((v, i) => Math.round(v + (pb[i] - v) * t)).join(',') + ')';
+  }
+
+  /* ── Loop ─────────────────────────────────────────────────────────────── */
+  let last = 0;
+  let running = true;
+
+  function frame(now) {
+    if (!last) last = now;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (running) { update(dt); render(); }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Input ────────────────────────────────────────────────────────────── */
+  canvas.addEventListener('pointerdown', (event) => { event.preventDefault(); flap(); });
+  canvas.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' || event.code === 'Enter') { event.preventDefault(); flap(); }
+  });
+  canvas.tabIndex = 0;
+
+  window.addEventListener('keydown', (event) => {
+    if (event.code !== 'Space') return;
+    const rect = canvas.getBoundingClientRect();
+    const visible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (visible) { event.preventDefault(); flap(); }
+  });
+
+  // Pause when scrolled away, so a background tab is not spinning the CPU.
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      running = entries[0].isIntersecting;
+      last = 0;
+    }, { threshold: 0.15 }).observe(canvas);
+  }
+  document.addEventListener('visibilitychange', () => { last = 0; });
+
+  reset();
+  requestAnimationFrame(frame);
+})();
+
+/* ── Copy buttons ───────────────────────────────────────────────────────── */
+document.querySelectorAll('.copy').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const text = button.getAttribute('data-copy') || '';
+    try {
+      await navigator.clipboard.writeText(text);
+      const original = button.textContent;
+      button.textContent = 'copied';
+      setTimeout(() => { button.textContent = original; }, 1400);
+    } catch {
+      button.textContent = 'press ⌘C';
+    }
+  });
+});
+</script>
+</body>
+</html>

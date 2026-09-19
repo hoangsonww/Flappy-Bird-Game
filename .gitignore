@@ -1,0 +1,59 @@
+# ── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Xcode ────────────────────────────────────────────────────────────────────
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xcarchive
+*.playground/
+
+# Keep shared schemes, ignore per-user ones.
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/xcshareddata/
+
+# ── Swift Package Manager ────────────────────────────────────────────────────
+.build/
+Packages/
+Package.resolved
+.swiftpm/
+
+# ── Node / backend ───────────────────────────────────────────────────────────
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+.eslintcache
+
+# ── Environment ──────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Editors ──────────────────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+*.swp
+*~
+
+# ── Tooling output ───────────────────────────────────────────────────────────
+*.log
+.tmp/
+tmp/
+
+# Playwright MCP scratch output
+.playwright-mcp/

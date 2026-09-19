@@ -1,70 +1,79 @@
-# Flappy Bird Game - Security Policies
+# Security policy
 
-## Introduction
-Flappy Bird Game is a dynamic mobile (iOS) application designed to replicate the classic and legendary Flappy Bird game. The project was created by [Son Nguyen](https://github.com/hoangsonww) in 2024, using Swift and SpriteKit for iOS. The game features a bird that the player navigates between a series of obstacles by tapping the screen to make the bird fly. The goal is to achieve the highest possible score by avoiding the pipes.
+## Scope
 
-Current Version: `1.1.2`
+This repository contains an iOS game and an **optional** self-hosted backend.
+There is no service operated by the maintainers — everything runs on machines
+owned by the people who clone it.
 
-## Security Measures
+That shapes what matters here:
 
-### 1. Data Protection and Privacy
-- **User Data**: All user data is handled in accordance with privacy laws and regulations. Personal information is encrypted and stored securely.
-- **Cookies and Sessions**: Sessions are managed securely. Cookies, if used, are encrypted and do not store sensitive information.
+| In scope | Out of scope |
+|----------|--------------|
+| Authentication and session handling | Local save editing on a jailbroken device |
+| Injection, SSRF, or path traversal in the API | Extracting the run-signing secret from the app binary |
+| Secrets or tokens leaking into logs or responses | Denial of service against your own localhost |
+| Privilege escalation to the admin surface | Weak defaults you chose to keep in production |
 
-### 2. Secure Communication
-- **HTTPS**: Flappy Bird Game enforces HTTPS to ensure secure communication over the internet, encrypting data in transit.
+The last item on the right is called out explicitly in
+[docs/SECURITY-MODEL.md](../docs/SECURITY-MODEL.md): the anti-cheat raises the
+cost of casual scripting, it does not make a public leaderboard tamper-proof.
 
-### 3. Input Validation and Sanitization
-- **Form Inputs**: All inputs from forms are validated and sanitized to prevent SQL injection, XSS attacks, and other forms of data tampering.
-- **API Requests**: Inputs via API requests are also validated and sanitized.
+## Supported versions
 
-### 4. Authentication and Authorization
-- **OAuth2**: For user authentication, Flappy Bird Game implements OAuth2 protocol, ensuring secure authorization.
-- **Role-Based Access Control**: Different levels of access are enforced depending on the user's role to prevent unauthorized access to sensitive data.
+| Version | Supported |
+|---------|:---------:|
+| Latest `master` | ✅ |
+| Latest tagged release | ✅ |
+| Anything older | ❌ |
 
-### 5. Cross-Site Scripting (XSS) Protection
-- **Content Security Policy**: The application implements Content Security Policy (CSP) headers to prevent XSS attacks.
-- **Output Encoding**: Data output to the browser is encoded to prevent the execution of malicious scripts.
+## Reporting a vulnerability
 
-### 6. Cross-Site Request Forgery (CSRF) Protection
-- **CSRF Tokens**: Forms include unique CSRF tokens to ensure that the requests are legitimate and originating from the application itself.
+**Please do not open a public issue.**
 
-### 7. API Security
-- **Rate Limiting**: To prevent abuse and potential DDoS attacks, API rate limiting is in place.
-- **API Key Protection**: API keys, if used, are kept confidential and not exposed to the client-side.
+1. Use [GitHub's private vulnerability reporting](https://github.com/hoangsonww/Flappy-Bird-Game/security/advisories/new), or
+2. email **hoangson091104@gmail.com** with `SECURITY` in the subject.
 
-### 8. Secure File Uploads
-- **File Type Restrictions**: Only specific file types are allowed for upload to prevent the execution of malicious scripts.
-- **File Scanning**: Uploaded files are scanned for malware.
+Please include what you can:
 
-### 9. Error Handling and Logging
-- **Error Handling**: Proper error handling is implemented to prevent leakage of sensitive information through error messages.
-- **Logging**: System activities are logged for monitoring and auditing purposes. Logs do not contain sensitive user data.
+- what the issue is and why it matters
+- steps or a proof of concept
+- affected version or commit
+- the impact you think it has
 
-### 10. Dependency and Library Management
-- **Regular Updates**: Dependencies and libraries are regularly updated to their latest secure versions to mitigate known vulnerabilities.
-- **Vulnerability Scanning**: Regular scans are conducted to identify and address potential vulnerabilities in third-party libraries.
+You can expect an acknowledgement within **72 hours**, an assessment within a
+week, and credit in the advisory unless you would rather not be named.
 
-### 11. Infrastructure Security
-- **Server Security**: Servers are hardened, and access is restricted to authorized personnel only.
-- **Firewalls and Intrusion Detection Systems**: Firewalls and IDS are in place to detect and prevent unauthorized access.
+Please do not test against anything you do not own.
 
-## Incident Response Plan
-Flappy Bird Game has an incident response plan to quickly address and mitigate any security incidents. This includes:
-- Immediate identification and isolation of the incident.
-- Analysis and investigation of the breach.
-- Prompt resolution and recovery measures.
-- Communication with affected users and stakeholders.
-- Post-incident analysis and implementation of preventive measures.
+## If you run a public instance
 
-## Reporting Security Issues
-We encourage responsible disclosure of any security vulnerabilities. Please report any security concerns or vulnerabilities to us at [info@movie-verse.com](mailto:info@movie-verse.com). We are committed to working with security researchers and the community to resolve issues efficiently and responsibly.
+The defaults are tuned for `localhost`. Before exposing the API:
 
-## Continuous Improvement
-Security is an ongoing process. Flappy Bird Game App is committed to continuously improving the security posture of the application by staying up-to-date with the latest security trends, threats, and mitigation techniques.
+```bash
+JWT_ACCESS_SECRET=$(openssl rand -hex 48)
+JWT_REFRESH_SECRET=$(openssl rand -hex 48)
+ADMIN_TOKEN=$(openssl rand -hex 24)
+NODE_ENV=production
+DB_DRIVER=postgres
+CORS_ORIGINS=https://your-domain
+TRUST_PROXY=true
+```
 
-## Contact Information
+- Put TLS in front of it. The game accepts an explicit `https://` URL.
+- `NODE_ENV=production` refuses to start without JWT secrets and rejects the
+  in-memory driver — that is intentional.
+- Keep `ADMIN_TOKEN` out of shell history and version control.
+- Review [docs/SECURITY-MODEL.md](../docs/SECURITY-MODEL.md) first.
 
-For any queries or concerns regarding security, please contact us at [info@movie-verse.com](mailto:info@movie-verse.com).
+## What is already in place
 
----
+- bcrypt password hashing (cost 11)
+- Short-lived JWT access tokens; refresh tokens rotated and stored as SHA-256 hashes
+- Session revocation on logout, password change, ban and account deletion
+- Zod validation on every body, query and path parameter; 64 KB body cap
+- Parameterised SQL throughout
+- Three rate-limit buckets, `helmet` headers, a CORS allow-list
+- Log redaction of credentials and tokens
+- A non-root container running under `dumb-init`
+- CodeQL (TypeScript and Swift) and Dependabot on a schedule

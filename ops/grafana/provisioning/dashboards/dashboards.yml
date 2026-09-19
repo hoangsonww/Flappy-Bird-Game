@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Flappy Bird
+    orgId: 1
+    folder: Flappy Bird
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

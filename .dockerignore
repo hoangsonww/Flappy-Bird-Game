@@ -1,0 +1,14 @@
+.git
+build
+DerivedData
+node_modules
+backend/node_modules
+backend/dist
+backend/coverage
+img
+docs
+*.xcodeproj
+*.xcworkspace
+.env
+.env.*
+!.env.example

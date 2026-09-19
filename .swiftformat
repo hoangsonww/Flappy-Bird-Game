@@ -1,0 +1,23 @@
+# SwiftFormat configuration — run with `make format-swift`.
+
+--swiftversion 5.9
+
+--exclude build,backend,node_modules,Pods
+
+--indent 4
+--maxwidth 120
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--trimwhitespace always
+--commas always
+--semicolons never
+--stripunusedargs closure-only
+--self remove
+--importgrouping testable-bottom
+--header ignore
+--decluttercomments disabled
+
+# Rules that would fight the codebase's deliberate formatting.
+--disable redundantSelf,wrapMultilineStatementBraces,blankLinesAtStartOfScope

@@ -1,0 +1,1790 @@
+openapi: 3.1.0
+
+info:
+  title: Flappy Bird Backend API
+  version: 1.0.0
+  summary: Optional accounts, leaderboards, achievements and score sync for the Flappy Bird iOS game.
+  description: |
+    # Overview
+
+    This service is the **optional** companion backend for the
+    [Flappy Bird iOS game](https://github.com/hoangsonww/Flappy-Bird-Game).
+
+    The game is fully playable without it. When a server is reachable, the app
+    unlocks accounts, cloud-synced progress, global/daily/weekly leaderboards,
+    friend boards, achievements and the deterministic daily challenge.
+
+    ## Discovery handshake
+
+    On launch the game probes a short list of candidate base URLs and calls
+    `GET /v1/meta/config`. A response containing `"protocol": "flappy-bird/1"`
+    switches the app into online mode; anything else keeps it offline. Nothing
+    else about the app's behaviour depends on the server being present.
+
+    ```mermaid
+    sequenceDiagram
+      participant Game as iOS Game
+      participant API as Backend
+      Game->>API: GET /v1/meta/config
+      API-->>Game: 200 { protocol, capabilities, limits }
+      Game->>API: POST /v1/auth/guest  { deviceId }
+      API-->>Game: 201 { user, tokens }
+      Game->>API: POST /v1/scores      (Bearer access token)
+      API-->>Game: 201 { score, rank, unlockedAchievements }
+    ```
+
+    ## Authentication
+
+    Two token types:
+
+    | Token         | Lifetime            | Storage on device | Purpose                        |
+    |---------------|---------------------|-------------------|--------------------------------|
+    | Access token  | `ACCESS_TOKEN_TTL` (15 min default) | memory / Keychain | `Authorization: Bearer <token>` on every call |
+    | Refresh token | `REFRESH_TOKEN_TTL_DAYS` (30 days)  | Keychain          | Exchange for a new pair at `POST /v1/auth/refresh` |
+
+    Refresh tokens are **rotated**: each successful refresh revokes the token it
+    consumed. Refresh tokens are stored only as SHA-256 hashes server-side.
+
+    Guest accounts (`POST /v1/auth/guest`) are bound to a device identifier and
+    require no password, so a player can sync scores before choosing a username.
+    A guest can be promoted with `POST /v1/auth/upgrade` while keeping all
+    history.
+
+    ## Errors
+
+    Every failure uses one envelope:
+
+    ```json
+    {
+      "error": {
+        "code": "validation_failed",
+        "message": "Invalid request body",
+        "details": { "source": "body", "issues": [{ "path": "score", "message": "Expected number" }] },
+        "requestId": "5b0f…"
+      }
+    }
+    ```
+
+    `code` is stable and safe to branch on. `requestId` matches the
+    `X-Request-Id` response header and appears in server logs.
+
+    ## Rate limits
+
+    Three buckets, all reported through the standard `RateLimit-*` headers:
+
+    | Bucket | Endpoints                      | Default |
+    |--------|--------------------------------|---------|
+    | global | everything under `/v1`         | 240 / min |
+    | auth   | register, login, guest, password | 20 / min |
+    | submit | `POST /v1/scores`              | 60 / min |
+
+    ## Fair play
+
+    Submitted runs pass a plausibility check. Impossible payloads are rejected
+    with `422`. Improbable ones are stored but **flagged**: the response contains
+    `flagged: true` with reasons, the run never appears on a leaderboard, and it
+    does not affect aggregate stats.
+  license:
+    name: MIT
+    url: https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/LICENSE
+  contact:
+    name: Son Nguyen
+    url: https://github.com/hoangsonww
+    email: hoangson091104@gmail.com
+
+externalDocs:
+  description: Backend guide, architecture diagrams and local setup
+  url: https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/BACKEND.md
+
+servers:
+  - url: http://localhost:4000
+    description: Local development
+
+tags:
+  - name: Meta
+    description: Service discovery and public counters. Used by the game's auto-detection handshake.
+  - name: Auth
+    description: Registration, login, guest accounts, token rotation and account lifecycle.
+  - name: Users
+    description: Public profiles, profile editing and player search.
+  - name: Scores
+    description: Run submission and personal run history.
+  - name: Leaderboard
+    description: Global, windowed and friends-only boards plus a live SSE stream.
+  - name: Achievements
+    description: Achievement catalog and two-way sync for offline unlocks.
+  - name: Challenges
+    description: The deterministic daily challenge and its board.
+  - name: Friends
+    description: One-directional follow graph powering the friends board.
+  - name: Admin
+    description: Moderation endpoints. Require an admin account or `X-Admin-Token`.
+  - name: Operations
+    description: Health probes and Prometheus metrics for local observability.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /:
+    get:
+      tags: [Meta]
+      summary: Service root
+      description: Minimal identity document. Handy for a quick `curl` sanity check.
+      security: []
+      operationId: getRoot
+      responses:
+        '200':
+          description: Service identity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service: { type: string, example: flappy-bird-backend }
+                  apiVersion: { type: string, example: 1.0.0 }
+                  protocol: { type: string, example: flappy-bird/1 }
+                  documentation: { type: [string, 'null'], example: http://localhost:4000/docs }
+                  endpoints:
+                    type: object
+                    additionalProperties: { type: [string, 'null'] }
+
+  /healthz:
+    get:
+      tags: [Operations]
+      summary: Health summary
+      description: Human-readable health document including the active storage driver.
+      security: []
+      operationId: getHealth
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+        '503':
+          description: A dependency is unavailable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+
+  /livez:
+    get:
+      tags: [Operations]
+      summary: Liveness probe
+      description: Returns 200 as long as the process is running. Never touches the database.
+      security: []
+      operationId: getLive
+      responses:
+        '200':
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: alive }
+                  uptimeSeconds: { type: integer, example: 42 }
+
+  /readyz:
+    get:
+      tags: [Operations]
+      summary: Readiness probe
+      description: Returns 200 only when the storage driver answers a ping.
+      security: []
+      operationId: getReady
+      responses:
+        '200':
+          description: Ready to serve traffic
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ready }
+                  driver: { $ref: '#/components/schemas/StorageDriver' }
+        '503':
+          description: Not ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: degraded }
+                  driver: { $ref: '#/components/schemas/StorageDriver' }
+                  error: { type: string }
+
+  /metrics:
+    get:
+      tags: [Operations]
+      summary: Prometheus metrics
+      description: |
+        OpenMetrics exposition. Includes Node.js defaults plus
+        `flappy_scores_submitted_total` and `flappy_accounts_created_total`.
+        Disabled when `ENABLE_METRICS=false`.
+      security: []
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Metrics in Prometheus text format
+          content:
+            text/plain:
+              schema: { type: string }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/meta/config:
+    get:
+      tags: [Meta]
+      summary: Server capabilities
+      description: |
+        The discovery document. The iOS client requires `protocol` to equal
+        `flappy-bird/1` before enabling any online feature, and uses
+        `capabilities` to decide which screens to show.
+      security: []
+      operationId: getMetaConfig
+      responses:
+        '200':
+          description: Capability document
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ServerConfig' }
+              examples:
+                default:
+                  value:
+                    service: flappy-bird-backend
+                    apiVersion: 1.0.0
+                    protocol: flappy-bird/1
+                    environment: development
+                    capabilities: [auth.password, auth.guest, scores.submit, leaderboard.global]
+                    limits:
+                      {
+                        maxScore: 100000,
+                        leaderboardPageMax: 100,
+                        rateLimitPerWindow: 240,
+                        rateLimitWindowMs: 60000,
+                      }
+                    gameModes: [classic, endless, timeAttack, hardcore, zen, daily]
+                    leaderboardWindows: [all, daily, weekly, monthly]
+                    birdSkins: [classic, midnight, ember, mint, royal, glitch, aurora, phoenix]
+                    achievementPointsTotal: 950
+                    requiresSignedRuns: false
+                    docs: http://localhost:4000/docs
+                    startedAt: '2026-03-19T08:00:00.000Z'
+
+  /v1/meta/stats:
+    get:
+      tags: [Meta]
+      summary: Public counters
+      description: Aggregate, non-identifying counters. Safe to render on a marketing page.
+      security: []
+      operationId: getMetaStats
+      responses:
+        '200':
+          description: Global counters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players: { type: integer, example: 128 }
+                  runsRecorded: { type: integer, example: 4210 }
+                  gamesPlayed: { type: integer, example: 4210 }
+                  pipesPassed: { type: integer, example: 91234 }
+                  coinsCollected: { type: integer, example: 30122 }
+                  uptimeSeconds: { type: integer, example: 3600 }
+
+  /v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Create an account
+      description: Creates a password account and immediately returns a token pair.
+      security: []
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            examples:
+              minimal:
+                summary: Username and password only
+                value: { username: skyhopper, password: correct-horse-battery }
+              full:
+                summary: With profile details
+                value:
+                  username: skyhopper
+                  password: correct-horse-battery
+                  email: sky@example.com
+                  displayName: Sky Hopper
+                  country: US
+                  avatarSkin: midnight
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in
+      security: []
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+            examples:
+              default:
+                value: { username: skyhopper, password: correct-horse-battery }
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '401':
+          $ref: '#/components/responses/InvalidCredentials'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /v1/auth/guest:
+    post:
+      tags: [Auth]
+      summary: Create or resume a guest account
+      description: |
+        Device-bound account with no password. Calling this twice with the same
+        `deviceId` resumes the existing account (`200`) instead of creating a
+        duplicate (`201`). Disabled when `ENABLE_GUEST_ACCOUNTS=false`.
+      security: []
+      operationId: guestLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GuestRequest' }
+            examples:
+              default:
+                value: { deviceId: 6E2A9C71-4F0B-4D2A-9C1E-8F0C2B7A5D31, country: US }
+      responses:
+        '200':
+          description: Existing guest account resumed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '201':
+          description: Guest account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /v1/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Rotate tokens
+      description: Consumes a refresh token and returns a brand-new pair. The consumed token is revoked.
+      security: []
+      operationId: refreshTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string, minLength: 16, maxLength: 512 }
+      responses:
+        '200':
+          description: New token pair
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke one refresh token
+      description: Idempotent. Omitting the body succeeds and revokes nothing.
+      security: []
+      operationId: logout
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '204': { description: Token revoked (or nothing to revoke) }
+
+  /v1/auth/logout-all:
+    post:
+      tags: [Auth]
+      summary: Revoke every session
+      description: Signs the account out of all devices.
+      operationId: logoutAll
+      responses:
+        '200':
+          description: Number of revoked refresh tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revoked: { type: integer, example: 3 }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current account
+      operationId: getCurrentAccount
+      responses:
+        '200':
+          description: Account, aggregate stats and active session count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/PrivateUser' }
+                  stats: { oneOf: [{ $ref: '#/components/schemas/UserStats' }, { type: 'null' }] }
+                  activeSessions: { type: integer, example: 2 }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/password:
+    patch:
+      tags: [Auth]
+      summary: Change password
+      description: Revokes every refresh token on success, forcing a fresh login elsewhere.
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string, minLength: 8, maxLength: 128 }
+      responses:
+        '204': { description: Password changed }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/InvalidCredentials'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/auth/upgrade:
+    post:
+      tags: [Auth]
+      summary: Promote a guest to a full account
+      description: Keeps every score, stat and achievement already attached to the guest.
+      operationId: upgradeGuest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { $ref: '#/components/schemas/Username' }
+                password: { type: string, minLength: 8, maxLength: 128 }
+                email: { type: [string, 'null'], format: email }
+                displayName: { type: [string, 'null'], maxLength: 40 }
+      responses:
+        '200':
+          description: Account upgraded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/auth/account:
+    delete:
+      tags: [Auth]
+      summary: Delete the account
+      description: Irreversible. Cascades to runs, stats, achievements, friendships and tokens.
+      operationId: deleteAccount
+      responses:
+        '204': { description: Account deleted }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/users/me:
+    get:
+      tags: [Users]
+      summary: Own profile
+      operationId: getOwnProfile
+      responses:
+        '200':
+          description: Profile with stats, rank and achievement summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profile' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags: [Users]
+      summary: Update own profile
+      operationId: updateOwnProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                displayName: { type: string, minLength: 1, maxLength: 40 }
+                country: { type: [string, 'null'], minLength: 2, maxLength: 2, example: VN }
+                avatarSkin: { $ref: '#/components/schemas/BirdSkin' }
+      responses:
+        '200':
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/PrivateUser' }
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /v1/users/me/stats:
+    get:
+      tags: [Users]
+      summary: Own aggregate stats
+      operationId: getOwnStats
+      responses:
+        '200':
+          description: Stats, best run and global rank
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats: { oneOf: [{ $ref: '#/components/schemas/UserStats' }, { type: 'null' }] }
+                  runsRecorded: { type: integer }
+                  best: { oneOf: [{ $ref: '#/components/schemas/Score' }, { type: 'null' }] }
+                  rank: { type: [integer, 'null'] }
+                  totalPlayers: { type: integer }
+
+  /v1/users/search:
+    get:
+      tags: [Users]
+      summary: Search players
+      security: []
+      operationId: searchUsers
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Case-insensitive substring of username or display name.
+          schema: { type: string, minLength: 1, maxLength: 40 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        '200':
+          description: Matching players
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/PublicUser' }
+                  total: { type: integer }
+
+  /v1/users/{username}:
+    get:
+      tags: [Users]
+      summary: Public profile
+      security: []
+      operationId: getUserProfile
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '200':
+          description: Public profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profile' }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/users/{username}/scores:
+    get:
+      tags: [Users]
+      summary: A player's recent runs
+      description: Flagged runs are omitted.
+      security: []
+      operationId: getUserScores
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        '200':
+          description: Recent runs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Score' }
+                  total: { type: integer }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/scores:
+    post:
+      tags: [Scores]
+      summary: Submit a run
+      description: |
+        Stores a completed run, folds it into aggregate stats, evaluates
+        achievements and returns the player's new rank.
+
+        **Fair play.** Impossible payloads are rejected with `422`. Improbable
+        ones return `201` with `flagged: true` and a list of reasons; flagged
+        runs are excluded from leaderboards and stats.
+
+        When the server sets `REQUIRE_SIGNED_RUNS=true`, `signature` must be the
+        hex HMAC-SHA256 of `mode|score|coins|pipesPassed|durationMs|seed` keyed
+        with the shared `RUN_SIGNING_SECRET`.
+      operationId: submitScore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SubmitScoreRequest' }
+            examples:
+              classic:
+                summary: A clean classic run
+                value:
+                  score: 42
+                  mode: classic
+                  coins: 17
+                  pipesPassed: 42
+                  durationMs: 61500
+                  maxCombo: 9
+                  powerUpsUsed: 2
+                  seed: a1b2c3d4
+                  clientVersion: 1.1.0
+                  deviceModel: iPhone15,3
+              daily:
+                summary: A daily-challenge run
+                value:
+                  { score: 31, mode: daily, pipesPassed: 31, durationMs: 47000, seed: 9f3c0e11 }
+      responses:
+        '201':
+          description: Run stored
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubmitScoreResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Run rejected as impossible, or the body failed validation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+              examples:
+                impossible:
+                  value:
+                    error:
+                      code: unprocessable
+                      message: Score cannot exceed the number of pipes passed
+                      details: { field: score }
+                      requestId: 4e0b…
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /v1/scores/me:
+    get:
+      tags: [Scores]
+      summary: Own run history
+      description: Newest first. Page backwards with `before` = the last `submittedAt` you saw.
+      operationId: getOwnScores
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - $ref: '#/components/parameters/ModeQuery'
+        - name: before
+          in: query
+          description: Return runs submitted strictly before this RFC 3339 timestamp.
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Run history page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Score' }
+                  limit: { type: integer }
+                  nextBefore:
+                    type: [string, 'null']
+                    format: date-time
+                    description: Pass back as `before` for the next page; `null` means the end.
+
+  /v1/scores/me/best:
+    get:
+      tags: [Scores]
+      summary: Own personal best
+      operationId: getOwnBest
+      parameters:
+        - $ref: '#/components/parameters/ModeQuery'
+      responses:
+        '200':
+          description: Best run (or null)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  best: { oneOf: [{ $ref: '#/components/schemas/Score' }, { type: 'null' }] }
+
+  /v1/scores/{id}:
+    get:
+      tags: [Scores]
+      summary: Fetch one run
+      description: Owners and admins only.
+      operationId: getScoreById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The run
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  score: { $ref: '#/components/schemas/Score' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/leaderboard:
+    get:
+      tags: [Leaderboard]
+      summary: Global leaderboard
+      description: |
+        One row per player, representing their best eligible run inside the
+        window. Ties share a rank and are ordered by the earlier submission.
+      security: []
+      operationId: getLeaderboard
+      parameters:
+        - $ref: '#/components/parameters/ModeQuery'
+        - $ref: '#/components/parameters/WindowQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+      responses:
+        '200':
+          description: A page of the board
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LeaderboardPage' }
+
+  /v1/leaderboard/me:
+    get:
+      tags: [Leaderboard]
+      summary: Own rank with neighbours
+      description: Returns the caller's row plus the players immediately above and below.
+      operationId: getOwnRank
+      parameters:
+        - $ref: '#/components/parameters/ModeQuery'
+        - $ref: '#/components/parameters/WindowQuery'
+        - name: radius
+          in: query
+          description: How many rows to include on each side of the caller.
+          schema: { type: integer, minimum: 0, maximum: 25, default: 3 }
+      responses:
+        '200':
+          description: Rank context
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  window: { $ref: '#/components/schemas/LeaderboardWindow' }
+                  mode: { type: string, example: all }
+                  rank: { type: [integer, 'null'] }
+                  total: { type: integer }
+                  entry:
+                    { oneOf: [{ $ref: '#/components/schemas/LeaderboardEntry' }, { type: 'null' }] }
+                  neighbours:
+                    type: array
+                    items: { $ref: '#/components/schemas/LeaderboardEntry' }
+
+  /v1/leaderboard/friends:
+    get:
+      tags: [Leaderboard]
+      summary: Friends-only board
+      description: Ranks the caller against the accounts they follow.
+      operationId: getFriendsLeaderboard
+      parameters:
+        - $ref: '#/components/parameters/ModeQuery'
+        - $ref: '#/components/parameters/WindowQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+      responses:
+        '200':
+          description: Friends board
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  window: { $ref: '#/components/schemas/LeaderboardWindow' }
+                  mode: { type: string }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/LeaderboardEntry' }
+                  total: { type: integer }
+
+  /v1/leaderboard/stream:
+    get:
+      tags: [Leaderboard]
+      summary: Live board updates (SSE)
+      description: |
+        `text/event-stream`. Emits `connected` on subscribe, `heartbeat` every
+        25 s, and `score.submitted` whenever an eligible run lands.
+
+        ```
+        event: score.submitted
+        data: {"type":"score.submitted","at":"2026-03-19T09:14:02.881Z","payload":{"username":"skyhopper","score":42,"mode":"classic","rank":3}}
+        ```
+
+        Disabled when `ENABLE_SSE=false`.
+      security: []
+      operationId: streamLeaderboard
+      responses:
+        '200':
+          description: An open event stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/achievements:
+    get:
+      tags: [Achievements]
+      summary: Achievement catalog
+      security: []
+      operationId: getAchievements
+      responses:
+        '200':
+          description: Every definition
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/AchievementDefinition' }
+                  total: { type: integer }
+                  totalPoints: { type: integer }
+
+  /v1/achievements/me:
+    get:
+      tags: [Achievements]
+      summary: Own achievement progress
+      operationId: getOwnAchievements
+      responses:
+        '200':
+          description: Catalog annotated with the caller's progress
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/AchievementProgress' }
+                  unlocked: { type: integer }
+                  total: { type: integer }
+                  points: { type: integer }
+                  totalPoints: { type: integer }
+
+  /v1/achievements/me/sync:
+    post:
+      tags: [Achievements]
+      summary: Sync offline unlocks
+      description: |
+        Merge is monotonic: `progress` only ever increases and `unlockedAt` is
+        never overwritten, so replaying an old payload is a no-op.
+      operationId: syncAchievements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [achievements]
+              properties:
+                achievements:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items:
+                    type: object
+                    required: [code]
+                    properties:
+                      code: { type: string, example: night_owl }
+                      progress: { type: integer, minimum: 0, default: 0 }
+                      unlockedAt: { type: [string, 'null'], format: date-time }
+            examples:
+              default:
+                value:
+                  achievements:
+                    - { code: night_owl, progress: 1, unlockedAt: '2026-03-19T02:11:00.000Z' }
+                    - { code: combo_artist, progress: 12 }
+      responses:
+        '200':
+          description: Merged state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/UserAchievement' }
+                  synced: { type: integer }
+        '400':
+          description: One or more unknown achievement codes
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /v1/challenges/today:
+    get:
+      tags: [Challenges]
+      summary: Today's challenge
+      description: |
+        Parameters are derived deterministically from the UTC date, so the game
+        can generate the identical challenge offline. The server is only needed
+        to compare scores.
+      security: []
+      operationId: getTodayChallenge
+      responses:
+        '200':
+          description: Challenge plus rollover time
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challenge: { $ref: '#/components/schemas/DailyChallenge' }
+                  rollsOverAt: { type: string, format: date-time }
+
+  /v1/challenges/{date}:
+    get:
+      tags: [Challenges]
+      summary: Challenge for a specific date
+      security: []
+      operationId: getChallengeByDate
+      parameters:
+        - $ref: '#/components/parameters/DatePath'
+      responses:
+        '200':
+          description: Challenge
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challenge: { $ref: '#/components/schemas/DailyChallenge' }
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /v1/challenges/{date}/leaderboard:
+    get:
+      tags: [Challenges]
+      summary: Challenge leaderboard
+      security: []
+      operationId: getChallengeLeaderboard
+      parameters:
+        - $ref: '#/components/parameters/DatePath'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+      responses:
+        '200':
+          description: Ranked entries for that date
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date: { type: string, format: date }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChallengeEntry' }
+                  total: { type: integer }
+                  limit: { type: integer }
+                  offset: { type: integer }
+                  hasMore: { type: boolean }
+
+  /v1/challenges/today/entries:
+    post:
+      tags: [Challenges]
+      summary: Submit a challenge score
+      description: Keeps the best score per player per day.
+      operationId: submitTodayChallengeEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score]
+              properties:
+                score: { type: integer, minimum: 0 }
+      responses:
+        '201':
+          description: Stored entry (existing higher score is preserved)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entry: { $ref: '#/components/schemas/ChallengeEntry' }
+
+  /v1/challenges/{date}/entries:
+    post:
+      tags: [Challenges]
+      summary: Submit a challenge score for a date
+      description: Only today's date is accepted; past dates return `400`.
+      operationId: submitChallengeEntry
+      parameters:
+        - $ref: '#/components/parameters/DatePath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score]
+              properties:
+                score: { type: integer, minimum: 0 }
+      responses:
+        '201':
+          description: Stored entry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entry: { $ref: '#/components/schemas/ChallengeEntry' }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/friends:
+    get:
+      tags: [Friends]
+      summary: List followed players
+      operationId: listFriends
+      responses:
+        '200':
+          description: Followed players
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/PublicUser'
+                        - type: object
+                          properties:
+                            followedAt: { type: string, format: date-time }
+                  total: { type: integer }
+
+  /v1/friends/{username}:
+    put:
+      tags: [Friends]
+      summary: Follow a player
+      description: Idempotent.
+      operationId: followPlayer
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '201':
+          description: Now following
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  friend: { $ref: '#/components/schemas/PublicUser' }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Friends]
+      summary: Unfollow a player
+      operationId: unfollowPlayer
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '204': { description: No longer following }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/admin/stats:
+    get:
+      tags: [Admin]
+      summary: Instance counters
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: getAdminStats
+      responses:
+        '200':
+          description: Counters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users: { type: integer }
+                  runs: { type: integer }
+                  totals:
+                    type: object
+                    properties:
+                      players: { type: integer }
+                      games: { type: integer }
+                      pipes: { type: integer }
+                      coins: { type: integer }
+                  driver: { $ref: '#/components/schemas/StorageDriver' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/admin/users/{username}/ban:
+    post:
+      tags: [Admin]
+      summary: Ban a player
+      description: Revokes every session and removes the player from all boards.
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: banUser
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  { type: string, minLength: 3, maxLength: 200, default: Violated fair play rules }
+      responses:
+        '200':
+          description: Player banned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      username: { type: string }
+                      isBanned: { type: boolean }
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Admin]
+      summary: Lift a ban
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: unbanUser
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '200':
+          description: Ban lifted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      username: { type: string }
+                      isBanned: { type: boolean }
+
+  /v1/admin/scores/{id}/flag:
+    post:
+      tags: [Admin]
+      summary: Flag a run
+      description: Hides the run and recomputes the owner's aggregate stats.
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: flagScore
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, minLength: 3, maxLength: 200 }
+      responses:
+        '200':
+          description: Run flagged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flagged: { type: boolean }
+                  id: { type: string, format: uuid }
+                  reason: { type: string }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/admin/scores/{id}:
+    delete:
+      tags: [Admin]
+      summary: Delete a run
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: deleteScore
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Run deleted }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/admin/maintenance/purge-tokens:
+    post:
+      tags: [Admin]
+      summary: Purge expired refresh tokens
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: purgeTokens
+      responses:
+        '200':
+          description: Number of rows removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purged: { type: integer }
+
+  /v1/admin/maintenance/recompute-stats/{username}:
+    post:
+      tags: [Admin]
+      summary: Recompute a player's aggregate stats
+      description: Rebuilds `user_stats` from the raw run table. Useful after moderation.
+      security:
+        - bearerAuth: []
+        - adminToken: []
+      operationId: recomputeStats
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '200':
+          description: Recomputed stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats: { $ref: '#/components/schemas/UserStats' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Short-lived access token from `/v1/auth/login`, `/register`, `/guest` or `/refresh`.
+    adminToken:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+      description: Static token matching the server's `ADMIN_TOKEN`. An alternative to an admin account.
+
+  parameters:
+    UsernamePath:
+      name: username
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Username' }
+    DatePath:
+      name: date
+      in: path
+      required: true
+      description: UTC date in `YYYY-MM-DD` form.
+      schema: { type: string, format: date, example: '2026-03-19' }
+    ModeQuery:
+      name: mode
+      in: query
+      description: Restrict to a single game mode. Omit for all modes combined.
+      schema: { $ref: '#/components/schemas/GameMode' }
+    WindowQuery:
+      name: window
+      in: query
+      description: Time window, evaluated in UTC. Weeks start on Monday.
+      schema: { $ref: '#/components/schemas/LeaderboardWindow' }
+    LimitQuery:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    OffsetQuery:
+      name: offset
+      in: query
+      schema: { type: integer, minimum: 0, default: 0 }
+
+  schemas:
+    Username:
+      type: string
+      pattern: '^[a-zA-Z0-9_]{3,20}$'
+      example: skyhopper
+      description: 3–20 characters; letters, digits and underscore. Compared case-insensitively.
+
+    BirdSkin:
+      type: string
+      enum: [classic, midnight, ember, mint, royal, glitch, aurora, phoenix]
+      description: Cosmetic bird skin. Unlocked in game with coins.
+
+    GameMode:
+      type: string
+      enum: [classic, endless, timeAttack, hardcore, zen, daily]
+      description: |
+        * `classic` — the original rules.
+        * `endless` — difficulty ramps continuously.
+        * `timeAttack` — score as much as possible in 60 seconds.
+        * `hardcore` — narrow gaps, one life, no power-ups.
+        * `zen` — no death, for practice (excluded from most boards by convention).
+        * `daily` — today's deterministic challenge.
+
+    LeaderboardWindow:
+      type: string
+      enum: [all, daily, weekly, monthly]
+      default: all
+
+    StorageDriver:
+      type: string
+      enum: [postgres, memory]
+
+    PublicUser:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        username: { $ref: '#/components/schemas/Username' }
+        displayName: { type: string, example: Sky Hopper }
+        country: { type: [string, 'null'], example: US }
+        avatarSkin: { $ref: '#/components/schemas/BirdSkin' }
+        isGuest: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    PrivateUser:
+      allOf:
+        - $ref: '#/components/schemas/PublicUser'
+        - type: object
+          properties:
+            email: { type: [string, 'null'], format: email }
+            role: { type: string, enum: [player, admin] }
+            lastSeenAt: { type: string, format: date-time }
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken: { type: string, description: JWT for the `Authorization` header. }
+        refreshToken: { type: string, description: Opaque rotating token. Store in the Keychain. }
+        tokenType: { type: string, enum: [Bearer] }
+        expiresIn: { type: integer, description: Access-token lifetime in seconds., example: 900 }
+        refreshExpiresAt: { type: string, format: date-time }
+
+    AuthSession:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/PrivateUser' }
+        tokens: { $ref: '#/components/schemas/TokenPair' }
+
+    RegisterRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { $ref: '#/components/schemas/Username' }
+        password: { type: string, minLength: 8, maxLength: 128 }
+        email: { type: [string, 'null'], format: email }
+        displayName: { type: [string, 'null'], maxLength: 40 }
+        country: { type: [string, 'null'], minLength: 2, maxLength: 2 }
+        avatarSkin: { $ref: '#/components/schemas/BirdSkin' }
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+
+    GuestRequest:
+      type: object
+      required: [deviceId]
+      properties:
+        deviceId:
+          type: string
+          minLength: 8
+          maxLength: 128
+          description: Stable per-install identifier. The game uses `identifierForVendor`.
+        country: { type: [string, 'null'], minLength: 2, maxLength: 2 }
+
+    Score:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        score: { type: integer, minimum: 0 }
+        mode: { $ref: '#/components/schemas/GameMode' }
+        coins: { type: integer, minimum: 0 }
+        pipesPassed: { type: integer, minimum: 0 }
+        durationMs: { type: integer, minimum: 0 }
+        maxCombo: { type: integer, minimum: 0 }
+        powerUpsUsed: { type: integer, minimum: 0 }
+        seed: { type: string, description: Run seed; lets the game replay the same pipe layout. }
+        clientVersion: { type: [string, 'null'] }
+        deviceModel: { type: [string, 'null'] }
+        flagged: { type: boolean, description: Flagged runs are excluded from boards and stats. }
+        flagReason: { type: [string, 'null'] }
+        submittedAt: { type: string, format: date-time }
+
+    SubmitScoreRequest:
+      type: object
+      required: [score]
+      properties:
+        score: { type: integer, minimum: 0 }
+        mode: { $ref: '#/components/schemas/GameMode' }
+        coins: { type: integer, minimum: 0, default: 0 }
+        pipesPassed: { type: integer, minimum: 0, default: 0 }
+        durationMs: { type: integer, minimum: 0, default: 0 }
+        maxCombo: { type: integer, minimum: 0, default: 0 }
+        powerUpsUsed: { type: integer, minimum: 0, default: 0 }
+        seed: { type: string, maxLength: 64, default: '' }
+        clientVersion: { type: [string, 'null'], maxLength: 32 }
+        deviceModel: { type: [string, 'null'], maxLength: 64 }
+        signature:
+          type: [string, 'null']
+          maxLength: 128
+          description: Hex HMAC-SHA256 of `mode|score|coins|pipesPassed|durationMs|seed`.
+
+    SubmitScoreResponse:
+      type: object
+      properties:
+        score: { $ref: '#/components/schemas/Score' }
+        stats: { $ref: '#/components/schemas/UserStats' }
+        personalBest: { type: boolean }
+        rank: { type: [integer, 'null'] }
+        totalPlayers: { type: integer }
+        unlockedAchievements:
+          type: array
+          items: { $ref: '#/components/schemas/UserAchievement' }
+        flagged: { type: boolean }
+        flagReasons:
+          type: array
+          items: { type: string }
+
+    UserStats:
+      type: object
+      properties:
+        userId: { type: string, format: uuid }
+        bestScore: { type: integer }
+        bestScoreMode: { oneOf: [{ $ref: '#/components/schemas/GameMode' }, { type: 'null' }] }
+        totalScore: { type: integer }
+        gamesPlayed: { type: integer }
+        totalCoins: { type: integer }
+        totalPipes: { type: integer }
+        totalDurationMs: { type: integer }
+        longestRunMs: { type: integer }
+        bestCombo: { type: integer }
+        updatedAt: { type: string, format: date-time }
+
+    Profile:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/PublicUser' }
+        stats: { $ref: '#/components/schemas/UserStats' }
+        achievements:
+          type: object
+          properties:
+            unlocked: { type: integer }
+            total: { type: integer }
+            points: { type: integer }
+        best:
+          type: object
+          properties:
+            score: { type: integer }
+            mode: { type: [string, 'null'] }
+            achievedAt: { type: [string, 'null'], format: date-time }
+        rank: { type: [integer, 'null'] }
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank: { type: integer, minimum: 1 }
+        scoreId: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        username: { $ref: '#/components/schemas/Username' }
+        displayName: { type: string }
+        avatarSkin: { $ref: '#/components/schemas/BirdSkin' }
+        country: { type: [string, 'null'] }
+        score: { type: integer }
+        mode: { $ref: '#/components/schemas/GameMode' }
+        coins: { type: integer }
+        pipesPassed: { type: integer }
+        durationMs: { type: integer }
+        achievedAt: { type: string, format: date-time }
+
+    LeaderboardPage:
+      type: object
+      properties:
+        window: { $ref: '#/components/schemas/LeaderboardWindow' }
+        mode: { type: string, example: all }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/LeaderboardEntry' }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+        hasMore: { type: boolean }
+        generatedAt: { type: string, format: date-time }
+
+    AchievementDefinition:
+      type: object
+      properties:
+        code: { type: string, example: century }
+        name: { type: string, example: Century Club }
+        description: { type: string }
+        icon: { type: string, example: 💯 }
+        points: { type: integer }
+        metric: { type: string, enum: [score, coins, games, pipes, combo, special] }
+        threshold: { type: integer }
+        secret: { type: boolean }
+
+    AchievementProgress:
+      allOf:
+        - $ref: '#/components/schemas/AchievementDefinition'
+        - type: object
+          properties:
+            progress: { type: integer }
+            unlockedAt: { type: [string, 'null'], format: date-time }
+            unlocked: { type: boolean }
+
+    UserAchievement:
+      type: object
+      properties:
+        userId: { type: string, format: uuid }
+        code: { type: string }
+        progress: { type: integer }
+        unlockedAt: { type: [string, 'null'], format: date-time }
+
+    DailyChallenge:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        seed: { type: string, example: 9f3c0e1187ab2d40 }
+        mode: { $ref: '#/components/schemas/GameMode' }
+        pipeGap:
+          { type: integer, description: Vertical gap between pipes, in points., example: 140 }
+        gravityScale: { type: number, example: 1.05 }
+        speedScale: { type: number, example: 1.1 }
+        modifier: { type: string, enum: [none, windy, foggy, nightfall, narrow, turbo] }
+        description: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    ChallengeEntry:
+      type: object
+      properties:
+        rank: { type: integer }
+        date: { type: string, format: date }
+        userId: { type: string, format: uuid }
+        username: { $ref: '#/components/schemas/Username' }
+        displayName: { type: string }
+        avatarSkin: { $ref: '#/components/schemas/BirdSkin' }
+        score: { type: integer }
+        submittedAt: { type: string, format: date-time }
+
+    ServerConfig:
+      type: object
+      properties:
+        service: { type: string }
+        apiVersion: { type: string }
+        protocol: { type: string, const: flappy-bird/1 }
+        environment: { type: string, enum: [development, test, production] }
+        capabilities:
+          type: array
+          items: { type: string }
+        limits:
+          type: object
+          properties:
+            maxScore: { type: integer }
+            leaderboardPageMax: { type: integer }
+            rateLimitPerWindow: { type: integer }
+            rateLimitWindowMs: { type: integer }
+        gameModes:
+          type: array
+          items: { $ref: '#/components/schemas/GameMode' }
+        leaderboardWindows:
+          type: array
+          items: { $ref: '#/components/schemas/LeaderboardWindow' }
+        birdSkins:
+          type: array
+          items: { $ref: '#/components/schemas/BirdSkin' }
+        achievementPointsTotal: { type: integer }
+        requiresSignedRuns: { type: boolean }
+        docs: { type: [string, 'null'] }
+        startedAt: { type: string, format: date-time }
+
+    Health:
+      type: object
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        service: { type: string }
+        apiVersion: { type: string }
+        environment: { type: string }
+        driver: { $ref: '#/components/schemas/StorageDriver' }
+        database: { type: string, example: ok }
+        uptimeSeconds: { type: integer }
+        timestamp: { type: string, format: date-time }
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - bad_request
+                - validation_failed
+                - unauthorized
+                - invalid_credentials
+                - token_expired
+                - forbidden
+                - not_found
+                - conflict
+                - rate_limited
+                - payload_too_large
+                - unprocessable
+                - service_unavailable
+                - internal_error
+            message: { type: string }
+            details: { description: Structured context; shape depends on `code`. }
+            requestId: { type: string, description: Matches the `X-Request-Id` response header. }
+
+  responses:
+    BadRequest:
+      description: The request was malformed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Unauthorized:
+      description: Missing, invalid or expired access token
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    InvalidCredentials:
+      description: Username or password is incorrect
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Forbidden:
+      description: Authenticated but not allowed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    NotFound:
+      description: No such resource
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Conflict:
+      description: Uniqueness or state conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    ValidationFailed:
+      description: Request failed schema validation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    RateLimited:
+      description: Too many requests
+      headers:
+        RateLimit-Limit: { schema: { type: integer } }
+        RateLimit-Remaining: { schema: { type: integer } }
+        RateLimit-Reset: { schema: { type: integer } }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }

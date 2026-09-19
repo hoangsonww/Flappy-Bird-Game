@@ -1,0 +1,50 @@
+name: Landing page
+
+# Publishes index.html (plus the screenshots it references) to GitHub Pages.
+# Hosting is optional — the page works when opened straight from a clone.
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "index.html"
+      - "img/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r img _site/img
+          # A no-op file that stops Pages from running Jekyll over the output.
+          touch _site/.nojekyll
+          ls -la _site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
