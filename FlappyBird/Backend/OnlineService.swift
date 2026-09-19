@@ -52,6 +52,7 @@ final class OnlineService {
     private let authStore: AuthStore
     private var bootstrapTask: Task<Void, Never>?
     private var syncTask: Task<Void, Never>?
+    private var retryTask: Task<Void, Never>?
 
     init(
         store: GameStore = .shared,
@@ -156,6 +157,9 @@ final class OnlineService {
     func reconnect() {
         bootstrapTask?.cancel()
         bootstrapTask = nil
+        retryTask?.cancel()
+        retryTask = nil
+        isRetryingUploads = false
         client = nil
         authStore.clear()
         bootstrap()
@@ -270,6 +274,12 @@ final class OnlineService {
     }
 
     /// Upload everything still queued, oldest first.
+    ///
+    /// Paced deliberately. A backlog uploaded in a tight loop trips the server's
+    /// submit rate limit (60/min by default), which returns `429` and stalls the
+    /// queue until the app is next foregrounded — while the UI still says
+    /// "connected". So: a small gap between runs, a bounded batch, and a
+    /// scheduled retry when the server pushes back.
     func flushQueue() {
         guard syncTask == nil, status.isOnline, let client, authStore.isSignedIn else { return }
         let pending = store.profile.pendingUploads
@@ -280,27 +290,73 @@ final class OnlineService {
             defer { self.syncTask = nil }
 
             var uploaded: [RunRecord] = []
-            for run in pending {
+            var retryNeeded = false
+
+            for run in pending.prefix(Self.flushBatchSize) {
                 if Task.isCancelled { break }
+
                 let submission = ScoreSubmission(
                     run: run,
                     clientVersion: AppInfo.version,
                     deviceModel: AppInfo.deviceModel
                 )
+
                 do {
                     _ = try await client.submit(submission)
                     uploaded.append(run)
                 } catch let error as APIError {
+                    if error.isRetryable {
+                        // Rate limited or a server blip: stop, keep the rest queued.
+                        Log.sync.notice("Flush paused: \(error.errorDescription ?? "retryable error")")
+                        self.lastError = error.errorDescription
+                        retryNeeded = true
+                        break
+                    }
                     // A permanent rejection must not block the queue forever.
-                    if error.isRetryable { break }
+                    Log.sync.error("Dropping rejected run: \(error.errorDescription ?? "rejected")")
                     uploaded.append(run)
                 } catch {
+                    retryNeeded = true
                     break
                 }
+
+                // Stay comfortably under the submit limit.
+                try? await Task.sleep(nanoseconds: UInt64(Self.flushSpacing * 1_000_000_000))
             }
+
             if !uploaded.isEmpty {
+                Log.sync.info("Flushed \(uploaded.count) queued run(s)")
                 self.store.markUploaded(uploaded)
             }
+
+            // More to send, or the server asked us to slow down: come back later.
+            if retryNeeded || !self.store.profile.pendingUploads.isEmpty {
+                self.scheduleFlushRetry()
+            } else {
+                self.lastError = nil
+            }
+        }
+    }
+
+    /// Runs uploaded per flush, and the gap between them.
+    private static let flushBatchSize = 20
+    private static let flushSpacing: TimeInterval = 0.25
+    /// How long to wait before trying the rest of the backlog.
+    private static let flushRetryDelay: TimeInterval = 20
+
+    /// `true` while a backlog is waiting on a scheduled retry — surfaced in Settings.
+    private(set) var isRetryingUploads = false
+
+    private func scheduleFlushRetry() {
+        guard retryTask == nil else { return }
+        isRetryingUploads = true
+
+        retryTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(Self.flushRetryDelay * 1_000_000_000))
+            guard let self, !Task.isCancelled else { return }
+            self.retryTask = nil
+            self.isRetryingUploads = false
+            self.flushQueue()
         }
     }
 

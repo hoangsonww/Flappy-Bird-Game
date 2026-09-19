@@ -11,6 +11,8 @@ final class MenuScene: SKScene {
     private var modeLabel: SKLabelNode!
     private var modeDetailLabel: SKLabelNode!
     private var bestLabel: SKLabelNode!
+    /// Horizontal room the mode card's labels have between the two arrows.
+    private var modeTextWidth: CGFloat = 0
     private var statusLabel: SKLabelNode!
     private var walletLabel: SKLabelNode!
     private var previewBird: SKSpriteNode!
@@ -163,19 +165,55 @@ final class MenuScene: SKScene {
         bestLabel.position = CGPoint(x: 0, y: -22)
         panel.addChild(bestLabel)
 
-        let previous = ButtonNode(title: "◀", size: CGSize(width: 44, height: 44), fontSize: 20) { [weak self] in
+        // The arrows sit inside the card, not on its border: half the button plus
+        // `MenuScene.arrowGutter` keeps a visible margin between the button edge
+        // and the panel stroke at every width.
+        let arrowCentre = panelWidth / 2 - MenuScene.arrowSize / 2 - MenuScene.arrowGutter
+
+        let previous = ButtonNode(
+            title: "◀",
+            size: CGSize(width: MenuScene.arrowSize, height: MenuScene.arrowSize),
+            fontSize: 18
+        ) { [weak self] in
             self?.cycleMode(by: -1)
         }
-        previous.position = CGPoint(x: -panelWidth / 2 + 26, y: -2)
+        previous.position = CGPoint(x: -arrowCentre, y: -2)
         panel.addChild(previous)
 
-        let next = ButtonNode(title: "▶", size: CGSize(width: 44, height: 44), fontSize: 20) { [weak self] in
+        let next = ButtonNode(
+            title: "▶",
+            size: CGSize(width: MenuScene.arrowSize, height: MenuScene.arrowSize),
+            fontSize: 18
+        ) { [weak self] in
             self?.cycleMode(by: 1)
         }
-        next.position = CGPoint(x: panelWidth / 2 - 26, y: -2)
+        next.position = CGPoint(x: arrowCentre, y: -2)
         panel.addChild(next)
 
+        // Everything between the arrows. The labels are centred on the card, so
+        // the usable width is twice the distance from the centre to the nearer
+        // arrow edge — not the panel width.
+        modeTextWidth = 2 * (arrowCentre - MenuScene.arrowSize / 2 - MenuScene.arrowGutter)
+
         refreshModeLabels()
+    }
+
+    /// Side of the square mode arrows.
+    private static let arrowSize: CGFloat = 40
+    /// Clear space between an arrow's edge and the card's border.
+    private static let arrowGutter: CGFloat = 10
+
+    /// Shrink a label until it fits between the arrows.
+    ///
+    /// `SKLabelNode` neither wraps nor truncates on a single line — it just runs
+    /// under whatever is beside it, which is how "The original rules, steady
+    /// pace" ended up touching both arrows.
+    private func fit(_ label: SKLabelNode, maxFontSize: CGFloat) {
+        guard modeTextWidth > 0 else { return }
+        label.fontSize = maxFontSize
+        while label.fontSize > 9, label.frame.width > modeTextWidth {
+            label.fontSize -= 1
+        }
     }
 
     private func cycleMode(by delta: Int) {
@@ -196,6 +234,10 @@ final class MenuScene: SKScene {
         }
         let best = store.profile.bestScore(for: selectedMode)
         bestLabel.text = best > 0 ? "BEST \(best)" : "NO SCORE YET"
+
+        fit(modeLabel, maxFontSize: 24)
+        fit(modeDetailLabel, maxFontSize: 12)
+        fit(bestLabel, maxFontSize: 13)
     }
 
     private func buildActions() {

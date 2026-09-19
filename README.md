@@ -111,7 +111,7 @@ and lets the bird fly itself.*
 ### 🛠 And the boring parts done properly
 
 `make doctor` · a generated Xcode project that never conflicts · Docker Compose
-with observability profiles · a dev container · 228 tests run on every push ·
+with observability profiles · a dev container · 255 tests run on every push ·
 automatic releases from Conventional Commits · reproducible screenshots.
 
 ---
@@ -123,7 +123,8 @@ automatic releases from Conventional Commits · reproducible screenshots.
 ```bash
 make run      # build, install and launch in a simulator
 make demo     # the same, in self-playing attract mode
-make test     # 122 Swift unit tests
+make test     # 124 Swift unit tests
+make test-ui  # 25 Swift UI tests, driven on a simulator
 ```
 
 Or open `Flappy Bird.xcodeproj` and press ⌘R. Requires **Xcode 16+**; the
@@ -210,7 +211,8 @@ FlappyBird/            the game
 ├── Scenes/            one file per screen
 └── Backend/           the optional client: discovery, HTTP, models, sync
 
-FlappyBirdTests/       122 Swift tests
+FlappyBirdTests/       124 Swift unit tests
+FlappyBirdUITests/     25 Swift UI tests
 backend/               the optional API — 106 tests, OpenAPI 3.1
 docs/                  14 guides + 3 decision records
 scripts/               project generation, media capture, bootstrap, release

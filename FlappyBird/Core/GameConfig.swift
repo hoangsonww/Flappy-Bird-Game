@@ -84,6 +84,11 @@ enum GameConfig {
     static let maxComboMultiplier = 8
     /// Pipes cleared between day/night transitions.
     static let pipesPerDayNightCycle = 20
+    /// Every Nth coin in a combo gets its own chime instead of the coin sound.
+    static let comboChimeInterval = 5
+    /// Gap between stacked end-of-run chimes; `AudioManager` interrupts an
+    /// effect that is already playing, so simultaneous unlocks need spacing.
+    static let achievementChimeSpacing: TimeInterval = 0.5
 
     // MARK: - Power-ups
 

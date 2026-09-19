@@ -191,11 +191,24 @@ final class GameStore {
         return isPersonalBest
     }
 
+    /// Drop uploaded runs from the queue **and** flag them in the history.
+    ///
+    /// Only clearing the queue left `recentRuns` claiming "pending sync" for the
+    /// lifetime of the install, because nothing ever flipped `synced`.
     func markUploaded(_ records: [RunRecord]) {
         guard !records.isEmpty else { return }
+
+        func isSameRun(_ a: RunRecord, _ b: RunRecord) -> Bool {
+            a.date == b.date && a.score == b.score && a.mode == b.mode
+        }
+
         update { profile in
             profile.pendingUploads.removeAll { pending in
-                records.contains { $0.date == pending.date && $0.score == pending.score }
+                records.contains { isSameRun($0, pending) }
+            }
+            for index in profile.recentRuns.indices
+            where records.contains(where: { isSameRun($0, profile.recentRuns[index]) }) {
+                profile.recentRuns[index].synced = true
             }
         }
     }

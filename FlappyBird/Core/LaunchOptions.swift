@@ -109,7 +109,10 @@ enum LaunchOptions {
             store.markDailyCompleted(String(format: "2026-03-%02d", day))
         }
 
-        settings.selectedSkin = .ember
+        // Classic on purpose: the seeded profile is what screenshots and the
+        // capture script show, and that should be the yellow bird the game
+        // ships with, not one of the unlocked recolours.
+        settings.selectedSkin = .classic
         settings.hasSeenTutorial = true
     }
 }

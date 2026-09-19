@@ -70,16 +70,21 @@ final class StatsScene: ListScene {
             return
         }
 
+        // Compact on purpose: the row truncates anything wider than the value
+        // column, and the full date pushed the sync state off the end.
         let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
+        // "9/19 13:25" — the widest this row can carry alongside the value is
+        // about 31 characters, and a spelled-out month blows straight past it.
+        formatter.setLocalizedDateFormatFromTemplate("Mdjm")
 
         let rows = runs.map { run -> SKNode in
-            makeRow(
+            var parts = [formatter.string(from: run.date), "\(run.coins)c", "x\(run.maxCombo)"]
+            if !run.synced { parts.append("queued") }
+
+            return makeRow(
                 badge: run.mode.symbol,
                 title: "\(run.score) pts",
-                subtitle: "\(formatter.string(from: run.date)) · \(run.coins)🪙 · x\(run.maxCombo)"
-                    + (run.synced ? "" : " · pending sync"),
+                subtitle: parts.joined(separator: " · "),
                 value: StatsScene.durationText(Double(run.durationMs) / 1000),
                 valueColor: Palette.secondaryText
             )

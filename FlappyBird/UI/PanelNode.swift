@@ -59,7 +59,7 @@ class PanelNode: SKNode {
         fontSize: CGFloat = 16,
         valueColor: SKColor = Palette.primaryText
     ) -> SKNode {
-        let row = SKNode()
+        let row = AccessibleNode()
 
         let name = SKLabelNode(fontNamed: Fonts.body)
         name.text = label
@@ -78,6 +78,11 @@ class PanelNode: SKNode {
         result.verticalAlignmentMode = .center
         result.position = CGPoint(x: width / 2, y: 0)
         row.addChild(result)
+
+        row.describe(
+            accessibilitySentence(label, value),
+            size: CGSize(width: width, height: fontSize + 8)
+        )
 
         return row
     }

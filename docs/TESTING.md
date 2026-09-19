@@ -1,10 +1,12 @@
 # Testing
 
-228 tests: **122 Swift** and **106 backend**, the latter run against both
-storage drivers.
+255 tests: **124 Swift unit**, **25 Swift UI** and **106 backend**, the last
+run against both storage drivers.
 
 ```bash
-make test         # Swift
+make test         # Swift unit tests (seconds)
+make test-ui      # Swift UI tests — drives a simulator (minutes)
+make test-all     # both Swift suites
 make api-test     # backend, in-memory
 make api-test-pg  # backend, Postgres
 make check        # everything CI runs except the iOS build
@@ -41,7 +43,47 @@ Two of these are contract tests rather than unit tests:
 
 ```bash
 xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' test
+  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+  -only-testing:FlappyBirdTests test
+```
+
+## Swift UI
+
+`FlappyBirdUITests/` drives the real app on a simulator: it taps the actual
+controls and asserts on what the screen publishes. The whole game is SpriteKit,
+so there is no view hierarchy to query — every control is an `SKNode` that opts
+into `UIAccessibility`, and the suite therefore doubles as an accessibility
+test. If VoiceOver cannot reach a control, neither can the suite, and it fails.
+
+| File | Covers |
+|------|--------|
+| `MenuUITests` | Every destination, mode cycling, and the mode card's layout at each mode |
+| `GameplayUITests` | Starting a run, the pause overlay, the summary panel, Zen's no-death rule |
+| `ListScreenUITests` | Every filter chip on the leaderboard, achievements and stats |
+| `ShopUITests` | Buying, equipping, and what an unaffordable skin does |
+| `SettingsUITests` | All three tabs, a toggle's value, the optional-backend copy |
+
+It found three real defects on its first run:
+
+* every accessible node reported a **zero-size frame** — SpriteKit does not
+  derive `accessibilityFrame` from the node, so no control in the game could be
+  focused by VoiceOver or activated by assistive technology;
+* **list rows were not published at all**, leaving the leaderboard, stats and
+  achievements unreadable by a screen reader;
+* a **disabled button still advertised itself as enabled**, so VoiceOver offered
+  "BUY" on a skin the wallet could not afford.
+
+`AccessibleNode` in `FlappyBird/UI/Accessibility.swift` is the fix for the first
+two: it converts a node's own bounds into screen coordinates and composes a row
+into one spoken sentence.
+
+The suite is slower than the unit tests because it drives a simulator, so it is
+its own Make target and its own CI step:
+
+```bash
+xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+  -only-testing:FlappyBirdUITests test
 ```
 
 ## Backend

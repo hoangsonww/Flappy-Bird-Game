@@ -306,12 +306,14 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         worldNode.speed = 0
         bird.isPaused = true
         physicsWorld.speed = 0
+        AudioManager.shared.play(.pause)
         presentPauseOverlay()
     }
 
     private func resume() {
         guard state == .paused else { return }
         overlayNode.removeAllChildren()
+        AudioManager.shared.play(.resume)
         hud.flashCentreMessage("GO!", duration: 0.35)
         state = .playing
         worldNode.speed = slowMotionFactor
@@ -611,7 +613,14 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         hud.setCoins(stats.coins)
         hud.setCombo(stats.combo, multiplier: stats.comboMultiplier)
         Collectible.collect(node, tint: SKColor(red: 0.99, green: 0.82, blue: 0.28, alpha: 1))
-        AudioManager.shared.play(.coin)
+        // A milestone gets its own chime on top of the coin, so the multiplier
+        // climbing is something you hear rather than something you must watch.
+        if stats.combo > 0, stats.combo.isMultiple(of: GameConfig.comboChimeInterval) {
+            AudioManager.shared.play(.combo)
+            Haptics.shared.achievement()
+        } else {
+            AudioManager.shared.play(.coin)
+        }
         Haptics.shared.coin()
     }
 
@@ -646,6 +655,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         guard mode.isLethal else {
             // Zen mode: bounce instead of dying.
             bird.physicsBody?.velocity = CGVector(dx: 0, dy: 160)
+            AudioManager.shared.play(.bounce)
             return
         }
 
@@ -724,10 +734,21 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private func presentGameOver(isPersonalBest: Bool, unlocked: [Achievement]) {
         state = .gameOver
 
-        for achievement in unlocked {
-            toasts.show("\(achievement.icon)  \(achievement.name)", color: Palette.positive)
-            AudioManager.shared.play(.achievement)
+        if isPersonalBest {
+            AudioManager.shared.play(.personalBest)
             Haptics.shared.achievement()
+        }
+
+        // Each unlock is staggered: `AudioManager.play` interrupts the effect
+        // already sounding, so a burst of three would only ever be heard once.
+        for (index, achievement) in unlocked.enumerated() {
+            let delay = Double(index) * GameConfig.achievementChimeSpacing
+                + (isPersonalBest ? GameConfig.achievementChimeSpacing : 0)
+            run(.sequence([.wait(forDuration: delay), .run { [weak self] in
+                self?.toasts.show("\(achievement.icon)  \(achievement.name)", color: Palette.positive)
+                AudioManager.shared.play(.achievement)
+                Haptics.shared.achievement()
+            }]))
         }
 
         let summary = GameOverPanel.Summary(

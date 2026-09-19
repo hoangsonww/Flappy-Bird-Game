@@ -3,9 +3,10 @@
 
 Why this exists
 ---------------
-The project has one app target and one test target, and every Swift file in
-`FlappyBird/` belongs to the app while every file in `FlappyBirdTests/` belongs to
-the tests. Encoding that rule in a script means:
+The project has one app target and two test targets, and the directory a Swift
+file lives in decides which target compiles it: `FlappyBird/` builds the app,
+`FlappyBirdTests/` the unit tests, `FlappyBirdUITests/` the UI tests. Encoding
+that rule in a script means:
 
 * adding a file is `touch` + `make xcodegen` — no Xcode UI step, no merge
   conflicts in a 600-line pbxproj;
@@ -34,8 +35,10 @@ SCHEME_PATH = PROJECT_DIR / "xcshareddata" / "xcschemes" / "FlappyBird.xcscheme"
 
 APP_TARGET = "FlappyBird"
 TEST_TARGET = "FlappyBirdTests"
+UI_TEST_TARGET = "FlappyBirdUITests"
 APP_DIR = REPO_ROOT / APP_TARGET
 TEST_DIR = REPO_ROOT / TEST_TARGET
+UI_TEST_DIR = REPO_ROOT / UI_TEST_TARGET
 
 BUNDLE_ID = "com.hoangsonww.flappybird"
 DEPLOYMENT_TARGET = "16.0"
@@ -84,6 +87,60 @@ class Group:
         if name not in self.children_groups:
             self.children_groups[name] = Group(name=name, path=name)
         return self.children_groups[name]
+
+
+@dataclass(frozen=True)
+class TestTarget:
+    """One XCTest bundle.
+
+    Unit tests are injected into the app (`TEST_HOST`); UI tests drive it from
+    the outside (`TEST_TARGET_NAME`), which is the only difference that matters
+    to the project file.
+    """
+
+    name: str
+    directory: Path
+    product_type: str
+    settings: dict[str, str]
+
+
+TEST_TARGETS = [
+    TestTarget(
+        name=TEST_TARGET,
+        directory=TEST_DIR,
+        product_type="com.apple.product-type.bundle.unit-test",
+        settings={
+            "BUNDLE_LOADER": f'"$(BUILT_PRODUCTS_DIR)/{APP_TARGET}.app/{APP_TARGET}"',
+            "PRODUCT_BUNDLE_IDENTIFIER": f"{BUNDLE_ID}.tests",
+            "TEST_HOST": '"$(BUNDLE_LOADER)"',
+        },
+    ),
+    TestTarget(
+        name=UI_TEST_TARGET,
+        directory=UI_TEST_DIR,
+        product_type="com.apple.product-type.bundle.ui-testing",
+        settings={
+            "PRODUCT_BUNDLE_IDENTIFIER": f"{BUNDLE_ID}.uitests",
+            "TEST_TARGET_NAME": APP_TARGET,
+        },
+    ),
+]
+
+
+def test_object_ids(name: str) -> dict[str, str]:
+    """Every object id a test target needs, keyed by role."""
+    return {
+        "target": object_id("target", name),
+        "product": object_id("product", name),
+        "sources": object_id("phase", name, "sources"),
+        "frameworks": object_id("phase", name, "frameworks"),
+        "resources": object_id("phase", name, "resources"),
+        "config_list": object_id("configlist", name),
+        "debug": object_id("config", name, "Debug"),
+        "release": object_id("config", name, "Release"),
+        "dependency": object_id("dependency", name),
+        "proxy": object_id("proxy", name),
+    }
 
 
 def collect_swift(root: Path) -> list[Path]:
@@ -158,10 +215,13 @@ def build_settings(common: dict[str, str], extra: dict[str, str]) -> list[str]:
 
 def generate_pbxproj() -> str:
     app_swift = collect_swift(APP_DIR)
-    test_swift = collect_swift(TEST_DIR)
+    test_swift = {test.name: collect_swift(test.directory) for test in TEST_TARGETS}
 
     if not app_swift:
         raise SystemExit(f"No Swift files found under {APP_DIR}")
+    for test in TEST_TARGETS:
+        if not test_swift[test.name]:
+            raise SystemExit(f"No Swift files found under {test.directory}")
 
     app_group = build_group_tree(
         APP_TARGET,
@@ -169,7 +229,12 @@ def generate_pbxproj() -> str:
         APP_DIR,
         extra=APP_RESOURCES + ["Info.plist"],
     )
-    test_group = build_group_tree(TEST_TARGET, test_swift, TEST_DIR, extra=["Info.plist"])
+    test_groups = {
+        test.name: build_group_tree(
+            test.name, test_swift[test.name], test.directory, extra=["Info.plist"]
+        )
+        for test in TEST_TARGETS
+    }
 
     # ── identifiers ────────────────────────────────────────────────────────────
     ids = {
@@ -177,29 +242,20 @@ def generate_pbxproj() -> str:
         "main_group": object_id("group", "root"),
         "products_group": object_id("group", "Products"),
         "app_target": object_id("target", APP_TARGET),
-        "test_target": object_id("target", TEST_TARGET),
         "app_product": object_id("product", APP_TARGET),
-        "test_product": object_id("product", TEST_TARGET),
         "app_sources": object_id("phase", APP_TARGET, "sources"),
         "app_frameworks": object_id("phase", APP_TARGET, "frameworks"),
         "app_resources": object_id("phase", APP_TARGET, "resources"),
-        "test_sources": object_id("phase", TEST_TARGET, "sources"),
-        "test_frameworks": object_id("phase", TEST_TARGET, "frameworks"),
-        "test_resources": object_id("phase", TEST_TARGET, "resources"),
         "project_config_list": object_id("configlist", "project"),
         "app_config_list": object_id("configlist", APP_TARGET),
-        "test_config_list": object_id("configlist", TEST_TARGET),
         "project_debug": object_id("config", "project", "Debug"),
         "project_release": object_id("config", "project", "Release"),
         "app_debug": object_id("config", APP_TARGET, "Debug"),
         "app_release": object_id("config", APP_TARGET, "Release"),
-        "test_debug": object_id("config", TEST_TARGET, "Debug"),
-        "test_release": object_id("config", TEST_TARGET, "Release"),
-        "dependency": object_id("dependency", TEST_TARGET),
-        "container_proxy": object_id("proxy", TEST_TARGET),
         "variant_group": object_id("variant", VARIANT_STORYBOARD),
         "variant_base": object_id("file", APP_TARGET, "Base.lproj/Main.storyboard"),
     }
+    test_ids = {test.name: test_object_ids(test.name) for test in TEST_TARGETS}
 
     lines: list[str] = []
     out = lines.append
@@ -235,26 +291,28 @@ def generate_pbxproj() -> str:
         f"\t\t{variant_build} /* {VARIANT_STORYBOARD} in Resources */ = {{isa = PBXBuildFile; "
         f"fileRef = {ids['variant_group']} /* {VARIANT_STORYBOARD} */; }};"
     )
-    for relative in test_swift:
-        rel = relative.relative_to(TEST_DIR)
-        file_id = object_id("file", TEST_TARGET, str(rel))
-        build_id = object_id("build", TEST_TARGET, str(rel))
-        out(
-            f"\t\t{build_id} /* {rel.name} in Sources */ = {{isa = PBXBuildFile; "
-            f"fileRef = {file_id} /* {rel.name} */; }};"
-        )
+    for test in TEST_TARGETS:
+        for relative in test_swift[test.name]:
+            rel = relative.relative_to(test.directory)
+            file_id = object_id("file", test.name, str(rel))
+            build_id = object_id("build", test.name, str(rel))
+            out(
+                f"\t\t{build_id} /* {rel.name} in Sources */ = {{isa = PBXBuildFile; "
+                f"fileRef = {file_id} /* {rel.name} */; }};"
+            )
     out("/* End PBXBuildFile section */")
 
     # ── PBXContainerItemProxy ────────────────────────────────────────────────
     out("")
     out("/* Begin PBXContainerItemProxy section */")
-    out(f"\t\t{ids['container_proxy']} /* PBXContainerItemProxy */ = {{")
-    out("\t\t\tisa = PBXContainerItemProxy;")
-    out(f"\t\t\tcontainerPortal = {ids['project']} /* Project object */;")
-    out("\t\t\tproxyType = 1;")
-    out(f"\t\t\tremoteGlobalIDString = {ids['app_target']};")
-    out(f"\t\t\tremoteInfo = {APP_TARGET};")
-    out("\t\t};")
+    for test in TEST_TARGETS:
+        out(f"\t\t{test_ids[test.name]['proxy']} /* PBXContainerItemProxy */ = {{")
+        out("\t\t\tisa = PBXContainerItemProxy;")
+        out(f"\t\t\tcontainerPortal = {ids['project']} /* Project object */;")
+        out("\t\t\tproxyType = 1;")
+        out(f"\t\t\tremoteGlobalIDString = {ids['app_target']};")
+        out(f"\t\t\tremoteInfo = {APP_TARGET};")
+        out("\t\t};")
     out("/* End PBXContainerItemProxy section */")
 
     # ── PBXFileReference ─────────────────────────────────────────────────────
@@ -265,11 +323,13 @@ def generate_pbxproj() -> str:
         f"explicitFileType = wrapper.application; includeInIndex = 0; "
         f"path = {APP_TARGET}.app; sourceTree = BUILT_PRODUCTS_DIR; }};"
     )
-    out(
-        f"\t\t{ids['test_product']} /* {TEST_TARGET}.xctest */ = {{isa = PBXFileReference; "
-        f"explicitFileType = wrapper.cfbundle; includeInIndex = 0; "
-        f"path = {TEST_TARGET}.xctest; sourceTree = BUILT_PRODUCTS_DIR; }};"
-    )
+    for test in TEST_TARGETS:
+        out(
+            f"\t\t{test_ids[test.name]['product']} /* {test.name}.xctest */ = "
+            f"{{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; "
+            f"includeInIndex = 0; path = {test.name}.xctest; "
+            f"sourceTree = BUILT_PRODUCTS_DIR; }};"
+        )
 
     def emit_file_reference(target: str, relative: Path) -> None:
         file_id = object_id("file", target, str(relative))
@@ -288,16 +348,19 @@ def generate_pbxproj() -> str:
         f"lastKnownFileType = file.storyboard; name = Base; "
         f'path = Base.lproj/Main.storyboard; sourceTree = "<group>"; }};'
     )
-    for relative in test_swift:
-        emit_file_reference(TEST_TARGET, relative.relative_to(TEST_DIR))
-    emit_file_reference(TEST_TARGET, Path("Info.plist"))
+    for test in TEST_TARGETS:
+        for relative in test_swift[test.name]:
+            emit_file_reference(test.name, relative.relative_to(test.directory))
+        emit_file_reference(test.name, Path("Info.plist"))
     out("/* End PBXFileReference section */")
 
     # ── PBXFrameworksBuildPhase ──────────────────────────────────────────────
     out("")
     out("/* Begin PBXFrameworksBuildPhase section */")
-    for key, label in (("app_frameworks", APP_TARGET), ("test_frameworks", TEST_TARGET)):
-        out(f"\t\t{ids[key]} /* Frameworks */ = {{")
+    frameworks_phases = [(ids["app_frameworks"], APP_TARGET)]
+    frameworks_phases += [(test_ids[t.name]["frameworks"], t.name) for t in TEST_TARGETS]
+    for phase_id, label in frameworks_phases:
+        out(f"\t\t{phase_id} /* Frameworks */ = {{")
         out("\t\t\tisa = PBXFrameworksBuildPhase;")
         out("\t\t\tbuildActionMask = 2147483647;")
         out("\t\t\tfiles = (")
@@ -315,13 +378,17 @@ def generate_pbxproj() -> str:
 
     group_lines: list[str] = []
     app_group_id = render_group(app_group, APP_TARGET, group_lines)
-    test_group_id = render_group(test_group, TEST_TARGET, group_lines)
+    test_group_ids = {
+        test.name: render_group(test_groups[test.name], test.name, group_lines)
+        for test in TEST_TARGETS
+    }
 
     out(f"\t\t{ids['main_group']} = {{")
     out("\t\t\tisa = PBXGroup;")
     out("\t\t\tchildren = (")
     out(f"\t\t\t\t{app_group_id} /* {APP_TARGET} */,")
-    out(f"\t\t\t\t{test_group_id} /* {TEST_TARGET} */,")
+    for test in TEST_TARGETS:
+        out(f"\t\t\t\t{test_group_ids[test.name]} /* {test.name} */,")
     out(f"\t\t\t\t{ids['products_group']} /* Products */,")
     out("\t\t\t);")
     out('\t\t\tsourceTree = "<group>";')
@@ -332,7 +399,8 @@ def generate_pbxproj() -> str:
     out("\t\t\tisa = PBXGroup;")
     out("\t\t\tchildren = (")
     out(f"\t\t\t\t{ids['app_product']} /* {APP_TARGET}.app */,")
-    out(f"\t\t\t\t{ids['test_product']} /* {TEST_TARGET}.xctest */,")
+    for test in TEST_TARGETS:
+        out(f"\t\t\t\t{test_ids[test.name]['product']} /* {test.name}.xctest */,")
     out("\t\t\t);")
     out("\t\t\tname = Products;")
     out('\t\t\tsourceTree = "<group>";')
@@ -365,27 +433,29 @@ def generate_pbxproj() -> str:
     out('\t\t\tproductType = "com.apple.product-type.application";')
     out("\t\t};")
 
-    out(f"\t\t{ids['test_target']} /* {TEST_TARGET} */ = {{")
-    out("\t\t\tisa = PBXNativeTarget;")
-    out(
-        f"\t\t\tbuildConfigurationList = {ids['test_config_list']} "
-        f'/* Build configuration list for PBXNativeTarget "{TEST_TARGET}" */;'
-    )
-    out("\t\t\tbuildPhases = (")
-    out(f"\t\t\t\t{ids['test_sources']} /* Sources */,")
-    out(f"\t\t\t\t{ids['test_frameworks']} /* Frameworks */,")
-    out(f"\t\t\t\t{ids['test_resources']} /* Resources */,")
-    out("\t\t\t);")
-    out("\t\t\tbuildRules = (")
-    out("\t\t\t);")
-    out("\t\t\tdependencies = (")
-    out(f"\t\t\t\t{ids['dependency']} /* PBXTargetDependency */,")
-    out("\t\t\t);")
-    out(f"\t\t\tname = {TEST_TARGET};")
-    out(f"\t\t\tproductName = {TEST_TARGET};")
-    out(f"\t\t\tproductReference = {ids['test_product']} /* {TEST_TARGET}.xctest */;")
-    out('\t\t\tproductType = "com.apple.product-type.bundle.unit-test";')
-    out("\t\t};")
+    for test in TEST_TARGETS:
+        tid = test_ids[test.name]
+        out(f"\t\t{tid['target']} /* {test.name} */ = {{")
+        out("\t\t\tisa = PBXNativeTarget;")
+        out(
+            f"\t\t\tbuildConfigurationList = {tid['config_list']} "
+            f'/* Build configuration list for PBXNativeTarget "{test.name}" */;'
+        )
+        out("\t\t\tbuildPhases = (")
+        out(f"\t\t\t\t{tid['sources']} /* Sources */,")
+        out(f"\t\t\t\t{tid['frameworks']} /* Frameworks */,")
+        out(f"\t\t\t\t{tid['resources']} /* Resources */,")
+        out("\t\t\t);")
+        out("\t\t\tbuildRules = (")
+        out("\t\t\t);")
+        out("\t\t\tdependencies = (")
+        out(f"\t\t\t\t{tid['dependency']} /* PBXTargetDependency */,")
+        out("\t\t\t);")
+        out(f"\t\t\tname = {test.name};")
+        out(f"\t\t\tproductName = {test.name};")
+        out(f"\t\t\tproductReference = {tid['product']} /* {test.name}.xctest */;")
+        out(f'\t\t\tproductType = "{test.product_type}";')
+        out("\t\t};")
     out("/* End PBXNativeTarget section */")
 
     # ── PBXProject ───────────────────────────────────────────────────────────
@@ -402,10 +472,11 @@ def generate_pbxproj() -> str:
     out(f"\t\t\t\t\t{ids['app_target']} = {{")
     out("\t\t\t\t\t\tCreatedOnToolsVersion = 16.0;")
     out("\t\t\t\t\t};")
-    out(f"\t\t\t\t\t{ids['test_target']} = {{")
-    out("\t\t\t\t\t\tCreatedOnToolsVersion = 16.0;")
-    out(f"\t\t\t\t\t\tTestTargetID = {ids['app_target']};")
-    out("\t\t\t\t\t};")
+    for test in TEST_TARGETS:
+        out(f"\t\t\t\t\t{test_ids[test.name]['target']} = {{")
+        out("\t\t\t\t\t\tCreatedOnToolsVersion = 16.0;")
+        out(f"\t\t\t\t\t\tTestTargetID = {ids['app_target']};")
+        out("\t\t\t\t\t};")
     out("\t\t\t\t};")
     out("\t\t\t};")
     out(
@@ -425,7 +496,8 @@ def generate_pbxproj() -> str:
     out('\t\t\tprojectRoot = "";')
     out("\t\t\ttargets = (")
     out(f"\t\t\t\t{ids['app_target']} /* {APP_TARGET} */,")
-    out(f"\t\t\t\t{ids['test_target']} /* {TEST_TARGET} */,")
+    for test in TEST_TARGETS:
+        out(f"\t\t\t\t{test_ids[test.name]['target']} /* {test.name} */,")
     out("\t\t\t);")
     out("\t\t};")
     out("/* End PBXProject section */")
@@ -444,13 +516,14 @@ def generate_pbxproj() -> str:
     out("\t\t\t);")
     out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
     out("\t\t};")
-    out(f"\t\t{ids['test_resources']} /* Resources */ = {{")
-    out("\t\t\tisa = PBXResourcesBuildPhase;")
-    out("\t\t\tbuildActionMask = 2147483647;")
-    out("\t\t\tfiles = (")
-    out("\t\t\t);")
-    out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
-    out("\t\t};")
+    for test in TEST_TARGETS:
+        out(f"\t\t{test_ids[test.name]['resources']} /* Resources */ = {{")
+        out("\t\t\tisa = PBXResourcesBuildPhase;")
+        out("\t\t\tbuildActionMask = 2147483647;")
+        out("\t\t\tfiles = (")
+        out("\t\t\t);")
+        out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
+        out("\t\t};")
     out("/* End PBXResourcesBuildPhase section */")
 
     # ── PBXSourcesBuildPhase ─────────────────────────────────────────────────
@@ -467,27 +540,30 @@ def generate_pbxproj() -> str:
     out("\t\t\t);")
     out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
     out("\t\t};")
-    out(f"\t\t{ids['test_sources']} /* Sources */ = {{")
-    out("\t\t\tisa = PBXSourcesBuildPhase;")
-    out("\t\t\tbuildActionMask = 2147483647;")
-    out("\t\t\tfiles = (")
-    for relative in test_swift:
-        rel = relative.relative_to(TEST_DIR)
-        build_id = object_id("build", TEST_TARGET, str(rel))
-        out(f"\t\t\t\t{build_id} /* {rel.name} in Sources */,")
-    out("\t\t\t);")
-    out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
-    out("\t\t};")
+    for test in TEST_TARGETS:
+        out(f"\t\t{test_ids[test.name]['sources']} /* Sources */ = {{")
+        out("\t\t\tisa = PBXSourcesBuildPhase;")
+        out("\t\t\tbuildActionMask = 2147483647;")
+        out("\t\t\tfiles = (")
+        for relative in test_swift[test.name]:
+            rel = relative.relative_to(test.directory)
+            build_id = object_id("build", test.name, str(rel))
+            out(f"\t\t\t\t{build_id} /* {rel.name} in Sources */,")
+        out("\t\t\t);")
+        out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
+        out("\t\t};")
     out("/* End PBXSourcesBuildPhase section */")
 
     # ── PBXTargetDependency ──────────────────────────────────────────────────
     out("")
     out("/* Begin PBXTargetDependency section */")
-    out(f"\t\t{ids['dependency']} /* PBXTargetDependency */ = {{")
-    out("\t\t\tisa = PBXTargetDependency;")
-    out(f"\t\t\ttarget = {ids['app_target']} /* {APP_TARGET} */;")
-    out(f"\t\t\ttargetProxy = {ids['container_proxy']} /* PBXContainerItemProxy */;")
-    out("\t\t};")
+    for test in TEST_TARGETS:
+        tid = test_ids[test.name]
+        out(f"\t\t{tid['dependency']} /* PBXTargetDependency */ = {{")
+        out("\t\t\tisa = PBXTargetDependency;")
+        out(f"\t\t\ttarget = {ids['app_target']} /* {APP_TARGET} */;")
+        out(f"\t\t\ttargetProxy = {tid['proxy']} /* PBXContainerItemProxy */;")
+        out("\t\t};")
     out("/* End PBXTargetDependency section */")
 
     # ── PBXVariantGroup ──────────────────────────────────────────────────────
@@ -549,17 +625,16 @@ def generate_pbxproj() -> str:
         "SWIFT_EMIT_LOC_STRINGS": "YES",
     }
 
-    test_common = {
-        "BUNDLE_LOADER": f'"$(BUILT_PRODUCTS_DIR)/{APP_TARGET}.app/{APP_TARGET}"',
-        "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": CURRENT_PROJECT_VERSION,
-        "GENERATE_INFOPLIST_FILE": "NO",
-        "INFOPLIST_FILE": f"{TEST_TARGET}/Info.plist",
-        "MARKETING_VERSION": MARKETING_VERSION,
-        "PRODUCT_BUNDLE_IDENTIFIER": f"{BUNDLE_ID}.tests",
-        "PRODUCT_NAME": '"$(TARGET_NAME)"',
-        "TEST_HOST": '"$(BUNDLE_LOADER)"',
-    }
+    def test_settings(test: TestTarget) -> dict[str, str]:
+        return {
+            "CODE_SIGN_STYLE": "Automatic",
+            "CURRENT_PROJECT_VERSION": CURRENT_PROJECT_VERSION,
+            "GENERATE_INFOPLIST_FILE": "NO",
+            "INFOPLIST_FILE": f"{test.name}/Info.plist",
+            "MARKETING_VERSION": MARKETING_VERSION,
+            "PRODUCT_NAME": '"$(TARGET_NAME)"',
+            **test.settings,
+        }
 
     out("")
     out("/* Begin XCBuildConfiguration section */")
@@ -596,9 +671,11 @@ def generate_pbxproj() -> str:
         ),
         (ids["app_debug"], "Debug", app_common, {}),
         (ids["app_release"], "Release", app_common, {}),
-        (ids["test_debug"], "Debug", test_common, {}),
-        (ids["test_release"], "Release", test_common, {}),
     ]
+    for test in TEST_TARGETS:
+        settings = test_settings(test)
+        configurations.append((test_ids[test.name]["debug"], "Debug", settings, {}))
+        configurations.append((test_ids[test.name]["release"], "Release", settings, {}))
 
     for config_id, name, common, extra in configurations:
         out(f"\t\t{config_id} /* {name} */ = {{")
@@ -613,11 +690,20 @@ def generate_pbxproj() -> str:
     # ── XCConfigurationList ──────────────────────────────────────────────────
     out("")
     out("/* Begin XCConfigurationList section */")
-    for list_id, label, debug_id, release_id in (
+    config_lists = [
         (ids["project_config_list"], f'PBXProject "{PROJECT_NAME}"', ids["project_debug"], ids["project_release"]),
         (ids["app_config_list"], f'PBXNativeTarget "{APP_TARGET}"', ids["app_debug"], ids["app_release"]),
-        (ids["test_config_list"], f'PBXNativeTarget "{TEST_TARGET}"', ids["test_debug"], ids["test_release"]),
-    ):
+    ]
+    config_lists += [
+        (
+            test_ids[test.name]["config_list"],
+            f'PBXNativeTarget "{test.name}"',
+            test_ids[test.name]["debug"],
+            test_ids[test.name]["release"],
+        )
+        for test in TEST_TARGETS
+    ]
+    for list_id, label, debug_id, release_id in config_lists:
         out(f"\t\t{list_id} /* Build configuration list for {label} */ = {{")
         out("\t\t\tisa = XCConfigurationList;")
         out("\t\t\tbuildConfigurations = (")
@@ -666,17 +752,7 @@ SCHEME_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "{test_target_id}"
-               BuildableName = "{test_target}.xctest"
-               BlueprintName = "{test_target}"
-               ReferencedContainer = "container:{project_name}.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+{testables}      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -727,13 +803,33 @@ SCHEME_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
+TESTABLE_TEMPLATE = """         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "{test_target_id}"
+               BuildableName = "{test_target}.xctest"
+               BlueprintName = "{test_target}"
+               ReferencedContainer = "container:{project_name}.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+"""
+
+
 def generate_scheme() -> str:
+    testables = "".join(
+        TESTABLE_TEMPLATE.format(
+            test_target=test.name,
+            test_target_id=object_id("target", test.name),
+            project_name=PROJECT_NAME,
+        )
+        for test in TEST_TARGETS
+    )
     return SCHEME_TEMPLATE.format(
         app_target=APP_TARGET,
-        test_target=TEST_TARGET,
         app_target_id=object_id("target", APP_TARGET),
-        test_target_id=object_id("target", TEST_TARGET),
         project_name=PROJECT_NAME,
+        testables=testables,
     )
 
 
@@ -782,10 +878,12 @@ def main() -> int:
         path.write_text(content)
 
     app_count = len(collect_swift(APP_DIR))
-    test_count = len(collect_swift(TEST_DIR))
+    counts = ", ".join(
+        f"{len(collect_swift(test.directory))} {test.name} sources" for test in TEST_TARGETS
+    )
     print(
         f"✓ Wrote {PBXPROJ_PATH.relative_to(REPO_ROOT)} "
-        f"({app_count} app sources, {test_count} test sources)"
+        f"({app_count} app sources, {counts})"
     )
     return 0
 

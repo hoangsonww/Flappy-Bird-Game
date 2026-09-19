@@ -55,8 +55,15 @@ bootstrap: ## One-time setup: install hooks and backend dependencies
 
 # ── iOS game ─────────────────────────────────────────────────────────────────
 
+# Xcode keys the `.atlas` compile off the folder's timestamp, so editing a
+# sprite in place leaves a stale `bird.atlasc` in the app bundle and the game
+# keeps drawing the old art with no warning. Touching the folder is free.
+.PHONY: touch-atlases
+touch-atlases:
+	@touch FlappyBird/*.atlas
+
 .PHONY: build
-build: ## Build the game for the simulator
+build: touch-atlases ## Build the game for the simulator
 	@echo -e "$(CYAN)▸ Building $(SCHEME) ($(CONFIGURATION))$(RESET)"
 	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
 	  -destination "$(DESTINATION)" -configuration $(CONFIGURATION) \
@@ -64,8 +71,28 @@ build: ## Build the game for the simulator
 	  grep -E "error:|warning:|BUILD" || true
 
 .PHONY: test
-test: ## Run the Swift unit tests
-	@echo -e "$(CYAN)▸ Testing $(SCHEME)$(RESET)"
+test: touch-atlases ## Run the Swift unit tests
+	@echo -e "$(CYAN)▸ Testing $(SCHEME) (unit)$(RESET)"
+	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
+	  -destination "$(DESTINATION)" -configuration Debug \
+	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO \
+	  -only-testing:FlappyBirdTests test | \
+	  grep -E "error:|Executed|TEST (SUCCEEDED|FAILED)" || true
+
+# Drives the real UI on a simulator, so it is minutes rather than seconds —
+# kept out of `make test` and run on its own or via `make test-all`.
+.PHONY: test-ui
+test-ui: touch-atlases ## Run the XCUITest suite against a simulator
+	@echo -e "$(CYAN)▸ Testing $(SCHEME) (UI)$(RESET)"
+	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
+	  -destination "$(DESTINATION)" -configuration Debug \
+	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO \
+	  -only-testing:FlappyBirdUITests test | \
+	  grep -E "error:|Executed|TEST (SUCCEEDED|FAILED)" || true
+
+.PHONY: test-all
+test-all: touch-atlases ## Run both the unit and the UI suites
+	@echo -e "$(CYAN)▸ Testing $(SCHEME) (unit + UI)$(RESET)"
 	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
 	  -destination "$(DESTINATION)" -configuration Debug \
 	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO test | \

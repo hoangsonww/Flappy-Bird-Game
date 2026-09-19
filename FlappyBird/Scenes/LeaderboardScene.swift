@@ -5,17 +5,35 @@ final class LeaderboardScene: ListScene {
 
     private let windows = ["all", "daily", "weekly", "monthly"]
     private var loadTask: Task<Void, Never>?
+    private var statusToken: UUID?
+    /// Tracks the last connection state rendered, so the list is only rebuilt
+    /// when it actually changes.
+    private var renderedOnline: Bool?
 
     override var screenTitle: String { "LEADERBOARD" }
     override var segments: [String] { ["ALL TIME", "TODAY", "WEEK", "MONTH"] }
     override var rowHeight: CGFloat { 48 }
 
+    override func didMove(to view: SKView) {
+        super.didMove(to: view)
+
+        // Discovery runs in the background, so opening this screen moments after
+        // launch would otherwise show local scores forever — the guard in
+        // `buildContent()` sees `.searching` and never looks again.
+        statusToken = OnlineService.shared.observeStatus { [weak self] status in
+            guard let self, self.renderedOnline != status.isOnline else { return }
+            self.buildContent()
+        }
+    }
+
     override func willMove(from view: SKView) {
         loadTask?.cancel()
+        if let statusToken { OnlineService.shared.removeObserver(statusToken) }
     }
 
     override func buildContent() {
         loadTask?.cancel()
+        renderedOnline = OnlineService.shared.status.isOnline
 
         guard OnlineService.shared.status.isOnline else {
             showLocalScores()

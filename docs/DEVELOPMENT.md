@@ -50,6 +50,7 @@ make              # list every target with a description
 make doctor       # toolchain check
 make build        # build the game
 make test         # Swift unit tests
+make test-ui      # Swift UI tests (drives a simulator)
 make run          # build + launch in the simulator
 make xcodegen     # regenerate the Xcode project from the file tree
 make check        # everything CI runs except the iOS build
@@ -78,7 +79,8 @@ make xcodegen
 ```
 
 Every `.swift` under `FlappyBird/` joins the app target and every one under
-`FlappyBirdTests/` joins the test target. Object IDs are derived from paths, so
+`FlappyBirdTests/` joins the unit-test target and every file under
+`FlappyBirdUITests/` the UI-test target. Object IDs are derived from paths, so
 the output is byte-for-byte stable and two branches adding files do not
 conflict. CI runs `--check` and fails if the checked-in project is stale; the
 pre-commit hook installed by `make bootstrap` catches it earlier.
@@ -142,7 +144,8 @@ in `UpperCamelCase`, everything else `lowerCamelCase`. Comments explain *why*.
 
 ```bash
 make check     # xcodegen check, backend lint, OpenAPI, backend tests
-make test      # Swift tests
+make test      # Swift unit tests
+make test-ui   # Swift UI tests
 ```
 
 Then confirm the game still runs with **no backend at all** — that is the
@@ -152,7 +155,8 @@ project's core promise.
 
 ```
 FlappyBird/          the game
-FlappyBirdTests/     122 Swift tests
+FlappyBirdTests/     124 Swift unit tests
+FlappyBirdUITests/   25 Swift UI tests
 backend/             the optional API (106 tests)
 docs/                these guides
 scripts/             project generation, capture, bootstrap, release

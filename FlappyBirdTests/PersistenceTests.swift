@@ -63,6 +63,33 @@ final class PersistenceTests: XCTestCase {
         XCTAssertTrue(store.profile.pendingUploads.isEmpty)
     }
 
+    /// Clearing the queue is only half the job.
+    ///
+    /// `markUploaded` used to drop the run from `pendingUploads` and stop
+    /// there, so the history kept reporting "queued" for the lifetime of the
+    /// install even though the server had the run.
+    func testMarkUploadedAlsoFlagsTheRunInHistory() {
+        _ = store.record(run: TestSupport.run(score: 11), mode: .classic, deathCause: .pipe)
+        XCTAssertEqual(store.profile.recentRuns.first?.synced, false)
+
+        store.markUploaded(store.profile.pendingUploads)
+
+        XCTAssertEqual(store.profile.recentRuns.first?.synced, true, "The history still claims the run is pending")
+    }
+
+    func testMarkUploadedLeavesOtherRunsQueued() {
+        _ = store.record(run: TestSupport.run(score: 11), mode: .classic, deathCause: .pipe)
+        _ = store.record(run: TestSupport.run(score: 22), mode: .classic, deathCause: .pipe)
+        XCTAssertEqual(store.profile.pendingUploads.count, 2)
+
+        let uploaded = store.profile.pendingUploads.filter { $0.score == 22 }
+        store.markUploaded(uploaded)
+
+        XCTAssertEqual(store.profile.pendingUploads.map(\.score), [11])
+        XCTAssertEqual(store.profile.recentRuns.first(where: { $0.score == 22 })?.synced, true)
+        XCTAssertEqual(store.profile.recentRuns.first(where: { $0.score == 11 })?.synced, false)
+    }
+
     func testRecentRunsAreCappedAndNewestFirst() {
         for score in 1...60 {
             _ = store.record(run: TestSupport.run(score: score), mode: .classic, deathCause: .pipe)

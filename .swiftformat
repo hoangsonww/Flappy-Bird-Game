@@ -5,7 +5,9 @@
 --exclude build,backend,node_modules,Pods
 
 --indent 4
---maxwidth 120
+# Matches SwiftLint's hard limit (`line_length.error`); its 120 is a warning,
+# so wrapping at 120 here would churn lines the linter accepts.
+--maxwidth 160
 --wraparguments before-first
 --wrapparameters before-first
 --wrapcollections before-first
@@ -17,7 +19,22 @@
 --self remove
 --importgrouping testable-bottom
 --header ignore
---decluttercomments disabled
+# `(200..<300)` and `1_180` are how this codebase writes ranges and grouped
+# literals; the defaults would rewrite both.
+--ranges no-space
+--decimalgrouping ignore
+--binarygrouping ignore
+--hexgrouping ignore
+--octalgrouping ignore
 
-# Rules that would fight the codebase's deliberate formatting.
+# SwiftFormat is used here for whitespace, not for rewriting code. Every rule
+# below either restructures working code (switch expressions, hoisted `let`,
+# for-loops) or fights a deliberate house style — single-expression bodies kept
+# on one line, and explanatory `//` comments that `docComments` would promote to
+# `///`.
 --disable redundantSelf,wrapMultilineStatementBraces,blankLinesAtStartOfScope
+--disable docComments,redundantReturn,redundantType,conditionalAssignment
+--disable wrapPropertyBodies,wrapIfStatementBodies,wrapLoopBodies
+--disable wrapFunctionBodies,wrapIfExpressionBodies
+--disable hoistPatternLet,hoistTry,preferForLoop,preferKeyPath
+--disable opaqueGenericParameters,andOperator

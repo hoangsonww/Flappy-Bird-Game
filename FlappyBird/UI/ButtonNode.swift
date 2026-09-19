@@ -57,6 +57,13 @@ final class ButtonNode: SKNode {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// SpriteKit leaves this `.zero`, which makes the button unreachable by
+    /// VoiceOver and untappable by UI tests. See `AccessibleNode`.
+    override var accessibilityFrame: CGRect {
+        get { screenFrame(ofSize: size) }
+        set { super.accessibilityFrame = newValue }
+    }
+
     var title: String {
         get { label.text ?? "" }
         set {
@@ -68,6 +75,14 @@ final class ButtonNode: SKNode {
     func setEnabled(_ enabled: Bool) {
         isUserInteractionEnabled = enabled
         alpha = enabled ? 1 : 0.45
+        // Dimming alone only tells sighted players. Without the trait,
+        // VoiceOver offers "BUY" on a skin the wallet cannot afford as though
+        // tapping it would do something.
+        if enabled {
+            accessibilityTraits.remove(.notEnabled)
+        } else {
+            accessibilityTraits.insert(.notEnabled)
+        }
     }
 
     func setHighlighted(_ highlighted: Bool) {
@@ -161,6 +176,11 @@ final class ToggleRowNode: SKNode {
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override var accessibilityFrame: CGRect {
+        get { screenFrame(ofSize: size) }
+        set { super.accessibilityFrame = newValue }
     }
 
     private func refresh() {

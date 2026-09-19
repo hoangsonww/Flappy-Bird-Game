@@ -145,11 +145,24 @@ final class SettingsScene: ListScene {
             OnlineService.shared.reconnect()
         })
 
+        // Say what is actually happening: "waiting for a server" while connected
+        // reads as a bug even when the queue is simply being paced.
         let pending = GameStore.shared.profile.pendingUploads.count
+        let pendingDetail: String
+        if pending == 0 {
+            pendingDetail = "Everything is synced"
+        } else if !service.status.isOnline {
+            pendingDetail = "\(pending) run(s) waiting for a server"
+        } else if service.isRetryingUploads {
+            pendingDetail = "\(pending) run(s) left · retrying shortly"
+        } else {
+            pendingDetail = "\(pending) run(s) uploading…"
+        }
+
         rows.append(actionRow(
             badge: "☁️",
             title: "Pending uploads",
-            subtitle: pending == 0 ? "Everything is synced" : "\(pending) run(s) waiting for a server",
+            subtitle: pendingDetail,
             buttonTitle: "SYNC"
         ) {
             OnlineService.shared.flushQueue()
@@ -267,6 +280,8 @@ final class SettingsScene: ListScene {
         )
         button.position = CGPoint(x: (contentWidth - 8) / 2 - 56, y: 0)
         row.addChild(button)
+
+        describeRowText(accessibilitySentence(badge, title, subtitle), in: row, leftOf: button)
 
         return row
     }

@@ -43,6 +43,7 @@
 		7097264A8296FC882CE3980F /* GhostRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B60E835874A5E0367961FDA /* GhostRecorder.swift */; };
 		340B2B7BE18A0EA7D822997E /* PowerUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94582672BA25A8A5AF89C385 /* PowerUp.swift */; };
 		31BCB72AB334917F6022D54B /* WeatherSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */; };
+		3D432422E24EF5FA39D6831D /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1851D2C9358412F0979CF30 /* Accessibility.swift */; };
 		08714A84615F18D4A9401319 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AE83E36227232B785873D6 /* ButtonNode.swift */; };
 		598C5EBA9FF78B3EB85A2E6B /* CoinIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F505D4F0CACF00E213EC677D /* CoinIcon.swift */; };
 		D9F664C64E86EFA2AF92BCC0 /* GameOverPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA14B5DE9377977530F67C9 /* GameOverPanel.swift */; };
@@ -65,10 +66,23 @@
 		0D02745C93ACB8C1925682B7 /* SeededRandomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A33E9BDF90C5C355F4C7241 /* SeededRandomTests.swift */; };
 		D042A968ED412A9560E57346 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D43F61D9F24B851630CE8D6 /* TestSupport.swift */; };
 		D0BA4CE1E0425ED263C2F305 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD30938D824F6BC4BD16A46D /* ThemeTests.swift */; };
+		59E3C69354404D4188487FC1 /* GameUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA40FF628F3B5BBD15EFD3B /* GameUITestCase.swift */; };
+		D1AFC62DFDBFD28E35C711EF /* GameplayUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B87DED94C4BA8361AE7D9D0 /* GameplayUITests.swift */; };
+		BACF01DEFA081DF41CB28862 /* ListScreenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BFE3B7508F0C2F38F884C4 /* ListScreenUITests.swift */; };
+		18B2BC674190B9E5A14A9A05 /* MenuUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C562B9AE4105F081001E14 /* MenuUITests.swift */; };
+		13A287259FA8B24E642DDA27 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73AECE609B2D8379C7F09AC5 /* SettingsUITests.swift */; };
+		1D432775DA105C34AEC5EE0A /* ShopUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E779432C7763ADCC447E81 /* ShopUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		A367EA84BB7C2908EF11E0FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DE6C8C6CBB3E1DD447F87B3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FDD8D4AA8890EA956BA47AC1;
+			remoteInfo = FlappyBird;
+		};
+		04A8DB96F4A82046714DF1CB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DE6C8C6CBB3E1DD447F87B3 /* Project object */;
 			proxyType = 1;
@@ -80,6 +94,7 @@
 /* Begin PBXFileReference section */
 		B6C6B74795C676EC9FD9B3B0 /* FlappyBird.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlappyBird.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		20B868F7875D7B1A6ACC9C6B /* FlappyBirdTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlappyBirdTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		77B75C671663583388FDC1E4 /* FlappyBirdUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlappyBirdUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B56D8658508F948EDC8A38E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B168DD37A6299CD23C00C87C /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		A12FF069F7E36CE626CA3902 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
@@ -116,6 +131,7 @@
 		6B60E835874A5E0367961FDA /* GhostRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhostRecorder.swift; sourceTree = "<group>"; };
 		94582672BA25A8A5AF89C385 /* PowerUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerUp.swift; sourceTree = "<group>"; };
 		49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherSystem.swift; sourceTree = "<group>"; };
+		B1851D2C9358412F0979CF30 /* Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
 		D6AE83E36227232B785873D6 /* ButtonNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
 		F505D4F0CACF00E213EC677D /* CoinIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinIcon.swift; sourceTree = "<group>"; };
 		BDA14B5DE9377977530F67C9 /* GameOverPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverPanel.swift; sourceTree = "<group>"; };
@@ -140,6 +156,13 @@
 		4D43F61D9F24B851630CE8D6 /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
 		CD30938D824F6BC4BD16A46D /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
 		3336386F0B01AF8F8C4E9F22 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7AA40FF628F3B5BBD15EFD3B /* GameUITestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameUITestCase.swift; sourceTree = "<group>"; };
+		2B87DED94C4BA8361AE7D9D0 /* GameplayUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameplayUITests.swift; sourceTree = "<group>"; };
+		F1BFE3B7508F0C2F38F884C4 /* ListScreenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListScreenUITests.swift; sourceTree = "<group>"; };
+		80C562B9AE4105F081001E14 /* MenuUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuUITests.swift; sourceTree = "<group>"; };
+		73AECE609B2D8379C7F09AC5 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
+		E8E779432C7763ADCC447E81 /* ShopUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopUITests.swift; sourceTree = "<group>"; };
+		00BA10F6C35969236D359739 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +180,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FAC663EEE8CF7FEE2D137920 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -165,6 +195,7 @@
 			children = (
 				90AC23E6E153ED6C9586AE92 /* FlappyBird */,
 				F633FEC3E073CB20745A3D4E /* FlappyBirdTests */,
+				44DEF4F7193F1C92093326A4 /* FlappyBirdUITests */,
 				C863DA5204F95EC573510473 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -175,6 +206,7 @@
 			children = (
 				B6C6B74795C676EC9FD9B3B0 /* FlappyBird.app */,
 				20B868F7875D7B1A6ACC9C6B /* FlappyBirdTests.xctest */,
+				77B75C671663583388FDC1E4 /* FlappyBirdUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -260,6 +292,7 @@
 		0F0E5B064309A4CA2EE25EAE /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				B1851D2C9358412F0979CF30 /* Accessibility.swift */,
 				D6AE83E36227232B785873D6 /* ButtonNode.swift */,
 				F505D4F0CACF00E213EC677D /* CoinIcon.swift */,
 				BDA14B5DE9377977530F67C9 /* GameOverPanel.swift */,
@@ -309,6 +342,20 @@
 			path = FlappyBirdTests;
 			sourceTree = "<group>";
 		};
+		44DEF4F7193F1C92093326A4 /* FlappyBirdUITests */ = {
+			isa = PBXGroup;
+			children = (
+				7AA40FF628F3B5BBD15EFD3B /* GameUITestCase.swift */,
+				2B87DED94C4BA8361AE7D9D0 /* GameplayUITests.swift */,
+				00BA10F6C35969236D359739 /* Info.plist */,
+				F1BFE3B7508F0C2F38F884C4 /* ListScreenUITests.swift */,
+				80C562B9AE4105F081001E14 /* MenuUITests.swift */,
+				73AECE609B2D8379C7F09AC5 /* SettingsUITests.swift */,
+				E8E779432C7763ADCC447E81 /* ShopUITests.swift */,
+			);
+			path = FlappyBirdUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -347,6 +394,24 @@
 			productReference = 20B868F7875D7B1A6ACC9C6B /* FlappyBirdTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		0238B9AC31E2B4A028C40A78 /* FlappyBirdUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C2C5894927351BE48B3A02D /* Build configuration list for PBXNativeTarget "FlappyBirdUITests" */;
+			buildPhases = (
+				F8BA1C8C3E6AF3982B65E886 /* Sources */,
+				FAC663EEE8CF7FEE2D137920 /* Frameworks */,
+				FD08EC0879B3CD77C21DAD00 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C4FEDDBD6D65F538D54CB0B6 /* PBXTargetDependency */,
+			);
+			name = FlappyBirdUITests;
+			productName = FlappyBirdUITests;
+			productReference = 77B75C671663583388FDC1E4 /* FlappyBirdUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -362,6 +427,10 @@
 						CreatedOnToolsVersion = 16.0;
 					};
 					B637A94E16297C4567C7D599 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = FDD8D4AA8890EA956BA47AC1;
+					};
+					0238B9AC31E2B4A028C40A78 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = FDD8D4AA8890EA956BA47AC1;
 					};
@@ -382,6 +451,7 @@
 			targets = (
 				FDD8D4AA8890EA956BA47AC1 /* FlappyBird */,
 				B637A94E16297C4567C7D599 /* FlappyBirdTests */,
+				0238B9AC31E2B4A028C40A78 /* FlappyBirdUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -399,6 +469,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DAE549387CA19F9E0C9E3E46 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FD08EC0879B3CD77C21DAD00 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -448,6 +525,7 @@
 				7097264A8296FC882CE3980F /* GhostRecorder.swift in Sources */,
 				340B2B7BE18A0EA7D822997E /* PowerUp.swift in Sources */,
 				31BCB72AB334917F6022D54B /* WeatherSystem.swift in Sources */,
+				3D432422E24EF5FA39D6831D /* Accessibility.swift in Sources */,
 				08714A84615F18D4A9401319 /* ButtonNode.swift in Sources */,
 				598C5EBA9FF78B3EB85A2E6B /* CoinIcon.swift in Sources */,
 				D9F664C64E86EFA2AF92BCC0 /* GameOverPanel.swift in Sources */,
@@ -476,6 +554,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F8BA1C8C3E6AF3982B65E886 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				59E3C69354404D4188487FC1 /* GameUITestCase.swift in Sources */,
+				D1AFC62DFDBFD28E35C711EF /* GameplayUITests.swift in Sources */,
+				BACF01DEFA081DF41CB28862 /* ListScreenUITests.swift in Sources */,
+				18B2BC674190B9E5A14A9A05 /* MenuUITests.swift in Sources */,
+				13A287259FA8B24E642DDA27 /* SettingsUITests.swift in Sources */,
+				1D432775DA105C34AEC5EE0A /* ShopUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -483,6 +574,11 @@
 			isa = PBXTargetDependency;
 			target = FDD8D4AA8890EA956BA47AC1 /* FlappyBird */;
 			targetProxy = A367EA84BB7C2908EF11E0FE /* PBXContainerItemProxy */;
+		};
+		C4FEDDBD6D65F538D54CB0B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FDD8D4AA8890EA956BA47AC1 /* FlappyBird */;
+			targetProxy = 04A8DB96F4A82046714DF1CB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -645,6 +741,34 @@
 			};
 			name = Release;
 		};
+		240960775D358065975FF55B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FlappyBirdUITests/Info.plist;
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoangsonww.flappybird.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = FlappyBird;
+			};
+			name = Debug;
+		};
+		CC268210CCEE6448223DC9F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FlappyBirdUITests/Info.plist;
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoangsonww.flappybird.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = FlappyBird;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -671,6 +795,15 @@
 			buildConfigurations = (
 				1A9BE87245CE9D76236ECD3B /* Debug */,
 				022710A1CEA7F435381E4930 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0C2C5894927351BE48B3A02D /* Build configuration list for PBXNativeTarget "FlappyBirdUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				240960775D358065975FF55B /* Debug */,
+				CC268210CCEE6448223DC9F5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

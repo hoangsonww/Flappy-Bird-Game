@@ -14,6 +14,7 @@ final class AudioManager {
     /// One entry per sound the game can make.
     enum Effect: CaseIterable {
         case flap, score, coin, powerUp, crash, achievement, uiTap, countdown
+        case combo, bounce, pause, resume, personalBest
 
         /// Ascending/descending tone steps in Hz.
         fileprivate var tones: [Float] {
@@ -26,6 +27,11 @@ final class AudioManager {
             case .achievement: return [880, 1_108, 1_318, 1_760]
             case .uiTap: return [740]
             case .countdown: return [620]
+            case .combo: return [988, 1_318]
+            case .bounce: return [300, 430]
+            case .pause: return [620, 440]
+            case .resume: return [440, 620]
+            case .personalBest: return [880, 1_108, 1_318, 1_568, 1_976]
             }
         }
 
@@ -40,6 +46,10 @@ final class AudioManager {
             case .achievement: return 0.42
             case .uiTap: return 0.05
             case .countdown: return 0.09
+            case .combo: return 0.12
+            case .bounce: return 0.11
+            case .pause, .resume: return 0.14
+            case .personalBest: return 0.60
             }
         }
 
@@ -47,6 +57,8 @@ final class AudioManager {
             switch self {
             case .crash: return 0.35
             case .flap, .uiTap: return 0.18
+            case .bounce, .pause, .resume: return 0.20
+            case .personalBest: return 0.26
             default: return 0.24
             }
         }
@@ -54,7 +66,7 @@ final class AudioManager {
         /// Square waves read as 8-bit; triangle waves are gentler for UI.
         fileprivate var isSquare: Bool {
             switch self {
-            case .uiTap, .countdown: return false
+            case .uiTap, .countdown, .bounce, .pause, .resume: return false
             default: return true
             }
         }

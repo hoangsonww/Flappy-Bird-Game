@@ -134,12 +134,10 @@ class ListScene: SKScene {
         highlighted: Bool = false,
         badgeNode: SKNode? = nil
     ) -> SKNode {
-        let row = SKNode()
+        let row = AccessibleNode()
+        let rowSize = CGSize(width: contentWidth - 8, height: rowHeight - 6)
 
-        let background = SKShapeNode(
-            rectOf: CGSize(width: contentWidth - 8, height: rowHeight - 6),
-            cornerRadius: 9
-        )
+        let background = SKShapeNode(rectOf: rowSize, cornerRadius: 9)
         background.fillColor = highlighted
             ? Palette.accent.withAlphaComponent(0.18)
             : SKColor(white: 1, alpha: 0.05)
@@ -201,6 +199,32 @@ class ListScene: SKScene {
             row.addChild(subtitleLabel)
         }
 
+        // One element per row rather than four: VoiceOver reads "Best score,
+        // 58" instead of making the cursor walk badge, title, subtitle, value.
+        // The untruncated strings are used, so nothing is lost to the ellipsis
+        // the visible labels may carry.
+        row.describe(
+            accessibilitySentence(badge, title, subtitle, value),
+            size: rowSize,
+            traits: highlighted ? [.staticText, .selected] : .staticText
+        )
+
         return row
+    }
+
+    /// Describe the text of a row that carries its own button.
+    ///
+    /// Such a row cannot be an accessibility element itself — an element hides
+    /// its children, which would take the button out of the tree — so the text
+    /// is published as a sibling covering everything to the left of `button`.
+    func describeRowText(_ label: String, in row: SKNode, leftOf button: ButtonNode) {
+        let leftEdge = -(contentWidth - 8) / 2
+        let width = max(0, button.position.x - button.size.width / 2 - 8 - leftEdge)
+        guard width > 0 else { return }
+
+        let text = AccessibleNode()
+        text.position = CGPoint(x: leftEdge + width / 2, y: 0)
+        text.describe(label, size: CGSize(width: width, height: rowHeight - 6))
+        row.addChild(text)
     }
 }

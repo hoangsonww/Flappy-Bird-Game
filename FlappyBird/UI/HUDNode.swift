@@ -9,6 +9,11 @@ final class HUDNode: SKNode {
     private let sceneSize: CGSize
     private let safeTop: CGFloat
 
+    /// Distance from the screen edge to the right-hand column.
+    private static let sideInset: CGFloat = 14
+    /// Side of the square pause button.
+    private static let pauseSize: CGFloat = 40
+
     private let scoreLabel = SKLabelNode()
     private let bestLabel = SKLabelNode()
     private var coinLabel = SKLabelNode()
@@ -26,6 +31,10 @@ final class HUDNode: SKNode {
         zPosition = ZPosition.hud
 
         let topY = sceneSize.height - safeTop - 28
+        // One right-hand column. The pause button sets the edge that the mode
+        // name and the online dot align to; letting each pick its own inset is
+        // what left "CLASSIC" hanging 46 points short of the button above it.
+        let rightEdge = sceneSize.width - HUDNode.sideInset
 
         // Score — the one element that must be readable at a glance.
         scoreLabel.fontName = Fonts.display
@@ -66,7 +75,9 @@ final class HUDNode: SKNode {
         modeLabel.fontColor = Palette.secondaryText
         modeLabel.horizontalAlignmentMode = .right
         modeLabel.verticalAlignmentMode = .center
-        modeLabel.position = CGPoint(x: sceneSize.width - 60, y: topY - 26)
+        // Clear of the pause button: its lower edge is at `topY - 20`, and a
+        // label centred at -26 touches it.
+        modeLabel.position = CGPoint(x: rightEdge, y: topY - 34)
         modeLabel.text = mode.displayName.uppercased()
         addChild(modeLabel)
 
@@ -75,13 +86,15 @@ final class HUDNode: SKNode {
         timerLabel.fontColor = .white
         timerLabel.horizontalAlignmentMode = .right
         timerLabel.verticalAlignmentMode = .center
-        timerLabel.position = CGPoint(x: sceneSize.width - 60, y: topY)
+        // Beside the pause button rather than under it, so a counting clock
+        // never sits behind the control.
+        timerLabel.position = CGPoint(x: rightEdge - HUDNode.pauseSize - 10, y: topY)
         timerLabel.isHidden = mode.timeLimit == nil
         addChild(timerLabel)
 
         onlineDot.fillColor = Palette.secondaryText
         onlineDot.strokeColor = .clear
-        onlineDot.position = CGPoint(x: sceneSize.width - 24, y: topY - 44)
+        onlineDot.position = CGPoint(x: rightEdge - onlineDot.frame.width / 2, y: topY - 54)
         addChild(onlineDot)
 
         badgeContainer.position = CGPoint(x: 18, y: topY - 54)
@@ -89,11 +102,11 @@ final class HUDNode: SKNode {
 
         pauseButton = ButtonNode(
             title: "II",
-            size: CGSize(width: 40, height: 40),
+            size: CGSize(width: HUDNode.pauseSize, height: HUDNode.pauseSize),
             fontSize: 18,
             action: onPause
         )
-        pauseButton.position = CGPoint(x: sceneSize.width - 34, y: topY)
+        pauseButton.position = CGPoint(x: rightEdge - HUDNode.pauseSize / 2, y: topY)
         addChild(pauseButton)
     }
 

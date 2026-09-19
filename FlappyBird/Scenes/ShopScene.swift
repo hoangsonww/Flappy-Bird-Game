@@ -88,6 +88,12 @@ final class ShopScene: ListScene {
         button.setEnabled(!equipped && canAfford)
         row.addChild(button)
 
+        describeRowText(
+            accessibilitySentence(skin.displayName, detail.text, equipped ? "equipped" : nil),
+            in: row,
+            leftOf: button
+        )
+
         return row
     }
 
