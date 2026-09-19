@@ -35,8 +35,11 @@ final class GameOverPanel: PanelNode {
     ) {
         let hasRank = summary.rank != nil
         let height: CGFloat = hasRank ? 400 : 372
-        super.init(size: CGSize(width: width, height: height), title: summary.isPersonalBest ? "NEW BEST!" : "GAME OVER",
-                   titleColor: summary.isPersonalBest ? Palette.positive : Palette.accent)
+        super.init(
+            size: CGSize(width: width, height: height),
+            title: summary.isPersonalBest ? "NEW BEST!" : "GAME OVER",
+            titleColor: summary.isPersonalBest ? Palette.positive : Palette.accent
+        )
 
         let contentWidth = width - 56
         var y = contentTop - 8

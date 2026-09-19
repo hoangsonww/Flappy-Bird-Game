@@ -20,12 +20,17 @@ final class DailyChallengeHelperTests: XCTestCase {
         let modifier: String
     }
 
+    // A reference table. One case per line is far easier to scan and to diff
+    // against the server's output than four wrapped argument lists, so the
+    // length limit is waived here and nowhere else.
+    // swiftlint:disable line_length
     private let references: [Reference] = [
         Reference(date: "2026-03-19", seed: "d89338447203ed2f", mode: .classic, pipeGap: 110, gravityScale: 1.10, speedScale: 1.20, modifier: "nightfall"),
         Reference(date: "2026-01-01", seed: "36e5d70ff5b682b3", mode: .timeAttack, pipeGap: 160, gravityScale: 0.90, speedScale: 1.00, modifier: "windy"),
         Reference(date: "2026-09-19", seed: "a7bf6b4a6380233f", mode: .hardcore, pipeGap: 130, gravityScale: 1.05, speedScale: 0.90, modifier: "turbo"),
         Reference(date: "2026-12-25", seed: "a3b4923e7a40efae", mode: .hardcore, pipeGap: 170, gravityScale: 1.15, speedScale: 1.15, modifier: "none"),
     ]
+    // swiftlint:enable line_length
 
     func testMatchesTheBackendDerivationExactly() {
         for reference in references {
@@ -35,11 +40,15 @@ final class DailyChallengeHelperTests: XCTestCase {
             XCTAssertEqual(challenge.mode, reference.mode, "mode drift on \(reference.date)")
             XCTAssertEqual(challenge.pipeGap, reference.pipeGap, "gap drift on \(reference.date)")
             XCTAssertEqual(
-                challenge.gravityScale, reference.gravityScale, accuracy: 0.001,
+                challenge.gravityScale,
+                reference.gravityScale,
+                accuracy: 0.001,
                 "gravity drift on \(reference.date)"
             )
             XCTAssertEqual(
-                challenge.speedScale, reference.speedScale, accuracy: 0.001,
+                challenge.speedScale,
+                reference.speedScale,
+                accuracy: 0.001,
                 "speed drift on \(reference.date)"
             )
             XCTAssertEqual(challenge.modifier, reference.modifier, "modifier drift on \(reference.date)")
@@ -69,15 +78,14 @@ final class DailyChallengeHelperTests: XCTestCase {
         }
     }
 
-    func testTodayKeyIsUTCFormatted() {
+    func testTodayKeyIsUTCFormatted() throws {
         let key = DailyChallengeHelper.todayKey(now: Date(timeIntervalSince1970: 1_774_000_000))
         XCTAssertEqual(key.count, 10)
         XCTAssertTrue(key.contains("-"))
 
         // 2026-03-19T23:30:00Z is still the 19th in UTC even though local time may differ.
-        let late = DailyChallengeHelper.todayKey(
-            now: ISO8601DateFormatter().date(from: "2026-03-19T23:30:00Z")!
-        )
+        let instant = try XCTUnwrap(ISO8601DateFormatter().date(from: "2026-03-19T23:30:00Z"))
+        let late = DailyChallengeHelper.todayKey(now: instant)
         XCTAssertEqual(late, "2026-03-19")
     }
 

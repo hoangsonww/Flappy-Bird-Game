@@ -40,25 +40,33 @@ final class PipePair: SKNode {
         hasScored = true
     }
 
-    /// Build a pair.
-    ///
-    /// - Parameters:
-    ///   - gapCentre: y position of the middle of the gap, in scene coordinates.
-    ///   - gapHeight: vertical opening between the pipes.
-    ///   - sceneHeight: used to size the pipes and the full-height scoring gate.
-    ///   - content: what to place inside the gap.
-    ///   - tint: time-of-day tint applied to the pipe sprites.
-    ///   - tintStrength: blend factor for `tint`.
-    ///   - moving: whether the pair should oscillate vertically (harder modes).
-    static func make(
-        gapCentre: CGFloat,
-        gapHeight: CGFloat,
-        sceneHeight: CGFloat,
-        content: GapContent,
-        tint: SKColor,
-        tintStrength: CGFloat,
-        moving: Bool
-    ) -> PipePair {
+    /// Everything needed to build one obstacle.
+    struct Spec {
+        /// y position of the middle of the gap, in scene coordinates.
+        var gapCentre: CGFloat
+        /// Vertical opening between the pipes.
+        var gapHeight: CGFloat
+        /// Used to size the pipes and the full-height scoring gate.
+        var sceneHeight: CGFloat
+        /// What to place inside the gap.
+        var content: GapContent
+        /// Time-of-day tint applied to the pipe sprites, and its blend factor.
+        var tint: SKColor
+        var tintStrength: CGFloat
+        /// Whether the pair should oscillate vertically (harder modes).
+        var moving: Bool
+    }
+
+    /// Build a pair from a `Spec`.
+    static func make(_ spec: Spec) -> PipePair {
+        let gapCentre = spec.gapCentre
+        let gapHeight = spec.gapHeight
+        let sceneHeight = spec.sceneHeight
+        let content = spec.content
+        let tint = spec.tint
+        let tintStrength = spec.tintStrength
+        let moving = spec.moving
+
         let pair = PipePair()
         pair.zPosition = ZPosition.pipes
         pair.gapCentre = gapCentre

@@ -20,6 +20,9 @@ disabled_rules:
   - file_length
   # Colour/size literals in a game are clearer as numbers than as constants.
   - no_magic_numbers
+  # Directly contradicts `.swiftformat`, which sets `--commas always`. Trailing
+  # commas keep diffs to one line when a collection grows, so SwiftFormat wins.
+  - trailing_comma
 
 opt_in_rules:
   - array_init
@@ -34,7 +37,6 @@ opt_in_rules:
   - explicit_init
   - first_where
   - force_unwrapping
-  - implicitly_unwrapped_optional
   - joined_default_parameter
   - last_where
   - legacy_multiple
@@ -75,5 +77,7 @@ type_name:
 force_unwrapping:
   severity: warning
 
-implicitly_unwrapped_optional:
-  severity: warning
+# `implicitly_unwrapped_optional` is deliberately NOT enabled. It is the
+# idiomatic shape for two things this project does constantly: SpriteKit scene
+# properties built in `didMove(to:)`, and XCTest fixtures built in `setUp()`.
+# Turning it on would mean either lying with optionals or 40 inline disables.

@@ -21,11 +21,12 @@ flowchart TB
     Push --> BS["backend-smoke<br/>compose up → smoke → seed"]
     Push --> DI["docker-image<br/>build, boot, verify the handshake"]
     Push --> IOS["ios<br/>project check · build · 122 tests"]
-    Push --> SL["swift-lint<br/>(advisory)"]
+    Push --> SL["swift-lint<br/>SwiftLint"]
     Push --> SC["scripts<br/>bash -n · shellcheck"]
     Push --> ST["site<br/>index.html is well-formed"]
 
     BQ --> Gate["ci-passed"]
+    SL --> Gate
     BT --> Gate
     BS --> Gate
     DI --> Gate
@@ -34,7 +35,6 @@ flowchart TB
     ST --> Gate
 
     style Gate fill:#d1fae5,stroke:#059669,color:#065f46
-    style SL fill:#f3f4f6,stroke:#9ca3af,color:#374151
 ```
 
 `ci-passed` is the single job to make a required status check — it fails if any
@@ -59,7 +59,12 @@ game depends on.
 project means somebody added a source file without running `make xcodegen`, and
 the build would silently ignore it.
 
-**`swift-lint`** is `continue-on-error`. Style advice should not block a fix.
+**`swift-lint`** is a required job. The configuration is tuned to how the code
+is actually written — `trailing_comma` is off because it contradicts
+`.swiftformat`'s `--commas always`, and `implicitly_unwrapped_optional` is off
+because it is the idiomatic shape for SpriteKit scene properties and XCTest
+fixtures. SwiftLint exits non-zero only for `error`-severity violations, so a
+new release adding rules shows up as warnings rather than breaking the build.
 
 ## Releases
 

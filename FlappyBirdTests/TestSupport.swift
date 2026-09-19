@@ -10,9 +10,13 @@ import XCTest
 enum TestSupport {
 
     /// A throwaway defaults suite, cleared before it is handed over.
+    ///
+    /// `UserDefaults(suiteName:)` only returns nil for a malformed name, which a
+    /// UUID never is — but falling back keeps the tests running rather than
+    /// crashing the whole bundle if that ever changes.
     static func isolatedDefaults(_ name: String = UUID().uuidString) -> UserDefaults {
         let suite = "com.hoangsonww.flappybird.tests.\(name)"
-        let defaults = UserDefaults(suiteName: suite)!
+        guard let defaults = UserDefaults(suiteName: suite) else { return .standard }
         defaults.removePersistentDomain(forName: suite)
         return defaults
     }

@@ -19,25 +19,33 @@ final class StatsScene: ListScene {
         let profile = GameStore.shared.profile
         let stats = profile.stats
 
-        let rows: [(String, String, String)] = [
-            ("🏆", "Best score", String(profile.overallBest)),
-            ("🎮", "Games played", String(stats.gamesPlayed)),
-            ("📊", "Average score", String(format: "%.1f", stats.averageScore)),
-            ("🪵", "Pipes cleared", String(stats.totalPipes)),
-            ("◎", "Coins collected", String(stats.totalCoins)),
-            ("◉", "Coins in wallet", String(profile.wallet)),
-            ("✨", "Best combo", "x\(stats.bestCombo)"),
-            ("⏱", "Total play time", StatsScene.durationText(stats.totalPlayTime)),
-            ("🕰", "Longest run", StatsScene.durationText(Double(stats.longestRunMs) / 1000)),
-            ("🪵", "Deaths by pipe", String(stats.deathsByPipe)),
-            ("🌍", "Deaths by ground", String(stats.deathsByGround)),
-            ("⚡️", "Power-ups collected", String(stats.powerUpsCollected)),
-            ("🌙", "Runs into the night", String(stats.nightRuns)),
-            ("📅", "Daily challenges done", String(profile.dailyChallengesCompleted.count)),
-            ("👻", "Ghost best", profile.ghostScore > 0 ? String(profile.ghostScore) : "—"),
+        // A named shape rather than a 3-tuple: the call site below reads better
+        // and it keeps the rows self-describing.
+        struct Row {
+            let badge: String
+            let title: String
+            let value: String
+        }
+
+        let rows: [Row] = [
+            Row(badge: "🏆", title: "Best score", value: String(profile.overallBest)),
+            Row(badge: "🎮", title: "Games played", value: String(stats.gamesPlayed)),
+            Row(badge: "📊", title: "Average score", value: String(format: "%.1f", stats.averageScore)),
+            Row(badge: "🪵", title: "Pipes cleared", value: String(stats.totalPipes)),
+            Row(badge: "◎", title: "Coins collected", value: String(stats.totalCoins)),
+            Row(badge: "◉", title: "Coins in wallet", value: String(profile.wallet)),
+            Row(badge: "✨", title: "Best combo", value: "x\(stats.bestCombo)"),
+            Row(badge: "⏱", title: "Total play time", value: StatsScene.durationText(stats.totalPlayTime)),
+            Row(badge: "🕰", title: "Longest run", value: StatsScene.durationText(Double(stats.longestRunMs) / 1000)),
+            Row(badge: "🪵", title: "Deaths by pipe", value: String(stats.deathsByPipe)),
+            Row(badge: "🌍", title: "Deaths by ground", value: String(stats.deathsByGround)),
+            Row(badge: "⚡️", title: "Power-ups collected", value: String(stats.powerUpsCollected)),
+            Row(badge: "🌙", title: "Runs into the night", value: String(stats.nightRuns)),
+            Row(badge: "📅", title: "Daily challenges done", value: String(profile.dailyChallengesCompleted.count)),
+            Row(badge: "👻", title: "Ghost best", value: profile.ghostScore > 0 ? String(profile.ghostScore) : "—"),
         ]
 
-        setRows(rows.map { makeRow(badge: $0.0, title: $0.1, subtitle: nil, value: $0.2) })
+        setRows(rows.map { makeRow(badge: $0.badge, title: $0.title, subtitle: nil, value: $0.value) })
     }
 
     private func showPerMode() {

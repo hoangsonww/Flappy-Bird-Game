@@ -26,9 +26,9 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -77,9 +77,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload coverage
         if: matrix.node == '22' && matrix.driver == 'memory'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: backend-coverage
           path: backend/coverage
@@ -112,9 +112,9 @@ jobs:
     name: Backend · end-to-end smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -156,12 +156,12 @@ jobs:
     name: Backend · container image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Build the production image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           target: prod
@@ -191,7 +191,7 @@ jobs:
     name: iOS · build and test
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.4.app || sudo xcode-select -s /Applications/Xcode.app
@@ -224,7 +224,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ios-test-results
           path: TestResults.xcresult
@@ -233,11 +233,14 @@ jobs:
   swift-lint:
     name: iOS · SwiftLint
     runs-on: macos-15
-    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: Install SwiftLint
         run: brew install swiftlint
+
+      # SwiftLint exits non-zero only for `error`-severity violations, so a new
+      # release adding rules surfaces as warnings rather than breaking the build.
       - name: Lint
         run: swiftlint lint --reporter github-actions-logging
 
@@ -246,7 +249,7 @@ jobs:
     name: Shell scripts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check syntax
         run: for f in scripts/*.sh; do bash -n "$f"; done
       - name: ShellCheck
@@ -258,7 +261,7 @@ jobs:
     name: Landing page
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check the page is well-formed
         run: |
           python3 - <<'PY'
@@ -292,7 +295,7 @@ jobs:
   ci-passed:
     name: CI passed
     runs-on: ubuntu-latest
-    needs: [backend-quality, backend-tests, backend-smoke, docker-image, ios, scripts, site]
+    needs: [backend-quality, backend-tests, backend-smoke, docker-image, ios, swift-lint, scripts, site]
     if: always()
     steps:
       - name: Verify every required job succeeded

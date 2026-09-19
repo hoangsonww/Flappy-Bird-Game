@@ -108,9 +108,14 @@ final class ParallaxWorld {
         let image = renderer.image { _ in
             UIColor.white.setFill()
             // Three overlapping ellipses make a believable pixel-ish cloud.
-            UIBezierPath(ovalIn: CGRect(x: 0, y: size.height * 0.3, width: size.width * 0.6, height: size.height * 0.7)).fill()
-            UIBezierPath(ovalIn: CGRect(x: size.width * 0.25, y: 0, width: size.width * 0.55, height: size.height)).fill()
-            UIBezierPath(ovalIn: CGRect(x: size.width * 0.45, y: size.height * 0.25, width: size.width * 0.55, height: size.height * 0.75)).fill()
+            let w = size.width
+            let h = size.height
+            let puffs = [
+                CGRect(x: 0, y: h * 0.30, width: w * 0.60, height: h * 0.70),
+                CGRect(x: w * 0.25, y: 0, width: w * 0.55, height: h),
+                CGRect(x: w * 0.45, y: h * 0.25, width: w * 0.55, height: h * 0.75),
+            ]
+            for puff in puffs { UIBezierPath(ovalIn: puff).fill() }
         }
         let texture = SKTexture(image: image)
         return SKSpriteNode(texture: texture)

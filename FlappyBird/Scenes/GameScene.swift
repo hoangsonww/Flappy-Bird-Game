@@ -204,7 +204,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let label = SKLabelNode(fontNamed: Fonts.body)
         label.fontSize = 11
         label.fontColor = .white
-        label.numberOfLines = 4
+        label.numberOfLines = 5
         label.horizontalAlignmentMode = .left
         label.verticalAlignmentMode = .top
         label.position = CGPoint(x: 14, y: size.height - (view?.safeAreaInsets.top ?? 0) - 96)
@@ -230,7 +230,8 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let lines = [
             "state \(state) t=" + String(format: "%.1f", elapsed),
             "y=\(Int(bird.position.y)) v=\(Int(bird.physicsBody?.velocity.dy ?? 0))",
-            "pipes=\(pipesNode.children.count) nextX=\(next.map { Int($0.position.x) } ?? -1) gap=\(next.map { Int($0.gapCentre) } ?? -1)",
+            "pipes=\(pipesNode.children.count) nextX=\(next.map { Int($0.position.x) } ?? -1)",
+            "gap=\(next.map { Int($0.gapCentre) } ?? -1)",
             "score=\(stats.score) weather=\(weatherSystem.weather.rawValue)",
         ]
         debugLabel.text = lines.joined(separator: "\n")
@@ -523,13 +524,15 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let moving = mode.ramps && stats.pipesPassed >= 25 && generator.chance(0.22)
 
         let pair = PipePair.make(
-            gapCentre: centre,
-            gapHeight: gap,
-            sceneHeight: size.height,
-            content: content,
-            tint: timeOfDay.worldTint,
-            tintStrength: timeOfDay.worldTintStrength,
-            moving: moving
+            PipePair.Spec(
+                gapCentre: centre,
+                gapHeight: gap,
+                sceneHeight: size.height,
+                content: content,
+                tint: timeOfDay.worldTint,
+                tintStrength: timeOfDay.worldTintStrength,
+                moving: moving
+            )
         )
 
         let pipeWidth = SKTexture(imageNamed: "PipeUp").size().width * GameConfig.pipeScale
@@ -653,7 +656,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Day/night
 
     private func advanceDayNightIfNeeded() {
-        guard stats.pipesPassed % GameConfig.pipesPerDayNightCycle == 0 else { return }
+        guard stats.pipesPassed.isMultiple(of: GameConfig.pipesPerDayNightCycle) else { return }
         guard mode != .daily || dailyChallenge?.modifier != "nightfall" else { return }
 
         timeOfDay = timeOfDay.next
@@ -801,13 +804,14 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeButton.position = CGPoint(x: 0, y: 18)
         panel.addChild(resumeButton)
 
-        let restartButton = ButtonNode(title: "RESTART", size: CGSize(width: 220, height: 40), fontSize: 18) { [weak self] in
+        let buttonSize = CGSize(width: 220, height: 40)
+        let restartButton = ButtonNode(title: "RESTART", size: buttonSize, fontSize: 18) { [weak self] in
             self?.restart()
         }
         restartButton.position = CGPoint(x: 0, y: -34)
         panel.addChild(restartButton)
 
-        let menuButton = ButtonNode(title: "MENU", size: CGSize(width: 220, height: 40), fontSize: 18) { [weak self] in
+        let menuButton = ButtonNode(title: "MENU", size: buttonSize, fontSize: 18) { [weak self] in
             self?.returnToMenu()
         }
         menuButton.position = CGPoint(x: 0, y: -84)

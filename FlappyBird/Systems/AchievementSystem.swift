@@ -23,6 +23,10 @@ struct Achievement: Identifiable, Equatable {
 
 /// Evaluates achievements after every run and reports what was newly unlocked.
 enum AchievementCatalog {
+    // A reference table that is mirrored field-for-field on the server. One
+    // achievement per line is far easier to scan and to diff than 18 blocks of
+    // wrapped arguments, so the length limit is waived here and nowhere else.
+    // swiftlint:disable line_length
     static let all: [Achievement] = [
         Achievement(code: "first_flight", name: "First Flight", detail: "Pass your first pipe.", icon: "🐣", points: 5, metric: .score, threshold: 1, secret: false),
         Achievement(code: "getting_warm", name: "Getting Warm", detail: "Score 10 in a single run.", icon: "🔥", points: 10, metric: .score, threshold: 10, secret: false),
@@ -43,6 +47,7 @@ enum AchievementCatalog {
         Achievement(code: "perfect_start", name: "Perfect Start", detail: "Pass 10 pipes without using a power-up.", icon: "🎯", points: 25, metric: .special, threshold: 1, secret: false),
         Achievement(code: "ghost_rider", name: "Ghost Rider", detail: "Beat your own ghost replay.", icon: "👻", points: 45, metric: .special, threshold: 1, secret: true),
     ]
+    // swiftlint:enable line_length
 
     static let totalPoints = all.reduce(0) { $0 + $1.points }
 

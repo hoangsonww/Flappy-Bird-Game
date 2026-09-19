@@ -143,7 +143,7 @@ actor APIClient {
             method,
             path,
             query: query,
-            bodyData: body.map { try? JSONSerialization.data(withJSONObject: $0.compactMapValues { $0 }) } ?? nil,
+            bodyData: body.flatMap { try? JSONSerialization.data(withJSONObject: $0.compactMapValues { $0 }) },
             authenticated: authenticated
         )
         return try decode(data)
@@ -175,7 +175,7 @@ actor APIClient {
             method,
             path,
             query: [],
-            bodyData: body.map { try? JSONSerialization.data(withJSONObject: $0.compactMapValues { $0 }) } ?? nil,
+            bodyData: body.flatMap { try? JSONSerialization.data(withJSONObject: $0.compactMapValues { $0 }) },
             authenticated: authenticated
         )
     }
@@ -272,8 +272,8 @@ actor APIClient {
 
     private func decode<T: Decodable>(_ data: Data) throws -> T {
         // 204 responses have an empty body; represent that as an empty object.
-        if data.isEmpty, let empty = "{}".data(using: .utf8) {
-            return try decoder.decode(T.self, from: empty)
+        if data.isEmpty {
+            return try decoder.decode(T.self, from: Data("{}".utf8))
         }
         do {
             return try decoder.decode(T.self, from: data)

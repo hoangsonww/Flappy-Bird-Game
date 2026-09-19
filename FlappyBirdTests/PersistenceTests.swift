@@ -15,7 +15,8 @@ final class PersistenceTests: XCTestCase {
     // MARK: - Runs
 
     func testRecordingARunUpdatesBestScoreAndStats() {
-        let isBest = store.record(run: TestSupport.run(score: 25, coins: 8, combo: 4), mode: .classic, deathCause: .pipe)
+        let run = TestSupport.run(score: 25, coins: 8, combo: 4)
+        let isBest = store.record(run: run, mode: .classic, deathCause: .pipe)
 
         XCTAssertTrue(isBest)
         XCTAssertEqual(store.profile.bestScore(for: .classic), 25)
