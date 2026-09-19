@@ -57,7 +57,7 @@ struct Log {
     /// (stdout is buffered and frequently never flushed for a UI process).
     private func echo(_ level: String, _ text: String) {
         #if DEBUG
-        FileHandle.standardError.write(Data("[\(level)] [\(category)] \(text)\n".utf8))
+            FileHandle.standardError.write(Data("[\(level)] [\(category)] \(text)\n".utf8))
         #endif
     }
 }

@@ -1,6 +1,6 @@
 import CoreGraphics
-import Foundation
 import CryptoKit
+import Foundation
 
 /// Local mirror of the server's daily-challenge derivation.
 ///

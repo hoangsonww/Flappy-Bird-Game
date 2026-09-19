@@ -18,10 +18,10 @@ struct SeededRandom: RandomNumberGenerator {
 
     /// Derive a generator from an arbitrary string seed (e.g. the server's hex seed).
     init(stringSeed: String) {
-        var hash: UInt64 = 0xcbf2_9ce4_8422_2325 // FNV-1a offset basis
+        var hash: UInt64 = 0xCBF2_9CE4_8422_2325 // FNV-1a offset basis
         for byte in stringSeed.utf8 {
             hash ^= UInt64(byte)
-            hash = hash.multipliedReportingOverflow(by: 0x100_0000_01b3).partialValue
+            hash = hash.multipliedReportingOverflow(by: 0x100_0000_01B3).partialValue
         }
         self.init(seed: hash)
     }

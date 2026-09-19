@@ -207,7 +207,7 @@ final class GameStore {
                 records.contains { isSameRun($0, pending) }
             }
             for index in profile.recentRuns.indices
-            where records.contains(where: { isSameRun($0, profile.recentRuns[index]) }) {
+                where records.contains(where: { isSameRun($0, profile.recentRuns[index]) }) {
                 profile.recentRuns[index].synced = true
             }
         }

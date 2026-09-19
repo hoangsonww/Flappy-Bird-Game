@@ -7,13 +7,13 @@ import SpriteKit
 struct PhysicsCategory: OptionSet {
     let rawValue: UInt32
 
-    static let bird     = PhysicsCategory(rawValue: 1 << 0)
-    static let world    = PhysicsCategory(rawValue: 1 << 1)
-    static let pipe     = PhysicsCategory(rawValue: 1 << 2)
+    static let bird = PhysicsCategory(rawValue: 1 << 0)
+    static let world = PhysicsCategory(rawValue: 1 << 1)
+    static let pipe = PhysicsCategory(rawValue: 1 << 2)
     static let scoreGate = PhysicsCategory(rawValue: 1 << 3)
-    static let coin     = PhysicsCategory(rawValue: 1 << 4)
-    static let powerUp  = PhysicsCategory(rawValue: 1 << 5)
-    static let ceiling  = PhysicsCategory(rawValue: 1 << 6)
+    static let coin = PhysicsCategory(rawValue: 1 << 4)
+    static let powerUp = PhysicsCategory(rawValue: 1 << 5)
+    static let ceiling = PhysicsCategory(rawValue: 1 << 6)
 }
 
 /// Z-ordering. Explicit constants beat scattered magic numbers.

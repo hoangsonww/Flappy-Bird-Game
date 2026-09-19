@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// The difficulty curve has to stay bounded: a great run should be hard, never

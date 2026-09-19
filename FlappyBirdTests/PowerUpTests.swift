@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// Power-up activation, expiry, stacking and shield charges.

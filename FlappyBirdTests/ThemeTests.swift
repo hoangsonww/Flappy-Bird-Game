@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// Skins, time-of-day cycling and font fallbacks.

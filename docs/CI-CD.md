@@ -66,6 +66,17 @@ because it is the idiomatic shape for SpriteKit scene properties and XCTest
 fixtures. SwiftLint exits non-zero only for `error`-severity violations, so a
 new release adding rules shows up as warnings rather than breaking the build.
 
+`.swiftformat` is deliberately narrow: it handles whitespace and leaves code
+alone. Every rule that restructures working code — switch expressions, hoisted
+`let`, single-expression bodies wrapped onto their own lines — is disabled,
+because the result is a large diff that changes how the code reads without
+making it more correct. Its width matches SwiftLint's `line_length.error`
+rather than the warning, so the two tools cannot disagree about a line.
+
+**`ios`** runs the unit tests and the UI tests as separate steps. The UI suite
+drives a simulator, so it is minutes rather than seconds; splitting it keeps
+which of the two failed obvious in the run summary.
+
 ## Releases
 
 Every merge to the default branch is *evaluated* for a release. A merge that

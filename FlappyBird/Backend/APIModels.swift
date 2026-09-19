@@ -188,6 +188,7 @@ struct APIErrorEnvelope: Codable {
         let message: String
         let requestId: String?
     }
+
     let error: Payload
 }
 

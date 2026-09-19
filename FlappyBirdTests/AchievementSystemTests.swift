@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// Unlock evaluation, including the client-only "special" achievements.

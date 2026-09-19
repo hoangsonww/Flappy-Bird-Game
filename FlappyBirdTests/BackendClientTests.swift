@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// URL handling, discovery candidate ordering and DTO decoding.

@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// The daily challenge only works if the generator is reproducible.

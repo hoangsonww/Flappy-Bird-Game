@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// `GameStore` and `Settings` — the only things that survive an app restart.

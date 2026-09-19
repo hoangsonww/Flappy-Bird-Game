@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// Parity with the backend's derivation.

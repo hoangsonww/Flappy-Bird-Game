@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// Medals, physics categories, run bookkeeping and mode rules.

@@ -1,5 +1,4 @@
 import XCTest
-
 @testable import FlappyBird
 
 /// Ghost sampling and interpolated playback.

@@ -1,6 +1,5 @@
 import Foundation
 import XCTest
-
 @testable import FlappyBird
 
 /// Helpers shared by the unit tests.
