@@ -196,6 +196,32 @@ folder into `bird.atlasc` at build time.
 
 ---
 
+## Rotation and glyphs
+
+A power-up badge spins. The **ring** spins — the symbol inside it does not.
+
+```mermaid
+flowchart LR
+    subgraph Wrong["Rotating the whole badge"]
+        W1["container rotates"] --> W2["ring rotates ✅"]
+        W1 --> W3["glyph rotates ❌<br/><i>upside down twice a turn</i>"]
+    end
+
+    subgraph Right["Rotating the ring only"]
+        R1["container: static"] --> R2["ring: rotate forever"]
+        R1 --> R3["glyph: upright"]
+    end
+
+    style Wrong fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+    style Right fill:#d1fae5,stroke:#059669,color:#065f46
+```
+
+**A symbol has an up.** Anything legible — a glyph, a digit, a word — should
+stay level while its decoration moves. The same applies to the bird, whose
+rotation is clamped so a long fall never spins it past vertical.
+
+---
+
 ## Day and night
 
 Every 20 pipes the world advances: **Day → Sunset → Night → Dawn**. The sky

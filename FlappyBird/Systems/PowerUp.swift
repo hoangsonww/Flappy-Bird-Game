@@ -10,12 +10,18 @@ enum PowerUpKind: String, CaseIterable, Codable {
     case doublePoints
     case shrink
 
+    /// One glyph, always.
+    ///
+    /// Double points used to be `"✖️2"` — two characters, which read as a red
+    /// cross next to a digit rather than "times two", and which the HUD then
+    /// concatenated with the seconds remaining: eight seconds of double points
+    /// rendered as `✖️28`.
     var symbol: String {
         switch self {
         case .shield: return "🛡"
         case .slowMotion: return "⏳"
         case .magnet: return "🧲"
-        case .doublePoints: return "✖️2"
+        case .doublePoints: return "⭐️"
         case .shrink: return "🔻"
         }
     }

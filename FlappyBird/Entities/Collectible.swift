@@ -43,15 +43,22 @@ enum Collectible {
     }
 
     /// A pulsing power-up badge.
+    ///
+    /// The ring spins; the glyph does not. Rotating the whole badge turned the
+    /// symbol upside down twice a revolution, which looked like a rendering
+    /// fault rather than an animation — a symbol has an up.
     static func makePowerUp(kind: PowerUpKind) -> SKNode {
-        let node = SKShapeNode(circleOfRadius: 16)
-        node.fillColor = kind.color.withAlphaComponent(0.22)
-        node.strokeColor = kind.color
-        node.lineWidth = 2.5
-        node.glowWidth = 2
+        let node = SKNode()
         node.zPosition = ZPosition.collectible
         node.name = powerUpKey
         node.userData = ["kind": kind.rawValue]
+
+        let ring = SKShapeNode(circleOfRadius: 16)
+        ring.fillColor = kind.color.withAlphaComponent(0.22)
+        ring.strokeColor = kind.color
+        ring.lineWidth = 2.5
+        ring.glowWidth = 2
+        node.addChild(ring)
 
         let label = SKLabelNode(text: kind.symbol)
         label.fontSize = 17
@@ -72,7 +79,7 @@ enum Collectible {
         ])
         pulse.timingMode = .easeInEaseOut
         node.run(.repeatForever(pulse))
-        node.run(.repeatForever(.rotate(byAngle: .pi * 2, duration: 6)))
+        ring.run(.repeatForever(.rotate(byAngle: .pi * 2, duration: 6)))
 
         return node
     }

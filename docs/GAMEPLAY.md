@@ -90,7 +90,7 @@ Disabled in Hardcore and Daily, where everyone must face the same layout.
 | Shield | 🛡 | until used | Absorbs one lethal hit and bounces you clear. Up to 2 banked. |
 | Slow-Mo | ⏳ | 5 s | The whole world scrolls at 55 %. |
 | Coin Magnet | 🧲 | 8 s | Pulls coins within 170 pt toward you. |
-| Double Points | ✖️2 | 10 s | Two points per pipe. |
+| Double Points | ⭐️ | 10 s | Two points per pipe. |
 | Shrink | 🔻 | 8 s | 65 % size, hitbox included. |
 
 Re-collecting the same power-up **extends** it rather than replacing it. The

@@ -13,6 +13,9 @@ final class HUDNode: SKNode {
     private static let sideInset: CGFloat = 14
     /// Side of the square pause button.
     private static let pauseSize: CGFloat = 40
+    /// Width of one active-power-up pill, and the pitch between them.
+    private static let badgeWidth: CGFloat = 56
+    private static let badgeSpacing: CGFloat = 62
     /// Geometry of the two bars that make up the pause glyph.
     private static let pauseBarWidth: CGFloat = 5
     private static let pauseBarHeight: CGFloat = 17
@@ -197,9 +200,17 @@ final class HUDNode: SKNode {
 
         for (index, kind) in kinds.enumerated() {
             let badge = SKNode()
-            badge.position = CGPoint(x: CGFloat(index) * 54, y: 0)
+            // The pill is centred on the badge's origin, so the first one has to
+            // start half a pill in — otherwise its left half sits off-screen.
+            badge.position = CGPoint(
+                x: HUDNode.badgeWidth / 2 + CGFloat(index) * HUDNode.badgeSpacing,
+                y: 0
+            )
 
-            let pill = SKShapeNode(rectOf: CGSize(width: 48, height: 22), cornerRadius: 11)
+            let pill = SKShapeNode(
+                rectOf: CGSize(width: HUDNode.badgeWidth, height: 22),
+                cornerRadius: 11
+            )
             pill.fillColor = kind.color.withAlphaComponent(0.25)
             pill.strokeColor = kind.color
             pill.lineWidth = 1.5
@@ -207,7 +218,11 @@ final class HUDNode: SKNode {
 
             let text = SKLabelNode(fontNamed: Fonts.body)
             let seconds = remaining(kind)
-            text.text = kind == .shield ? kind.symbol : "\(kind.symbol)\(Int(ceil(seconds)))"
+            // The unit and the gap matter: glyph and number run together
+            // otherwise, and a two-character symbol made it unreadable.
+            text.text = kind == .shield
+                ? kind.symbol
+                : "\(kind.symbol) \(Int(ceil(seconds)))s"
             text.fontSize = 12
             text.fontColor = .white
             text.verticalAlignmentMode = .center
