@@ -161,6 +161,6 @@ backend/             the optional API (106 tests)
 docs/                these guides
 scripts/             project generation, capture, bootstrap, release
 ops/                 Prometheus and Grafana configuration
-.github/workflows/   CI, release, CodeQL, Pages
+.github/workflows/   CI, release, Pages
 index.html           the landing page
 ```

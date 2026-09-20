@@ -6,7 +6,6 @@
 
 [![CI](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/ci.yml)
 [![Release](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/release.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/release.yml)
-[![CodeQL](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/codeql.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/codeql.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-2ea44f.svg)](LICENSE)
 
 [![Swift](https://img.shields.io/badge/Swift-5.9-F05138?logo=swift&logoColor=white)](https://swift.org)

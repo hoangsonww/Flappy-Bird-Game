@@ -7,7 +7,6 @@ built-in `GITHUB_TOKEN`.
 |----------|---------|---------|
 | [`ci.yml`](../.github/workflows/ci.yml) | push, PR | Build, lint and test everything |
 | [`release.yml`](../.github/workflows/release.yml) | push to default branch | Version, tag, release, publish the image |
-| [`codeql.yml`](../.github/workflows/codeql.yml) | push, PR, weekly | Static analysis for TypeScript and Swift |
 | [`pages.yml`](../.github/workflows/pages.yml) | push (site files) | Deploy the landing page |
 
 ## CI
@@ -131,9 +130,10 @@ Need an exact version? Run the workflow manually with `force_version`.
 
 ## Security scanning
 
-CodeQL runs on pushes, pull requests and weekly — TypeScript on Ubuntu, Swift on
-macOS with an explicit `xcodebuild` step. Dependabot opens grouped weekly PRs for
-npm, GitHub Actions and the Docker base image.
+Dependabot opens grouped weekly PRs for npm, GitHub Actions and the Docker base
+image. There is no static-analysis workflow: linting and type-checking run on
+every push, and the project has no untrusted input surface that would justify
+the extra minutes.
 
 ## The landing page
 
