@@ -48,8 +48,6 @@ CURRENT_PROJECT_VERSION = "2"
 
 # Resources copied into the app bundle, in the order Xcode lists them.
 APP_RESOURCES = ["Images.xcassets", "bird.atlas", "LaunchScreen.storyboard"]
-# Localised storyboard handled as a PBXVariantGroup.
-VARIANT_STORYBOARD = "Main.storyboard"
 
 FILE_TYPES = {
     ".swift": "sourcecode.swift",
@@ -252,8 +250,6 @@ def generate_pbxproj() -> str:
         "project_release": object_id("config", "project", "Release"),
         "app_debug": object_id("config", APP_TARGET, "Debug"),
         "app_release": object_id("config", APP_TARGET, "Release"),
-        "variant_group": object_id("variant", VARIANT_STORYBOARD),
-        "variant_base": object_id("file", APP_TARGET, "Base.lproj/Main.storyboard"),
     }
     test_ids = {test.name: test_object_ids(test.name) for test in TEST_TARGETS}
 
@@ -286,11 +282,6 @@ def generate_pbxproj() -> str:
             f"\t\t{build_id} /* {resource} in Resources */ = {{isa = PBXBuildFile; "
             f"fileRef = {file_id} /* {resource} */; }};"
         )
-    variant_build = object_id("build", APP_TARGET, VARIANT_STORYBOARD)
-    out(
-        f"\t\t{variant_build} /* {VARIANT_STORYBOARD} in Resources */ = {{isa = PBXBuildFile; "
-        f"fileRef = {ids['variant_group']} /* {VARIANT_STORYBOARD} */; }};"
-    )
     for test in TEST_TARGETS:
         for relative in test_swift[test.name]:
             rel = relative.relative_to(test.directory)
@@ -343,11 +334,6 @@ def generate_pbxproj() -> str:
         emit_file_reference(APP_TARGET, relative.relative_to(APP_DIR))
     for resource in APP_RESOURCES + ["Info.plist"]:
         emit_file_reference(APP_TARGET, Path(resource))
-    out(
-        f"\t\t{ids['variant_base']} /* Base */ = {{isa = PBXFileReference; "
-        f"lastKnownFileType = file.storyboard; name = Base; "
-        f'path = Base.lproj/Main.storyboard; sourceTree = "<group>"; }};'
-    )
     for test in TEST_TARGETS:
         for relative in test_swift[test.name]:
             emit_file_reference(test.name, relative.relative_to(test.directory))
@@ -372,10 +358,6 @@ def generate_pbxproj() -> str:
     # ── PBXGroup ─────────────────────────────────────────────────────────────
     out("")
     out("/* Begin PBXGroup section */")
-    # The localised storyboard lives in the app group so its Base.lproj path
-    # resolves relative to `FlappyBird/`, not the repository root.
-    app_group.extra_children.append((ids["variant_group"], VARIANT_STORYBOARD))
-
     group_lines: list[str] = []
     app_group_id = render_group(app_group, APP_TARGET, group_lines)
     test_group_ids = {
@@ -512,7 +494,6 @@ def generate_pbxproj() -> str:
     for resource in APP_RESOURCES:
         build_id = object_id("build", APP_TARGET, resource)
         out(f"\t\t\t\t{build_id} /* {resource} in Resources */,")
-    out(f"\t\t\t\t{variant_build} /* {VARIANT_STORYBOARD} in Resources */,")
     out("\t\t\t);")
     out("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
     out("\t\t};")
@@ -565,19 +546,6 @@ def generate_pbxproj() -> str:
         out(f"\t\t\ttargetProxy = {tid['proxy']} /* PBXContainerItemProxy */;")
         out("\t\t};")
     out("/* End PBXTargetDependency section */")
-
-    # ── PBXVariantGroup ──────────────────────────────────────────────────────
-    out("")
-    out("/* Begin PBXVariantGroup section */")
-    out(f"\t\t{ids['variant_group']} /* {VARIANT_STORYBOARD} */ = {{")
-    out("\t\t\tisa = PBXVariantGroup;")
-    out("\t\t\tchildren = (")
-    out(f"\t\t\t\t{ids['variant_base']} /* Base */,")
-    out("\t\t\t);")
-    out(f"\t\t\tname = {VARIANT_STORYBOARD};")
-    out('\t\t\tsourceTree = "<group>";')
-    out("\t\t};")
-    out("/* End PBXVariantGroup section */")
 
     # ── XCBuildConfiguration ─────────────────────────────────────────────────
     project_common = {

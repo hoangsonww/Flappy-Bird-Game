@@ -97,11 +97,12 @@ xcrun simctl launch booted com.hoangsonww.flappybird -demo -debug-hud
 
 | Flag | Effect |
 |------|--------|
-| `-screen <name>` | Open `menu`, `game`, `leaderboard`, `achievements`, `shop`, `stats` or `settings` directly |
+| `-screen <name>` | Open `menu`, `game`, `leaderboard`, `achievements`, `shop`, `stats`, `replays` or `settings` directly |
 | `-segment <n>` | Pre-select a filter chip on a list screen |
 | `-mode <name>` | Force a game mode |
 | `-seed-demo` | Fill the profile with plausible progress |
 | `-demo` | Attract mode — the bird plays itself |
+| `-demo-die <s>` | End an attract-mode run on cue, for capturing the summary |
 | `-debug-hud` | Overlay live state, velocity and the targeted gap |
 
 ## Screenshots
@@ -153,8 +154,8 @@ project's core promise.
 
 ```
 FlappyBird/          the game
-FlappyBirdTests/     116 Swift unit tests
-FlappyBirdUITests/   25 Swift UI tests
+FlappyBirdTests/     138 Swift unit tests
+FlappyBirdUITests/   33 Swift UI tests
 backend/             the optional API (106 tests)
 docs/                these guides
 scripts/             project generation, capture, bootstrap, release

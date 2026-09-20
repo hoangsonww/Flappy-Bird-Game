@@ -74,17 +74,20 @@ enum LaunchOptions {
         case shop
         case stats
         case settings
+        case replays
     }
 
     /// Fill the store with a plausible history: a few dozen runs, some coins,
     /// unlocked skins and a mix of earned achievements.
     static func seedDemoDataIfRequested(
         store: GameStore = .shared,
-        settings: Settings = .shared
+        settings: Settings = .shared,
+        replays: ReplayStore = .shared
     ) {
         guard shouldSeedDemoData else { return }
 
         store.resetProgress()
+        replays.removeAll()
 
         var generator = SeededRandom(seed: 20_260_319)
         let modes: [GameMode] = [.classic, .endless, .timeAttack, .hardcore]
@@ -143,6 +146,74 @@ enum LaunchOptions {
         // is part of what it resets.
         settings.selectedMode = .classic
         settings.hasSeenTutorial = true
+
+        seedReplays(into: replays)
+    }
+
+    /// A few recordings so the replay list is not empty in captures and tests.
+    ///
+    /// The paths are generated rather than recorded so they are identical on
+    /// every machine — the same reason the run history above is seeded.
+    private static func seedReplays(into store: ReplayStore) {
+        struct Seed {
+            let mode: GameMode
+            let score: Int
+            let coins: Int
+            let seconds: TimeInterval
+        }
+
+        let runs = [
+            Seed(mode: .classic, score: 34, coins: 21, seconds: 44),
+            Seed(mode: .hardcore, score: 19, coins: 8, seconds: 26),
+            Seed(mode: .endless, score: 52, coins: 37, seconds: 66),
+        ]
+
+        for (index, run) in runs.enumerated() {
+            var frames: [Replay.Frame] = []
+            var time: TimeInterval = 0
+            while time <= run.seconds {
+                // A gentle bob with a per-run phase, so the three are distinct.
+                let wave = sin(time * 1.6 + Double(index)) * 0.16
+                frames.append(
+                    Replay.Frame(
+                        time: time,
+                        height: 0.52 + wave,
+                        rotation: cos(time * 1.6 + Double(index)) * 0.25
+                    )
+                )
+                time += GameConfig.replaySampleInterval
+            }
+
+            var obstacles: [Replay.Obstacle] = []
+            var spawn: TimeInterval = 1.2
+            var step = 0
+            while spawn < run.seconds {
+                obstacles.append(
+                    Replay.Obstacle(
+                        time: spawn,
+                        gapCentre: 0.45 + sin(Double(step) * 0.9 + Double(index)) * 0.12,
+                        gapHeight: 0.19,
+                        startX: 1.08,
+                        travel: 1.4,
+                        duration: 3.4
+                    )
+                )
+                spawn += 1.6
+                step += 1
+            }
+
+            store.save(
+                Replay(
+                    mode: run.mode,
+                    score: run.score,
+                    coins: run.coins,
+                    pipesPassed: run.score,
+                    recordedAt: Date().addingTimeInterval(TimeInterval(-index * 1_800 - 600)),
+                    frames: frames,
+                    obstacles: obstacles
+                )
+            )
+        }
     }
 }
 

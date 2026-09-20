@@ -47,8 +47,8 @@
 
 <sub>**Testing**</sub>
 
-[![XCTest](https://img.shields.io/badge/XCTest-116%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
-[![XCUITest](https://img.shields.io/badge/XCUITest-25%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCTest](https://img.shields.io/badge/XCTest-138%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCUITest](https://img.shields.io/badge/XCUITest-33%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![Vitest](https://img.shields.io/badge/Vitest-108%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
 [![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
 [![c8](https://img.shields.io/badge/v8%20coverage-thresholded-F7DF1E?style=flat-square&logo=v8&logoColor=black)](docs/TESTING.md)
@@ -160,6 +160,7 @@ and lets the bird fly itself.*
 - **Bounded difficulty** — gaps narrow and the world speeds up over 40 pipes, then plateaus
 - **Weather** — wind, rain and fog, rolled from the run seed
 - **Day → Sunset → Night → Dawn** every 20 pipes
+- **Replays** — every run recorded and played back on its own screen
 - **17 achievements**, 910 points
 - **Medals** — bronze, silver, gold, platinum
 
@@ -184,7 +185,7 @@ and lets the bird fly itself.*
 ### 🛠 And the boring parts done properly
 
 `make doctor` · a generated Xcode project that never conflicts · Docker Compose
-with observability profiles · a dev container · 249 tests run on every push ·
+with observability profiles · a dev container · 279 tests run on every push ·
 automatic releases from Conventional Commits · reproducible screenshots.
 
 ---
@@ -196,8 +197,8 @@ automatic releases from Conventional Commits · reproducible screenshots.
 ```bash
 make run      # build, install and launch in a simulator
 make demo     # the same, in self-playing attract mode
-make test     # 116 Swift unit tests
-make test-ui  # 25 Swift UI tests, driven on a simulator
+make test     # 138 Swift unit tests
+make test-ui  # 33 Swift UI tests, driven on a simulator
 ```
 
 Or open `Flappy Bird.xcodeproj` and press ⌘R. Requires **Xcode 16+**; the
@@ -279,13 +280,13 @@ FlappyBird/            the game
 ├── App/               UIApplication + the single view controller
 ├── Core/              config, modes, state, RNG, audio, haptics, persistence
 ├── Entities/          Bird, PipePair, Collectible, ParallaxWorld
-├── Systems/           difficulty, power-ups, weather, achievements
+├── Systems/           difficulty, power-ups, weather, achievements, replays
 ├── UI/                buttons, panels, HUD, scroll container, toasts
 ├── Scenes/            one file per screen
 └── Backend/           the optional client: discovery, HTTP, models, sync
 
-FlappyBirdTests/       116 Swift unit tests
-FlappyBirdUITests/     25 Swift UI tests
+FlappyBirdTests/       138 Swift unit tests
+FlappyBirdUITests/     33 Swift UI tests
 backend/               the optional API — 106 tests, OpenAPI 3.1
 docs/                  14 guides + 3 decision records
 scripts/               project generation, media capture, bootstrap, release

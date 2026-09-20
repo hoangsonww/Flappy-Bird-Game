@@ -106,6 +106,17 @@ enum GameConfig {
 
     static let timeAttackDuration: TimeInterval = 60
 
+    // MARK: - Replays
+
+    /// Sampling interval for a replay recording, in seconds.
+    static let replaySampleInterval: TimeInterval = 1.0 / 30.0
+    /// Hard cap on sampled frames (~2 minutes at 30 Hz) to bound storage.
+    static let replayMaxFrames = 3_600
+    /// Hard cap on recorded obstacles, for the same reason.
+    static let replayMaxObstacles = 400
+    /// Shorter than this and there is nothing worth watching.
+    static let replayMinimumDuration: TimeInterval = 1.0
+
     // MARK: - Presentation
 
     static let deathFlashCount = 4

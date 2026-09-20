@@ -10,12 +10,22 @@ import UIKit
 final class GameViewController: UIViewController {
 
     private var skView: SKView {
-        // The storyboard's root view is an SKView; fall back to creating one so
-        // the controller also works when instantiated programmatically.
-        if let existing = view as? SKView { return existing }
-        let created = SKView(frame: UIScreen.main.bounds)
-        view = created
-        return created
+        // `loadView` guarantees this, but the controller must not crash if it is
+        // ever hosted differently.
+        view as? SKView ?? {
+            let created = SKView(frame: view.bounds)
+            view = created
+            return created
+        }()
+    }
+
+    /// The root view *is* the `SKView`.
+    ///
+    /// This used to come from `Main.storyboard`, which set the root view's class
+    /// and nothing else. Building it here lets UIKit size it from the scene it is
+    /// placed in, rather than from `UIScreen.main`.
+    override func loadView() {
+        view = SKView()
     }
 
     override func viewDidLoad() {
@@ -56,6 +66,7 @@ final class GameViewController: UIViewController {
         case .shop: return ShopScene(size: size)
         case .stats: return StatsScene(size: size)
         case .settings: return SettingsScene(size: size)
+        case .replays: return ReplaysScene(size: size)
         case .menu, .none: return MenuScene(size: size)
         }
     }

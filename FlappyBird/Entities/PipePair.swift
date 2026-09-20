@@ -40,6 +40,18 @@ final class PipePair: SKNode {
         hasScored = true
     }
 
+    /// Strip every physics body, for a replay.
+    ///
+    /// Playback positions the pair directly from the recording; leaving the
+    /// bodies attached would let it collide with a replayed bird that is not
+    /// simulated, and score against a gate nobody is passing.
+    func removePhysics() {
+        physicsBody = nil
+        for node in children {
+            node.physicsBody = nil
+        }
+    }
+
     /// Everything needed to build one obstacle.
     struct Spec {
         /// y position of the middle of the gap, in scene coordinates.

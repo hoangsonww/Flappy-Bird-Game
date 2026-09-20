@@ -5,10 +5,9 @@ section is as important as the rest.
 
 ## Gameplay
 
-- [ ] **A replay mode** — a run's seed already reproduces its world exactly, so
-      a recorded flight path could be replayed as its own screen. The previous
-      attempt drew the replay into the live scene, where a second translucent
-      bird read as a rendering fault; it belongs in a mode of its own.
+- [ ] **Sharing a replay** — recordings are self-contained and small, so one
+      could be exported, or pushed to the backend and watched from a
+      leaderboard row.
 - [ ] **Seasonal events** — themed skins and a modifier, driven by the same
       deterministic derivation as the daily challenge.
 - [ ] **A second obstacle type** — moving platforms or a rotating gap, restricted

@@ -58,6 +58,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     )
 
     private var demoPilot = DemoPilot()
+    private let replayRecorder = ReplayRecorder()
     private var achievementSystem = AchievementSystem()
     private var statusToken: UUID?
 
@@ -227,6 +228,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         deathCause = .none
         powerUps.reset()
         demoPilot.reset()
+        replayRecorder.reset()
         weatherSystem.reset()
         elapsed = 0
         spawnAccumulator = 0
@@ -351,6 +353,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         elapsed += delta
         stats.endedAt = nil
+        replayRecorder.advance(by: delta)
 
         if LaunchOptions.isDemoMode { updateDemoPilot() }
         updatePowerUps(delta: delta)
@@ -361,6 +364,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         bird.clampVelocity()
         bird.clampHorizontal(anchorX: startPosition.x, maxDrift: 46, deltaTime: delta)
+        replayRecorder.record(
+            height: Double(bird.position.y / size.height),
+            rotation: Double(bird.zRotation)
+        )
     }
 
     /// Auto-pilot for `-demo` captures: aim at the next gap and flap to hold it.
@@ -504,10 +511,19 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         pair.position = CGPoint(x: size.width + pipeWidth, y: 0)
 
         let distance = size.width + pipeWidth * 3
-        let move = SKAction.moveBy(x: -distance, y: 0, duration: currentSnapshot.scrollRate * TimeInterval(distance))
+        let duration = currentSnapshot.scrollRate * TimeInterval(distance)
+        let move = SKAction.moveBy(x: -distance, y: 0, duration: duration)
         pair.run(.sequence([move, .removeFromParent()]))
 
         pipesNode.addChild(pair)
+
+        replayRecorder.recordObstacle(
+            gapCentre: Double(centre / size.height),
+            gapHeight: Double(gap / size.height),
+            startX: Double(pair.position.x / size.width),
+            travel: Double(distance / size.width),
+            duration: duration
+        )
     }
 
     // MARK: - Contacts
@@ -672,6 +688,15 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let isPersonalBest = store.record(run: stats, mode: mode, deathCause: deathCause)
         if mode == .daily, let challenge = dailyChallenge {
             store.markDailyCompleted(challenge.date)
+        }
+
+        if let replay = replayRecorder.finish(
+            mode: mode,
+            score: stats.score,
+            coins: stats.coins,
+            pipesPassed: stats.pipesPassed
+        ) {
+            ReplayStore.shared.save(replay)
         }
 
         let unlocked = achievementSystem.evaluate(run: stats, mode: mode)
