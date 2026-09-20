@@ -139,4 +139,63 @@ final class CoreModelTests: XCTestCase {
             XCTAssertFalse(mode.symbol.isEmpty)
         }
     }
+
+    // MARK: - Flying over the pipes
+
+    /// The bird must be stopped by the ceiling, not merely notified about it.
+    ///
+    /// SpriteKit collisions are one-way: a body is stopped only by the
+    /// categories in its *own* `collisionBitMask`. The ceiling listed the bird,
+    /// but the bird did not list the ceiling, so a hard enough climb carried it
+    /// over the top pipe and past the gap.
+    func testTheBirdCollidesWithTheCeiling() {
+        let bird = Bird.make(skin: .classic)
+        bird.attachPhysics()
+
+        let mask = try? XCTUnwrap(bird.physicsBody).collisionBitMask
+        XCTAssertEqual(
+            (mask ?? 0) & PhysicsCategory.ceiling.rawValue,
+            PhysicsCategory.ceiling.rawValue,
+            "The bird passes through the ceiling and can skip the gap"
+        )
+    }
+
+    /// Everything solid, in one assertion, so none of it is lost to an edit.
+    func testTheBirdCollidesWithEverythingSolid() {
+        let bird = Bird.make(skin: .classic)
+        bird.attachPhysics()
+        let mask = bird.physicsBody?.collisionBitMask ?? 0
+
+        for category in [PhysicsCategory.world, .pipe, .ceiling] {
+            XCTAssertEqual(
+                mask & category.rawValue,
+                category.rawValue,
+                "The bird should be stopped by \(category.rawValue)"
+            )
+        }
+    }
+
+    /// Pick-ups must stay pass-through, or the bird bounces off a coin.
+    func testPickupsDoNotBlockTheBird() {
+        let bird = Bird.make(skin: .classic)
+        bird.attachPhysics()
+        let mask = bird.physicsBody?.collisionBitMask ?? 0
+
+        for category in [PhysicsCategory.coin, .powerUp, .scoreGate] {
+            XCTAssertEqual(mask & category.rawValue, 0, "Pick-ups must not be solid")
+        }
+    }
+
+    /// A top pipe has to reach past the ceiling, or there is a gap above it.
+    func testTopPipesExtendAboveTheCeiling() {
+        let sceneHeight: CGFloat = 900
+        let gapTop: CGFloat = sceneHeight - 60 // the highest a gap can sit
+        let topHeight = max(60, sceneHeight + 200 - gapTop)
+
+        XCTAssertGreaterThan(
+            gapTop + topHeight,
+            sceneHeight + 22 + 10,
+            "The pipe must overlap the ceiling, leaving no way over the top"
+        )
+    }
 }

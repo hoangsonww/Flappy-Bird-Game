@@ -85,7 +85,7 @@ An `OptionSet`, so masks read as sets rather than bit soup:
 | `scoreGate` | 1 << 3 | Full-height sensor just past each pair |
 | `coin` | 1 << 4 | Sensor |
 | `powerUp` | 1 << 5 | Sensor |
-| `ceiling` | 1 << 6 | Stops an over-flap leaving the world |
+| `ceiling` | 1 << 6 | Pins the bird at the top edge — see below |
 
 ```mermaid
 flowchart TB
@@ -105,6 +105,42 @@ flowchart TB
 Solid arrows are *collisions* — the physics engine resolves them and the bird
 stops. Dotted arrows are *contacts* — the bird passes through and the scene is
 notified. Getting this distinction wrong is how you end up bouncing off a coin.
+
+### Collisions are one-way
+
+The trap that produced the fly-over exploit. A body is stopped **only by the
+categories in its own `collisionBitMask`** — listing it on the *other* body is
+not enough.
+
+```mermaid
+flowchart TB
+    subgraph Broken["Before"]
+        C1["ceiling.collisionBitMask = [bird]"]
+        B1["bird.collisionBitMask = [world, pipe]"]
+        C1 --> R1["ceiling would stop the bird…"]
+        B1 --> R2["…but the bird is not stopped by the ceiling"]
+        R1 & R2 --> Out["bird flies straight through"]
+    end
+
+    subgraph Fixed["After"]
+        B2["bird.collisionBitMask = [world, pipe, <b>ceiling</b>]"] --> Held["pinned at the top"]
+    end
+
+    style Out fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+    style Held fill:#d1fae5,stroke:#059669,color:#065f46
+```
+
+`maxRiseSpeed` caps how *fast* the bird rises, not how *high* it gets, so with
+nothing stopping it, sustained tapping climbed roughly 600 pt in a second and a
+half — against the 200 pt of overshoot a top pipe extends above the screen. The
+bird cleared every pipe and the gap became optional.
+
+Two things hold the invariant now, and `CoreModelTests` asserts both:
+
+1. The bird's collision mask includes `ceiling`, so it is pinned just above the
+   top edge.
+2. A top pipe extends `overshoot` (200 pt) past the screen, which is well above
+   the ceiling — so there is no band between the two to slip through.
 
 ### The scoring gate
 

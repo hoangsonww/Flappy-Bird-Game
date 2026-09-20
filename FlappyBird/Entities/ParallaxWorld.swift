@@ -160,7 +160,10 @@ final class ParallaxWorld {
     /// An invisible ceiling. Without it a player can climb above every pipe.
     static func makeCeilingBody(sceneSize: CGSize) -> SKNode {
         let node = SKNode()
-        node.position = CGPoint(x: sceneSize.width / 2, y: sceneSize.height + 40)
+        // Just above the top edge: high enough that hitting it never feels like
+        // an invisible wall, low enough that the bird stays on screen. At +40
+        // the bird could sit entirely above the visible area.
+        node.position = CGPoint(x: sceneSize.width / 2, y: sceneSize.height + 22)
         let body = SKPhysicsBody(rectangleOf: CGSize(width: sceneSize.width * 2, height: 20))
         body.isDynamic = false
         body.categoryBitMask = PhysicsCategory.ceiling.rawValue

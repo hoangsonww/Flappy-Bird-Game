@@ -62,7 +62,15 @@ final class Bird: SKSpriteNode {
         body.restitution = 0
         body.linearDamping = 0
         body.categoryBitMask = PhysicsCategory.bird.rawValue
-        body.collisionBitMask = (PhysicsCategory.world.union(.pipe)).rawValue
+        // The ceiling has to be here, not only in `contactTestBitMask`.
+        // SpriteKit collisions are not symmetric: a body is stopped only by the
+        // categories in *its own* collision mask, so listing the bird on the
+        // ceiling was not enough — the bird flew straight through it, climbed
+        // over the top pipe and skipped the gap entirely.
+        body.collisionBitMask = PhysicsCategory.world
+            .union(.pipe)
+            .union(.ceiling)
+            .rawValue
         body.contactTestBitMask = PhysicsCategory.world
             .union(.pipe)
             .union(.scoreGate)
