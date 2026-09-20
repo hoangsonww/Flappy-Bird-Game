@@ -169,6 +169,26 @@ describe('anti-cheat verdicts', () => {
     expect(verifyRun({ ...base, maxCombo: 999 }).outcome).toBe('flag');
   });
 
+  it('accepts a combo above the score, which coins alone can produce', () => {
+    // Two coins taken from the first gaps, then a clipped pipe: score 0,
+    // combo 2. Flagging this kept real early deaths off the leaderboard.
+    const verdict = verifyRun({
+      ...base,
+      score: 0,
+      pipesPassed: 0,
+      coins: 2,
+      maxCombo: 2,
+      durationMs: 4_000,
+    });
+    expect(verdict).toEqual({ outcome: 'accept', reasons: [] });
+  });
+
+  it('flags a combo that more coins than were collected would be needed for', () => {
+    const verdict = verifyRun({ ...base, coins: 2, maxCombo: 9 });
+    expect(verdict.outcome).toBe('flag');
+    expect(verdict.reasons.join(' ')).toMatch(/combo exceeds the coins/);
+  });
+
   it('rejects a score above the pipes passed', () => {
     expect(() => verifyRun({ ...base, score: 50, pipesPassed: 10 })).toThrow();
   });

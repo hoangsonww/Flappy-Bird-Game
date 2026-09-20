@@ -67,12 +67,31 @@ mkdir -p "$SHOT_DIR"
 shoot() {
   local name="$1"; shift
   local wait_for="$1"; shift
+  local target="$SHOT_DIR/$name.png"
+
   xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
   sleep 0.6
   xcrun simctl launch "$UDID" "$BUNDLE_ID" "$@" >/dev/null
   sleep "$wait_for"
-  xcrun simctl io "$UDID" screenshot --type=png "$SHOT_DIR/$name.png" >/dev/null 2>&1
-  ok "Captured $SHOT_DIR/$name.png"
+
+  # The simulator sometimes hands back a frame whose Dynamic Island has not
+  # been composited, leaving a black bar across the top. A discarded warm-up
+  # capture makes it rare; verifying and retrying makes it impossible to commit.
+  local attempt
+  for attempt in 1 2 3 4; do
+    xcrun simctl io "$UDID" screenshot --type=png /tmp/flappy-warmup.png >/dev/null 2>&1
+    sleep 0.4
+    xcrun simctl io "$UDID" screenshot --type=png "$target" >/dev/null 2>&1
+    if python3 "$REPO_ROOT/scripts/verify-capture.py" "$target" >/dev/null 2>&1; then
+      break
+    fi
+    [ "$attempt" = 4 ] && fail "$target kept coming back mid-composite"
+    info "Recomposite — retaking $name (attempt $((attempt + 1)))"
+    sleep 1
+  done
+
+  rm -f /tmp/flappy-warmup.png
+  ok "Captured $target"
 }
 
 # ── Screenshots ──────────────────────────────────────────────────────────────
@@ -81,7 +100,7 @@ info "Capturing screens…"
 # and hardcore mode is used for the game-over shot because its tighter gaps end
 # a run in seconds rather than in a minute.
 shoot "menu"         3   -seed-demo
-shoot "gameplay"    26   -seed-demo -demo
+shoot "gameplay"     7   -seed-demo -demo
 shoot "leaderboard"  4   -seed-demo -screen leaderboard
 shoot "achievements" 4   -seed-demo -screen achievements
 shoot "shop"         4   -seed-demo -screen shop

@@ -65,8 +65,12 @@ export function verifyRun(submission: RunSubmission): Verdict {
   if (submission.coins > submission.pipesPassed * 3 + 5) {
     reasons.push('coin count is disproportionate to pipes passed');
   }
-  if (submission.maxCombo > submission.score) {
-    reasons.push('combo exceeds score');
+  // Against coins, not score: the combo counter advances on a coin pickup, not
+  // on a pipe, so a player who grabs two coins and then clips the first pipe
+  // legitimately finishes with a combo above their score. Every combo step does
+  // require a coin, though, which makes `maxCombo > coins` the real impossibility.
+  if (submission.maxCombo > submission.coins) {
+    reasons.push('combo exceeds the coins collected');
   }
   if (submission.powerUpsUsed > Math.ceil(submission.durationMs / 5_000) + 3) {
     reasons.push('more power-ups than could have spawned');

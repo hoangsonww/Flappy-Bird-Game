@@ -1,6 +1,6 @@
 # Testing
 
-255 tests: **124 Swift unit**, **25 Swift UI** and **106 backend**, the last
+257 tests: **124 Swift unit**, **25 Swift UI** and **108 backend**, the last
 run against both storage drivers.
 
 ```bash

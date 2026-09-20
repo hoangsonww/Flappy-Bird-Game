@@ -103,6 +103,16 @@ enum LaunchOptions {
             ])
             profile.ghostSamples = (0..<200).map { 0.5 + 0.22 * sin(Double($0) / 9) }
             profile.ghostScore = 41
+
+            // Demo history is a capture fixture, not real play. `record` queues
+            // every run for upload, so without this a seeded launch pushes 36
+            // fabricated runs onto a real leaderboard — and 36 at once trips the
+            // server's submission-rate heuristic, whose toast then lands in the
+            // middle of the screenshot being taken.
+            profile.pendingUploads.removeAll()
+            for index in profile.recentRuns.indices {
+                profile.recentRuns[index].synced = true
+            }
         }
 
         for day in 1...5 {
