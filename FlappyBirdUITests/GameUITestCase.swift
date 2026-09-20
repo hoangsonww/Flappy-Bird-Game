@@ -36,18 +36,22 @@ class GameUITestCase: XCTestCase {
     ///   - segment: pre-select a filter chip on a list screen.
     ///   - mode: force a game mode.
     ///   - seedDemoData: fill the profile with a plausible history.
+    ///   - autoPilot: let the bird fly itself, ending the run after this many
+    ///     seconds. The only way to record a run of a known length.
     @discardableResult
     func launch(
         screen: String? = nil,
         segment: Int? = nil,
         mode: String? = nil,
-        seedDemoData: Bool = true
+        seedDemoData: Bool = true,
+        autoPilot seconds: TimeInterval? = nil
     ) -> XCUIApplication {
         var arguments: [String] = ["-ui-testing"]
         if seedDemoData { arguments.append("-seed-demo") }
         if let screen { arguments += ["-screen", screen] }
         if let segment { arguments += ["-segment", String(segment)] }
         if let mode { arguments += ["-mode", mode] }
+        if let seconds { arguments += ["-demo", "-demo-die", String(Int(seconds))] }
         app.launchArguments = arguments
         app.launch()
         return app
@@ -79,7 +83,17 @@ class GameUITestCase: XCTestCase {
     }
 
     func tap(_ label: String, timeout: TimeInterval = GameUITestCase.uiTimeout) {
-        tap(element: waitFor(label, timeout: timeout))
+        waitFor(label, timeout: timeout)
+
+        // Resolve the position from a snapshot rather than from the live query.
+        // A handle can go stale between being matched and being measured — a
+        // scene transition is enough — and reading `.frame` on a stale handle
+        // fails the test outright instead of simply retrying.
+        guard let match = snapshotElements().first(where: { $0.label == label }) else {
+            XCTFail("\"\(label)\" vanished before it could be tapped. On screen: \(visibleLabels())")
+            return
+        }
+        tap(snapshot: match)
     }
 
     /// Tap the centre of `element`.

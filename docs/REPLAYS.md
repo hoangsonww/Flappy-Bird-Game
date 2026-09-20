@@ -247,6 +247,39 @@ transport controls — which is what this is.
 
 ---
 
+## Two ways this went wrong
+
+Both worth recording, because neither produced an error — the feature simply
+looked broken.
+
+**Fabricated replays were seeded for screenshots.** `-seed-demo` wrote three
+generated recordings: a sine wave for the flight path and obstacles spaced
+exactly 1.6 s apart. They filled the list, so the first thing anyone saw on
+opening Replays was mechanical bobbing through evenly spaced pipes — not
+movement, a pattern. Nothing is seeded now; the list is empty until a run is
+played.
+
+**Playback put the bird in the wrong place.** The game starts the bird at
+`0.32 × width`; the replay scene used its own `0.28`. Four percent of the screen
+is enough that pipes arrive at the wrong moment relative to the recorded
+heights, so the bird appeared to clip obstacles it had cleared. Both now read
+`GameConfig.birdStartX`, and a test pins it.
+
+```mermaid
+flowchart LR
+    R["recorded heights<br/><i>correct</i>"] --> P["playback"]
+    X["bird at 0.28 ≠ 0.32"] --> P
+    P --> Wrong["right path, wrong place<br/><i>reads as broken physics</i>"]
+
+    style Wrong fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+```
+
+The lesson for both: a replay is only credible if it is *the run*. Anything
+synthetic in the list, or any geometry that differs from the live scene, makes
+the whole feature look untrustworthy even when the recording is perfect.
+
+---
+
 ## Tests
 
 `FlappyBirdTests/ReplayTests.swift` covers the recorder, the player and the

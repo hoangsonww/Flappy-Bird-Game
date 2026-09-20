@@ -62,8 +62,7 @@ flowchart LR
     Runs --> Wallet["wallet = 1450"]
     Wallet --> Skins["4 skins unlocked"]
     Skins --> Daily["5 daily challenges completed"]
-    Daily --> Rep["3 synthetic replays"]
-    Rep --> Norm["skin = classic · mode = classic<br/>queue cleared"]
+    Daily --> Norm["skin = classic · mode = classic<br/>queue cleared · replays cleared"]
 
     style Norm fill:#d1fae5,stroke:#059669,color:#065f46
 ```
@@ -76,6 +75,10 @@ Three details that exist because of real bugs:
   ran with `-mode zen` would leave Zen selected for the next one.
 - **The skin is reset to classic.** The seeded profile is what screenshots show,
   and that should be the bird the game ships with.
+- **Replays are cleared, and none are seeded.** A replay is a recording of a
+  run. Fabricated entries were seeded here once, and anyone who opened the list
+  saw a generated wave through evenly spaced pipes and reasonably concluded the
+  feature was broken.
 
 ---
 

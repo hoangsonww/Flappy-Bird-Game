@@ -216,7 +216,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private var startPosition: CGPoint {
-        CGPoint(x: size.width * 0.32, y: size.height * 0.62)
+        CGPoint(
+            x: size.width * GameConfig.birdStartX,
+            y: size.height * GameConfig.birdStartY
+        )
     }
 
     // MARK: - State transitions

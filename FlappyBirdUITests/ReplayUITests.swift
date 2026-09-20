@@ -1,6 +1,10 @@
 import XCTest
 
 /// The replay list and the playback screen.
+///
+/// Every test that needs a replay **plays a run to make one**. Nothing is
+/// seeded: a replay is a recording, and the list is empty until there is
+/// something real in it.
 final class ReplayUITests: GameUITestCase {
 
     func testTheMenuOffersReplays() {
@@ -8,9 +12,23 @@ final class ReplayUITests: GameUITestCase {
         XCTAssertTrue(waitFor("REPLAYS").exists, "REPLAYS is missing from the menu")
     }
 
-    func testTheListShowsRecordedRuns() {
+    /// Seeding must never invent recordings.
+    func testTheListIsEmptyUntilARunIsPlayed() {
         launch(screen: "replays")
         waitFor("‹")
+        waitForLabels("the empty-state message") { labels in
+            labels.contains { $0.contains("No replays yet") }
+        }
+        XCTAssertFalse(
+            visibleLabels().contains { $0.contains("pts") },
+            "The list should hold no fabricated entries"
+        )
+        capture("replays-empty")
+    }
+
+    func testAFinishedRunAppearsInTheList() throws {
+        try playARun()
+        openReplays()
         waitForLabel(containing: "pts")
         capture("replays")
     }
@@ -21,9 +39,9 @@ final class ReplayUITests: GameUITestCase {
         XCTAssertTrue(waitFor("PLAY").exists)
     }
 
-    /// Opening a row has to reach playback, and playback has to say so.
     func testOpeningAReplayStartsPlayback() throws {
-        launch(screen: "replays")
+        try playARun()
+        openReplays()
         try openFirstReplay()
 
         waitForLabel(containing: "Replay")
@@ -33,7 +51,8 @@ final class ReplayUITests: GameUITestCase {
     }
 
     func testPauseAndResumeToggleTheControl() throws {
-        launch(screen: "replays")
+        try playARun()
+        openReplays()
         try openFirstReplay()
 
         tap("PAUSE")
@@ -45,7 +64,8 @@ final class ReplayUITests: GameUITestCase {
 
     /// Restarting from a paused replay must resume it, not leave it stopped.
     func testRestartResumesFromTheBeginning() throws {
-        launch(screen: "replays")
+        try playARun()
+        openReplays()
         try openFirstReplay()
 
         tap("PAUSE")
@@ -56,7 +76,8 @@ final class ReplayUITests: GameUITestCase {
     }
 
     func testPlaybackReturnsToTheList() throws {
-        launch(screen: "replays")
+        try playARun()
+        openReplays()
         try openFirstReplay()
 
         tap("‹")
@@ -66,12 +87,10 @@ final class ReplayUITests: GameUITestCase {
 
     /// The elapsed time has to actually advance, or nothing is being played.
     func testTheClockAdvancesWhilePlaying() throws {
-        launch(screen: "replays")
+        try playARun()
+        openReplays()
         try openFirstReplay()
 
-        // The scene has only just been presented, so wait for the clock to be
-        // published before reading it — a bare read here is the same race this
-        // suite hit everywhere else.
         waitForLabels("the playback clock") { _ in self.elapsedLabel() != nil }
         let first = try XCTUnwrap(elapsedLabel(), "No playback clock on screen")
 
@@ -82,6 +101,27 @@ final class ReplayUITests: GameUITestCase {
     }
 
     // MARK: - Helpers
+
+    /// Record a real run of a known length.
+    ///
+    /// The auto-pilot flies and the run ends on cue, because a hand-flown run
+    /// here lasts about a second and a half — long enough to record, too short
+    /// to pause and resume before playback runs out.
+    private func playARun() throws {
+        launch(autoPilot: 6)
+        waitFor("PLAY AGAIN", timeout: 30)
+    }
+
+    /// Relaunch straight into the list.
+    ///
+    /// Navigating there from the summary panel would mean crossing the menu
+    /// while the attract-mode flag is still driving the app. Recordings survive
+    /// a relaunch — nothing is seeded, so nothing clears them — which makes
+    /// this both simpler and independent of how the menu behaves.
+    private func openReplays() {
+        launch(screen: "replays", seedDemoData: false)
+        waitFor("‹")
+    }
 
     /// The transport's "0.0s / 44.0s" readout.
     private func elapsedLabel() -> String? {

@@ -56,6 +56,16 @@ enum GameConfig {
     /// Terminal upward velocity, so tap-spamming cannot launch the bird offscreen.
     static let maxRiseSpeed: CGFloat = 520
 
+    /// The bird's horizontal position, as a fraction of the scene width.
+    ///
+    /// Shared with replay playback. When the two disagreed, a recording put the
+    /// bird 4% of the screen away from where it actually flew, so pipes reached
+    /// it at the wrong moment and the replay showed it clipping obstacles it
+    /// had cleared.
+    static let birdStartX: CGFloat = 0.32
+    /// Its starting height, likewise a fraction of the scene.
+    static let birdStartY: CGFloat = 0.62
+
     // MARK: - World
 
     static let pipeScale: CGFloat = 2.0

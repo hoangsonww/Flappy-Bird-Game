@@ -71,7 +71,12 @@ final class ReplayScene: SKScene {
         node.color = Settings.shared.selectedSkin.tint
         node.colorBlendFactor = Settings.shared.selectedSkin.blend
         node.zPosition = ZPosition.bird
-        node.position = CGPoint(x: size.width * 0.28, y: size.height / 2)
+        // Exactly where the game puts it. Anything else and the recorded
+        // heights line up against the pipes at the wrong moment.
+        node.position = CGPoint(
+            x: size.width * GameConfig.birdStartX,
+            y: size.height * GameConfig.birdStartY
+        )
         addChild(node)
         bird = node
 

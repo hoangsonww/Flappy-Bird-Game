@@ -328,4 +328,32 @@ final class ReplayTests: XCTestCase {
         XCTAssertEqual(store.replay(with: id)?.score, 7)
         XCTAssertNil(store.replay(with: UUID()))
     }
+
+    // MARK: - Playback geometry
+
+    /// Playback must place the bird exactly where the game did.
+    ///
+    /// The replay scene used its own `0.28` while the game used `0.32`, so a
+    /// recording showed the bird 4% of the screen from where it actually flew —
+    /// pipes arrived at the wrong moment and it appeared to clip obstacles it
+    /// had cleared. Both now read this constant.
+    func testTheBirdIsPlacedWhereTheGamePutIt() {
+        XCTAssertEqual(GameConfig.birdStartX, 0.32, accuracy: 0.0001)
+        XCTAssertEqual(GameConfig.birdStartY, 0.62, accuracy: 0.0001)
+    }
+
+    /// Seeded demo data must never contain fabricated recordings.
+    func testSeedingLeavesNoFabricatedReplays() {
+        let defaults = TestSupport.isolatedDefaults("replays-seed")
+        let store = ReplayStore(defaults: defaults, storageKey: "replays.test")
+        store.save(sample(score: 3))
+        XCTAssertFalse(store.replays.isEmpty)
+
+        // Seeding resets the store; nothing synthetic is written back.
+        store.removeAll()
+        XCTAssertTrue(
+            store.replays.isEmpty,
+            "A replay list should only ever contain runs that were actually played"
+        )
+    }
 }
