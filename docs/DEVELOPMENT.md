@@ -9,7 +9,6 @@
 | Node.js 20+ | the optional backend | `brew install node` |
 | Docker | Postgres + API in one command | [docker.com](https://docs.docker.com/get-docker/) |
 | SwiftLint / SwiftFormat | optional linting | `brew install swiftlint swiftformat` |
-| ffmpeg | turning recordings into GIFs | `brew install ffmpeg` |
 
 Check what you have:
 
@@ -105,16 +104,15 @@ xcrun simctl launch booted com.hoangsonww.flappybird -demo -debug-hud
 | `-demo` | Attract mode — the bird plays itself |
 | `-debug-hud` | Overlay live state, velocity and the targeted gap |
 
-## Screenshots and the demo GIF
+## Screenshots
 
 ```bash
 make media
 ```
 
-Boots a simulator, installs the app, captures every screen into `img/screens/`
-and records the auto-pilot into `img/demo.gif` and `img/demo.mp4`. Because the
-app can open any screen and play itself, the output is reproducible rather than
-a manual tapping session.
+Boots a simulator, installs the app and captures every screen into
+`img/screens/`. Because the app can open any screen directly, the output is
+reproducible rather than a manual tapping session.
 
 ## Conventions
 

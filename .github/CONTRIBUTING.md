@@ -110,9 +110,9 @@ shared suite runs against both, which is how divergences get caught.
 
 ## Screenshots
 
-Gameplay changes deserve a picture. `make media` regenerates every screenshot and
-the demo GIF from the simulator — reproducible, because the app can open any
-screen directly and play itself.
+Gameplay changes deserve a picture. `make media` regenerates every screenshot
+from the simulator — reproducible, because the app can open any screen
+directly.
 
 ## What gets merged quickly
 

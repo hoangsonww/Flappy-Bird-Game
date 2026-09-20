@@ -843,20 +843,20 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
       <div class="kicker">Every screen</div>
       <h2>Captured by a script, not by hand</h2>
       <p>
-        The app takes launch arguments to open any screen directly and to fly
-        itself, so <code>make media</code> regenerates all of this — and the
-        demo clip below — without anyone tapping a simulator.
+        The app takes launch arguments to open any screen directly, so
+        <code>make media</code> regenerates all of this without anyone tapping
+        a simulator.
       </p>
     </div>
 
     <div class="split reveal" style="align-items:center">
       <div>
         <div class="frame" style="width:min(100%,260px);margin-inline:auto">
-          <video src="img/demo.mp4" width="480" height="1044" autoplay muted loop playsinline
-                 poster="img/screens/gameplay.png" style="border-radius:26px;display:block;width:100%"
-                 aria-label="A recording of the game playing itself"></video>
+          <img src="img/screens/gameplay.png" width="1206" height="2622" loading="lazy"
+               style="border-radius:26px;display:block;width:100%"
+               alt="A run in progress, with the score, coin counter and pipes" />
         </div>
-        <p class="demo-hint" style="margin-top:.9rem">img/demo.mp4 — recorded from the simulator</p>
+        <p class="demo-hint" style="margin-top:.9rem">img/screens/gameplay.png — captured from the simulator</p>
       </div>
       <div>
         <div class="code">
@@ -867,8 +867,8 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
             <span class="name">reproducible capture</span>
           </div>
           <button class="copy" data-copy="make media">copy</button>
-<pre><span class="c"># Boots a simulator, installs the app, opens every</span>
-<span class="c"># screen in turn and records the auto-pilot.</span>
+<pre><span class="c"># Boots a simulator, installs the app and opens</span>
+<span class="c"># every screen in turn.</span>
 <span class="k">make</span> media
 
 <span class="c"># Under the hood — the app cooperates:</span>

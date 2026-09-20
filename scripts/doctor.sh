@@ -51,7 +51,6 @@ echo ""
 echo -e "${DIM}Nice to have${RESET}"
 check "SwiftLint"   swiftlint optional "lints the Swift sources"              "brew install swiftlint"
 check "SwiftFormat" swiftformat optional "formats the Swift sources"          "brew install swiftformat"
-check "ffmpeg"      ffmpeg    optional "turns gameplay recordings into GIFs"  "brew install ffmpeg"
 check "gh"          gh        optional "opens pull requests from the terminal" "brew install gh"
 
 # ── Simulators ───────────────────────────────────────────────────────────────

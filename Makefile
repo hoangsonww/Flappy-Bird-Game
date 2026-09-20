@@ -107,7 +107,7 @@ demo: ## Launch the game in self-playing attract mode
 	@SCREEN_ARGS="-seed-demo -demo" bash scripts/run-simulator.sh
 
 .PHONY: media
-media: ## Capture screenshots and a gameplay GIF from the simulator
+media: ## Capture every screenshot from the simulator
 	@bash scripts/capture-media.sh
 
 .PHONY: xcodegen

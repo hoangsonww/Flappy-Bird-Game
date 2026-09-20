@@ -36,6 +36,6 @@ make smoke         # end-to-end against a running API
 - [ ] Documentation under `docs/` is updated if behaviour changed
 - [ ] The game still runs with **no backend at all**
 
-## Screenshots / recording
+## Screenshots
 
-<!-- `make media` regenerates img/screens and img/demo.gif from the simulator. -->
+<!-- `make media` regenerates img/screens from the simulator. -->

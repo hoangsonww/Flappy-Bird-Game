@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 #
-# Capture screenshots and a gameplay recording from the iOS Simulator.
+# Capture screenshots from the iOS Simulator.
 #
 # The app exposes launch switches (see FlappyBird/Core/LaunchOptions.swift) so
 # every screen can be opened directly and the bird can fly itself — which makes
 # this reproducible rather than a manual tapping session.
 #
-#   ./scripts/capture-media.sh                      # screenshots + GIF
+#   ./scripts/capture-media.sh
 #   SIMULATOR="iPhone 17 Pro" ./scripts/capture-media.sh
-#   SKIP_VIDEO=1 ./scripts/capture-media.sh         # screenshots only
 #
-# Output: img/screens/*.png, img/demo.gif, img/demo.mp4
+# Output: img/screens/*.png
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -22,7 +21,6 @@ SCHEME="FlappyBird"
 PROJECT="Flappy Bird.xcodeproj"
 DERIVED="${DERIVED:-build/DerivedData}"
 SHOT_DIR="img/screens"
-VIDEO_SECONDS="${VIDEO_SECONDS:-26}"
 
 info()  { printf '\033[1;36m▸ %s\033[0m\n' "$*"; }
 ok()    { printf '\033[1;32m✓ %s\033[0m\n' "$*"; }
@@ -91,56 +89,7 @@ shoot "stats"        4   -seed-demo -screen stats
 shoot "settings"     4   -seed-demo -screen settings
 shoot "gameover"    22   -seed-demo -demo -mode hardcore
 
-# ── Gameplay recording ───────────────────────────────────────────────────────
-if [ "${SKIP_VIDEO:-0}" = "1" ]; then
-  info "SKIP_VIDEO=1 — skipping the recording"
-else
-  info "Recording ${VIDEO_SECONDS}s of auto-played gameplay…"
-  xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
-  sleep 0.6
-  xcrun simctl launch "$UDID" "$BUNDLE_ID" -seed-demo -demo >/dev/null
-  # Let the pilot build up a score so the clip opens mid-flight, not on a menu.
-  sleep "${VIDEO_LEAD_IN:-12}"
-
-  rm -f img/demo.mp4
-  xcrun simctl io "$UDID" recordVideo --codec=h264 --force img/demo.mp4 &
-  RECORD_PID=$!
-  sleep "$VIDEO_SECONDS"
-  kill -INT "$RECORD_PID" 2>/dev/null || true
-  wait "$RECORD_PID" 2>/dev/null || true
-  ok "Recorded img/demo.mp4"
-
-  if command -v ffmpeg >/dev/null; then
-    info "Converting to GIF…"
-    # Two-pass palette generation keeps the pixel art crisp at a small size.
-    # Re-encode the MP4 first, then derive the GIF from it: one compression pass
-    # feeds both, and the GIF lands comfortably under 3 MB for the README.
-    ffmpeg -y -loglevel error -i img/demo.mp4 \
-      -vf "scale=480:-2" -c:v libx264 -preset slow -crf 30 -pix_fmt yuv420p \
-      -movflags +faststart -an /tmp/flappy-demo-small.mp4
-    mv /tmp/flappy-demo-small.mp4 img/demo.mp4
-    ok "Compressed img/demo.mp4 ($(du -h img/demo.mp4 | cut -f1))"
-
-    ffmpeg -y -loglevel error -i img/demo.mp4 \
-      -vf "fps=${GIF_FPS:-10},scale=${GIF_WIDTH:-280}:-1:flags=lanczos,palettegen=stats_mode=diff:max_colors=48" \
-      /tmp/flappy-palette.png
-    ffmpeg -y -loglevel error -i img/demo.mp4 -i /tmp/flappy-palette.png \
-      -lavfi "fps=${GIF_FPS:-10},scale=${GIF_WIDTH:-280}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=4" \
-      -loop 0 img/demo.gif
-
-    # Re-encode the MP4 small enough to commit and to autoplay on the landing page.
-    ffmpeg -y -loglevel error -i img/demo.mp4 \
-      -vf "scale=480:-2" -c:v libx264 -preset slow -crf 30 -pix_fmt yuv420p \
-      -movflags +faststart -an /tmp/flappy-demo-small.mp4
-    mv /tmp/flappy-demo-small.mp4 img/demo.mp4
-    ok "Compressed img/demo.mp4 ($(du -h img/demo.mp4 | cut -f1))"
-    ok "Wrote img/demo.gif ($(du -h img/demo.gif | cut -f1))"
-  else
-    info "ffmpeg not installed — keeping the MP4 only (brew install ffmpeg for a GIF)"
-  fi
-fi
-
 xcrun simctl status_bar "$UDID" clear >/dev/null 2>&1 || true
 xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
 
-ok "Done. Screens in $SHOT_DIR, demo in img/"
+ok "Done. Screens in $SHOT_DIR"

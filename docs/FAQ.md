@@ -76,10 +76,10 @@ From Conventional Commits. `feat` → minor, `fix`/`perf`/`revert` → patch, `!
 `BREAKING CHANGE` → major, anything else → no release. Preview it with
 `node scripts/release.mjs`.
 
-### How were the screenshots and the GIF made?
+### How were the screenshots made?
 
-`make media`. The app accepts launch arguments to open any screen directly and to
-play itself, so the capture is reproducible rather than a manual tapping session.
+`make media`. The app accepts launch arguments to open any screen directly, so
+the capture is reproducible rather than a manual tapping session.
 
 ### Can I use this as a starting point?
 

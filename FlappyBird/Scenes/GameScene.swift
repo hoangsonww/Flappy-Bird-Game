@@ -281,7 +281,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if LaunchOptions.isDemoMode {
             // Attract mode: every ready state starts itself, including restarts,
-            // so a recording never stalls waiting for a tap.
+            // so a capture never stalls waiting for a tap.
             run(
                 .sequence([.wait(forDuration: 1.1), .run { [weak self] in self?.startPlaying() }]),
                 withKey: "demo-autostart"
@@ -383,7 +383,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         ghostRecorder.record(normalisedHeight: Double(bird.position.y / size.height), deltaTime: delta)
     }
 
-    /// Auto-pilot for `-demo` recordings: aim at the next gap and flap to hold it.
+    /// Auto-pilot for `-demo` captures: aim at the next gap and flap to hold it.
     private func updateDemoPilot() {
         let birdX = bird.position.x
 

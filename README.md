@@ -4,22 +4,97 @@
 
 ### A Swift + SpriteKit tribute with modes, power-ups, weather, ghost replays — and an optional backend for leaderboards
 
-[![CI](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/ci.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/ci.yml)
-[![Release](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/release.yml/badge.svg)](https://github.com/hoangsonww/Flappy-Bird-Game/actions/workflows/release.yml)
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-2ea44f.svg)](LICENSE)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-2EA44F?style=for-the-badge)](LICENSE)
 
-[![Swift](https://img.shields.io/badge/Swift-5.9-F05138?logo=swift&logoColor=white)](https://swift.org)
-[![SpriteKit](https://img.shields.io/badge/SpriteKit-iOS%2016%2B-147EFB?logo=apple&logoColor=white)](https://developer.apple.com/spritekit/)
-[![Xcode](https://img.shields.io/badge/Xcode-16%2B-1575F9?logo=xcode&logoColor=white)](https://developer.apple.com/xcode/)
-[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)](https://expressjs.com)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
-[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?logo=openapiinitiative&logoColor=white)](backend/openapi/openapi.yaml)
-[![Tests](https://img.shields.io/badge/tests-228%20passing-2ea44f)](docs/TESTING.md)
+<sub>**Game**</sub>
 
-<img src="img/demo.gif" alt="Flappy Bird gameplay" width="280" />
+[![Swift](https://img.shields.io/badge/Swift-5.9-F05138?style=flat-square&logo=swift&logoColor=white)](https://swift.org)
+[![SpriteKit](https://img.shields.io/badge/SpriteKit-game%20loop-147EFB?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/spritekit/)
+[![UIKit](https://img.shields.io/badge/UIKit-hosting%20%26%20haptics-2396F3?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/uikit)
+[![Core Graphics](https://img.shields.io/badge/Core%20Graphics-geometry-000000?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/coregraphics)
+[![AVFoundation](https://img.shields.io/badge/AVFoundation-synthesised%20audio-FF2D55?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/avfoundation)
+[![CryptoKit](https://img.shields.io/badge/CryptoKit-daily%20seeds-5856D6?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/cryptokit)
+[![Security](https://img.shields.io/badge/Security-Keychain-34C759?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/security)
+[![os.Logger](https://img.shields.io/badge/os.Logger-unified%20logging-8E8E93?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/os/logger)
+[![UIAccessibility](https://img.shields.io/badge/UIAccessibility-VoiceOver-005FCC?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/uikit/accessibility)
+[![Xcode](https://img.shields.io/badge/Xcode-16%2B-1575F9?style=flat-square&logo=xcode&logoColor=white)](https://developer.apple.com/xcode/)
+[![iOS](https://img.shields.io/badge/iOS-16%2B-000000?style=flat-square&logo=ios&logoColor=white)](https://developer.apple.com/ios/)
+
+<sub>**Backend**</sub>
+
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![node-postgres](https://img.shields.io/badge/node--postgres-pooling-336791?style=flat-square&logo=postgresql&logoColor=white)](https://node-postgres.com)
+[![Zod](https://img.shields.io/badge/Zod-validation-3E67B1?style=flat-square&logo=zod&logoColor=white)](https://zod.dev)
+[![JWT](https://img.shields.io/badge/JWT-access%20%2B%20refresh-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io)
+[![bcrypt](https://img.shields.io/badge/bcrypt-password%20hashing-4A4A4A?style=flat-square&logo=letsencrypt&logoColor=white)](https://github.com/dcodeIO/bcrypt.js)
+[![Helmet](https://img.shields.io/badge/Helmet-security%20headers-0F1B2A?style=flat-square)](https://helmetjs.github.io)
+[![CORS](https://img.shields.io/badge/CORS-origin%20policy-FF6C37?style=flat-square)](https://github.com/expressjs/cors)
+[![rate-limit](https://img.shields.io/badge/express--rate--limit-throttling-C21325?style=flat-square)](https://express-rate-limit.mintlify.app)
+[![compression](https://img.shields.io/badge/compression-gzip-1F6FEB?style=flat-square)](https://github.com/expressjs/compression)
+[![Pino](https://img.shields.io/badge/Pino-structured%20logs-687634?style=flat-square&logo=pino&logoColor=white)](https://getpino.io)
+[![prom-client](https://img.shields.io/badge/prom--client-%2Fmetrics-E6522C?style=flat-square&logo=prometheus&logoColor=white)](https://github.com/siimon/prom-client)
+[![dotenv](https://img.shields.io/badge/dotenv-config-ECD53F?style=flat-square&logo=dotenv&logoColor=black)](https://github.com/motdotla/dotenv)
+[![YAML](https://img.shields.io/badge/YAML-spec%20loading-CB171E?style=flat-square&logo=yaml&logoColor=white)](https://eemeli.org/yaml/)
+
+<sub>**API contract**</sub>
+
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?style=flat-square&logo=openapiinitiative&logoColor=white)](backend/openapi/openapi.yaml)
+[![Swagger UI](https://img.shields.io/badge/Swagger%20UI-self--hosted-85EA2D?style=flat-square&logo=swagger&logoColor=black)](docs/API.md)
+[![REST](https://img.shields.io/badge/REST-JSON-005571?style=flat-square&logo=json&logoColor=white)](docs/API.md)
+
+<sub>**Testing**</sub>
+
+[![XCTest](https://img.shields.io/badge/XCTest-124%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCUITest](https://img.shields.io/badge/XCUITest-25%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![Vitest](https://img.shields.io/badge/Vitest-106%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
+[![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
+[![c8](https://img.shields.io/badge/v8%20coverage-thresholded-F7DF1E?style=flat-square&logo=v8&logoColor=black)](docs/TESTING.md)
+
+<sub>**Tooling**</sub>
+
+[![SwiftLint](https://img.shields.io/badge/SwiftLint-required%20job-FA7343?style=flat-square&logo=swift&logoColor=white)](.swiftlint.yml)
+[![SwiftFormat](https://img.shields.io/badge/SwiftFormat-whitespace%20only-FA7343?style=flat-square&logo=swift&logoColor=white)](.swiftformat)
+[![ESLint](https://img.shields.io/badge/ESLint-flat%20config-4B32C3?style=flat-square&logo=eslint&logoColor=white)](backend/eslint.config.js)
+[![Prettier](https://img.shields.io/badge/Prettier-formatting-F7B93E?style=flat-square&logo=prettier&logoColor=black)](https://prettier.io)
+[![ShellCheck](https://img.shields.io/badge/ShellCheck-scripts-89E051?style=flat-square&logo=gnubash&logoColor=white)](https://www.shellcheck.net)
+[![tsx](https://img.shields.io/badge/tsx-watch%20mode-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://tsx.is)
+[![GNU Make](https://img.shields.io/badge/GNU%20Make-40%2B%20targets-A42E2B?style=flat-square&logo=gnu&logoColor=white)](Makefile)
+[![Bash](https://img.shields.io/badge/Bash-scripts-4EAA25?style=flat-square&logo=gnubash&logoColor=white)](scripts/)
+[![Python](https://img.shields.io/badge/Python-project%20generator-3776AB?style=flat-square&logo=python&logoColor=white)](scripts/generate_xcodeproj.py)
+[![EditorConfig](https://img.shields.io/badge/EditorConfig-shared%20rules-FEFEFE?style=flat-square&logo=editorconfig&logoColor=black)](.editorconfig)
+
+<sub>**Infrastructure**</sub>
+
+[![Docker](https://img.shields.io/badge/Docker-multi--stage-2496ED?style=flat-square&logo=docker&logoColor=white)](backend/Dockerfile)
+[![Docker Compose](https://img.shields.io/badge/Compose-profiles-2496ED?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
+[![Alpine](https://img.shields.io/badge/Alpine-base%20image-0D597F?style=flat-square&logo=alpinelinux&logoColor=white)](https://alpinelinux.org)
+[![dumb-init](https://img.shields.io/badge/dumb--init-PID%201-555555?style=flat-square&logo=linux&logoColor=white)](https://github.com/Yelp/dumb-init)
+[![Dev Containers](https://img.shields.io/badge/Dev%20Containers-one%20click-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white)](.devcontainer/devcontainer.json)
+[![Prometheus](https://img.shields.io/badge/Prometheus-scraping-E6522C?style=flat-square&logo=prometheus&logoColor=white)](ops/prometheus/prometheus.yml)
+[![Grafana](https://img.shields.io/badge/Grafana-dashboard-F46800?style=flat-square&logo=grafana&logoColor=white)](ops/grafana/dashboards/backend.json)
+[![pgweb](https://img.shields.io/badge/pgweb-db%20browser-336791?style=flat-square&logo=postgresql&logoColor=white)](https://sosedoff.github.io/pgweb/)
+[![GHCR](https://img.shields.io/badge/GHCR-published%20image-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hoangsonww/Flappy-Bird-Game/pkgs/container/flappy-bird-backend)
+
+<sub>**Automation**</sub>
+
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-12%20jobs-2088FF?style=flat-square&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
+[![Buildx](https://img.shields.io/badge/Buildx%20%2B%20QEMU-amd64%20%7C%20arm64-2496ED?style=flat-square&logo=docker&logoColor=white)](.github/workflows/release.yml)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=flat-square&logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org)
+[![Semantic Release](https://img.shields.io/badge/releases-automatic-E10079?style=flat-square&logo=semanticrelease&logoColor=white)](scripts/release.mjs)
+[![Dependabot](https://img.shields.io/badge/Dependabot-grouped%20weekly-025E8C?style=flat-square&logo=dependabot&logoColor=white)](.github/dependabot.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-landing%20site-222222?style=flat-square&logo=githubpages&logoColor=white)](https://hoangsonww.github.io/Flappy-Bird-Game/)
+
+<sub>**Landing page & docs**</sub>
+
+[![HTML5](https://img.shields.io/badge/HTML5-single%20file-E34F26?style=flat-square&logo=html5&logoColor=white)](index.html)
+[![CSS3](https://img.shields.io/badge/CSS3-custom%20properties-1572B6?style=flat-square&logo=css3&logoColor=white)](index.html)
+[![JavaScript](https://img.shields.io/badge/JavaScript-no%20build%20step-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](index.html)
+[![Canvas](https://img.shields.io/badge/Canvas%202D-in--browser%20demo-FF6F00?style=flat-square&logo=html5&logoColor=white)](index.html)
+[![Mermaid](https://img.shields.io/badge/Mermaid-diagrams-FF3670?style=flat-square&logo=mermaid&logoColor=white)](docs/ARCHITECTURE.md)
+[![Markdown](https://img.shields.io/badge/Markdown-17%20documents-000000?style=flat-square&logo=markdown&logoColor=white)](docs/)
 
 **[Play the browser demo →](https://hoangsonww.github.io/Flappy-Bird-Game/)** · **[Documentation →](docs/)** · **[API reference →](docs/API.md)**
 
@@ -234,7 +309,7 @@ index.html             the landing page
 | `make demo` | Self-playing attract mode |
 | `make build` / `test` | Build / run the Swift tests |
 | `make xcodegen` | Regenerate the Xcode project |
-| `make media` | Screenshots + the demo GIF |
+| `make media` | Regenerate every screenshot |
 
 **Quality**
 
@@ -292,8 +367,8 @@ questions, and the chiptune character is deliberate.
 Swift and TypeScript — with a test pinning both against the same values.
 
 **The screenshots are reproducible.** The app takes launch arguments to open any
-screen and to fly itself, so `make media` regenerates every image and the GIF
-without a human tapping anything.
+screen and to fly itself, so `make media` regenerates every image without a
+human tapping anything.
 
 ---
 

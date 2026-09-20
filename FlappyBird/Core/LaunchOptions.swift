@@ -2,9 +2,9 @@ import Foundation
 
 /// Launch-argument switches used by tooling.
 ///
-/// These exist so screenshots, the App Store style capture script and the demo
-/// recording in the README can be produced deterministically from the command
-/// line — no manual tapping, no flaky UI automation:
+/// These exist so the screenshots in the README and on the landing page can be
+/// produced deterministically from the command line — no manual tapping, no
+/// flaky UI automation:
 ///
 /// ```bash
 /// xcrun simctl launch <udid> com.hoangsonww.flappybird -screen shop -seed-demo
