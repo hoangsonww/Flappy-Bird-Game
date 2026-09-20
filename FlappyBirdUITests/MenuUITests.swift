@@ -76,7 +76,15 @@ final class MenuUITests: GameUITestCase {
         for step in 0..<GameMode.selectableCount {
             tap("▶")
             previous = waitForModeName(otherThan: previous)
-            for element in app.staticTexts.allElementsBoundByIndex where element.frame.width > 0 {
+            // SpriteKit publishes its labels as `.other`, not `.staticText` —
+            // `app.staticTexts` matches nothing in this app, which is why the
+            // loop this replaces never actually ran. Filtering by type also
+            // drops the application element, which is the full screen width.
+            let texts = snapshotElements().filter {
+                $0.elementType == .other && $0.frame.width > 0 && !$0.label.isEmpty
+            }
+            XCTAssertFalse(texts.isEmpty, "Step \(step) left the card blank")
+            for element in texts {
                 XCTAssertLessThanOrEqual(
                     element.frame.width, play.frame.width,
                     "\"\(element.label)\" is wider than the mode card at step \(step)"

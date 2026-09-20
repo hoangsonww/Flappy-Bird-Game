@@ -37,7 +37,6 @@ enum TestSupport {
         powerUps: Int = 0,
         sawNight: Bool = false,
         windSeconds: TimeInterval = 0,
-        beatGhost: Bool = false,
         durationMs: Int = 30_000
     ) -> RunStats {
         var stats = RunStats()
@@ -48,7 +47,6 @@ enum TestSupport {
         stats.powerUpsUsed = powerUps
         stats.sawNight = sawNight
         stats.secondsInWind = windSeconds
-        stats.beatOwnGhost = beatGhost
         stats.seed = "test-seed"
         stats.startedAt = Date(timeIntervalSince1970: 0)
         stats.endedAt = Date(timeIntervalSince1970: Double(durationMs) / 1000)

@@ -116,8 +116,6 @@ enum LaunchOptions {
                 BirdSkin.midnight.rawValue,
                 BirdSkin.royal.rawValue,
             ])
-            profile.ghostSamples = (0..<200).map { 0.5 + 0.22 * sin(Double($0) / 9) }
-            profile.ghostScore = 41
 
             // Demo history is a capture fixture, not real play. `record` queues
             // every run for upload, so without this a seeded launch pushes 36
@@ -138,6 +136,12 @@ enum LaunchOptions {
         // capture script show, and that should be the yellow bird the game
         // ships with, not one of the unlocked recolours.
         settings.selectedSkin = .classic
+        // The selected mode survives in `UserDefaults` across launches, so
+        // without this a seeded launch inherits whatever the *last* launch left
+        // behind — a UI test that ran with `-mode zen`, or a mode-cycling test
+        // that stopped on Daily. Seeding means "a known profile", so the mode
+        // is part of what it resets.
+        settings.selectedMode = .classic
         settings.hasSeenTutorial = true
     }
 }

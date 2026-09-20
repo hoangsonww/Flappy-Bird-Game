@@ -70,8 +70,6 @@ struct PlayerProfile: Codable, Equatable {
     var recentRuns: [RunRecord] = []
     var pendingUploads: [RunRecord] = []
     var dailyChallengesCompleted: [String] = []
-    var ghostSamples: [Double] = []
-    var ghostScore = 0
 
     func bestScore(for mode: GameMode) -> Int { bestScores[mode.rawValue] ?? 0 }
 
@@ -266,22 +264,6 @@ final class GameStore {
     }
 
     var dailyChallengeStreakCount: Int { profile.dailyChallengesCompleted.count }
-
-    // MARK: - Ghost replay
-
-    /// Store the flight path of a new best run so it can be replayed as a ghost.
-    func storeGhost(samples: [Double], score: Int) {
-        guard score > profile.ghostScore else { return }
-        update { profile in
-            profile.ghostSamples = Array(samples.prefix(GameConfig.ghostMaxSamples))
-            profile.ghostScore = score
-        }
-    }
-
-    var ghost: (samples: [Double], score: Int)? {
-        guard !profile.ghostSamples.isEmpty else { return nil }
-        return (profile.ghostSamples, profile.ghostScore)
-    }
 
     // MARK: - Maintenance
 

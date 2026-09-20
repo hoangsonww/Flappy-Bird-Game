@@ -11,7 +11,6 @@ final class Settings {
         static let sound = "settings.sound"
         static let music = "settings.music"
         static let haptics = "settings.haptics"
-        static let ghost = "settings.ghost"
         static let highContrast = "settings.highContrast"
         static let reduceFlashing = "settings.reduceFlashing"
         static let showFPS = "settings.showFPS"
@@ -27,12 +26,11 @@ final class Settings {
 
     init(defaults: UserDefaults) {
         self.defaults = defaults
-        // Sound, haptics and the ghost default to on; everything else to off.
+        // Sound and haptics default to on; everything else to off.
         defaults.register(defaults: [
             Key.sound: true,
             Key.music: true,
             Key.haptics: true,
-            Key.ghost: true,
             Key.onlineEnabled: true,
             Key.highContrast: false,
             Key.reduceFlashing: false,
@@ -56,11 +54,6 @@ final class Settings {
     }
 
     /// Show a translucent replay of the player's best run.
-    var ghostEnabled: Bool {
-        get { defaults.bool(forKey: Key.ghost) }
-        set { defaults.set(newValue, forKey: Key.ghost) }
-    }
-
     var highContrast: Bool {
         get { defaults.bool(forKey: Key.highContrast) }
         set { defaults.set(newValue, forKey: Key.highContrast) }
@@ -120,7 +113,7 @@ final class Settings {
     /// Test helper: wipe every key this type owns.
     func resetAll() {
         for key in [
-            Key.sound, Key.music, Key.haptics, Key.ghost, Key.highContrast,
+            Key.sound, Key.music, Key.haptics, Key.highContrast,
             Key.reduceFlashing, Key.showFPS, Key.skin, Key.mode, Key.backendURL,
             Key.onlineEnabled, Key.hasSeenTutorial, Key.deviceId,
         ] {

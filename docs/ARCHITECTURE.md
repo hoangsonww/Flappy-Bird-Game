@@ -9,7 +9,7 @@ flowchart TB
     subgraph Game["iOS game — Swift + SpriteKit"]
         direction TB
         Scenes["Scenes<br/>Menu · Game · Leaderboard · Shop · Stats · Settings"]
-        Systems["Systems<br/>difficulty · power-ups · weather · achievements · ghost"]
+        Systems["Systems<br/>difficulty · power-ups · weather · achievements"]
         Entities["Entities<br/>Bird · PipePair · Collectible · ParallaxWorld"]
         Store["GameStore + Settings<br/>UserDefaults"]
         Online["OnlineService<br/>discovery · sync queue"]
@@ -49,7 +49,7 @@ FlappyBird/
 ├── App/          UIApplication + the single view controller
 ├── Core/         config, modes, state, RNG, audio, haptics, persistence, theme
 ├── Entities/     the things you see: Bird, PipePair, Collectible, ParallaxWorld
-├── Systems/      the rules: difficulty, power-ups, weather, achievements, ghost
+├── Systems/      the rules: difficulty, power-ups, weather, achievements
 ├── UI/           reusable nodes: buttons, panels, HUD, scroll container, toasts
 ├── Scenes/       one file per screen
 └── Backend/      the optional client: discovery, HTTP, models, sync
@@ -92,7 +92,6 @@ sequenceDiagram
     GS->>GS: spawn a pair when the accumulator is full
     GS->>GS: magnet pulls nearby coins
     GS->>B: clamp velocity and lateral drift
-    GS->>GS: record a ghost sample
     SK->>GS: didBegin(contact)
     GS->>GS: score gate · coin · power-up · pipe · ground
 ```

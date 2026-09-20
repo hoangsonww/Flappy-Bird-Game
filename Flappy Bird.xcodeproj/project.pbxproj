@@ -40,7 +40,6 @@
 		EADF85D48F9BAD0EF24A125B /* StatsScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C64B768A9D864393CA82D /* StatsScene.swift */; };
 		B5A90C4330BEB7EE82045D16 /* AchievementSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E26F9FED7925407A4689877 /* AchievementSystem.swift */; };
 		A2720214770664CF78D910DC /* DifficultyCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5190CDDC6FC710D900854E38 /* DifficultyCurve.swift */; };
-		7097264A8296FC882CE3980F /* GhostRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B60E835874A5E0367961FDA /* GhostRecorder.swift */; };
 		340B2B7BE18A0EA7D822997E /* PowerUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94582672BA25A8A5AF89C385 /* PowerUp.swift */; };
 		31BCB72AB334917F6022D54B /* WeatherSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */; };
 		3D432422E24EF5FA39D6831D /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1851D2C9358412F0979CF30 /* Accessibility.swift */; };
@@ -61,7 +60,6 @@
 		2469C39E8732DB1FA10EC970 /* DailyChallengeHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E786CB9C6AC874C04AFFC3D1 /* DailyChallengeHelperTests.swift */; };
 		C162D48C68DD6747E82350A2 /* DifficultyCurveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B547A6A7B7F20A2833E4FBC /* DifficultyCurveTests.swift */; };
 		5F4E7B27F4FDACDC7D844944 /* GameOverPanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F13C0FBA55521AEFDC06F2 /* GameOverPanelTests.swift */; };
-		C54408EF998AF298B8CF8D5C /* GhostRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59AB7A2440100F5E1A75C4C3 /* GhostRecorderTests.swift */; };
 		91E9492F7D0444162969505A /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B212DACB4944FBEF16E49135 /* PersistenceTests.swift */; };
 		C475EDE99F20AC8E8ED0D566 /* PowerUpTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1957C5C2B8F06F0ED091500 /* PowerUpTests.swift */; };
 		0D02745C93ACB8C1925682B7 /* SeededRandomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A33E9BDF90C5C355F4C7241 /* SeededRandomTests.swift */; };
@@ -129,7 +127,6 @@
 		E41C64B768A9D864393CA82D /* StatsScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsScene.swift; sourceTree = "<group>"; };
 		5E26F9FED7925407A4689877 /* AchievementSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementSystem.swift; sourceTree = "<group>"; };
 		5190CDDC6FC710D900854E38 /* DifficultyCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyCurve.swift; sourceTree = "<group>"; };
-		6B60E835874A5E0367961FDA /* GhostRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhostRecorder.swift; sourceTree = "<group>"; };
 		94582672BA25A8A5AF89C385 /* PowerUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerUp.swift; sourceTree = "<group>"; };
 		49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherSystem.swift; sourceTree = "<group>"; };
 		B1851D2C9358412F0979CF30 /* Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
@@ -151,7 +148,6 @@
 		E786CB9C6AC874C04AFFC3D1 /* DailyChallengeHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyChallengeHelperTests.swift; sourceTree = "<group>"; };
 		8B547A6A7B7F20A2833E4FBC /* DifficultyCurveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyCurveTests.swift; sourceTree = "<group>"; };
 		77F13C0FBA55521AEFDC06F2 /* GameOverPanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverPanelTests.swift; sourceTree = "<group>"; };
-		59AB7A2440100F5E1A75C4C3 /* GhostRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhostRecorderTests.swift; sourceTree = "<group>"; };
 		B212DACB4944FBEF16E49135 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		E1957C5C2B8F06F0ED091500 /* PowerUpTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerUpTests.swift; sourceTree = "<group>"; };
 		7A33E9BDF90C5C355F4C7241 /* SeededRandomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandomTests.swift; sourceTree = "<group>"; };
@@ -284,7 +280,6 @@
 			children = (
 				5E26F9FED7925407A4689877 /* AchievementSystem.swift */,
 				5190CDDC6FC710D900854E38 /* DifficultyCurve.swift */,
-				6B60E835874A5E0367961FDA /* GhostRecorder.swift */,
 				94582672BA25A8A5AF89C385 /* PowerUp.swift */,
 				49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */,
 			);
@@ -334,7 +329,6 @@
 				E786CB9C6AC874C04AFFC3D1 /* DailyChallengeHelperTests.swift */,
 				8B547A6A7B7F20A2833E4FBC /* DifficultyCurveTests.swift */,
 				77F13C0FBA55521AEFDC06F2 /* GameOverPanelTests.swift */,
-				59AB7A2440100F5E1A75C4C3 /* GhostRecorderTests.swift */,
 				3336386F0B01AF8F8C4E9F22 /* Info.plist */,
 				B212DACB4944FBEF16E49135 /* PersistenceTests.swift */,
 				E1957C5C2B8F06F0ED091500 /* PowerUpTests.swift */,
@@ -525,7 +519,6 @@
 				EADF85D48F9BAD0EF24A125B /* StatsScene.swift in Sources */,
 				B5A90C4330BEB7EE82045D16 /* AchievementSystem.swift in Sources */,
 				A2720214770664CF78D910DC /* DifficultyCurve.swift in Sources */,
-				7097264A8296FC882CE3980F /* GhostRecorder.swift in Sources */,
 				340B2B7BE18A0EA7D822997E /* PowerUp.swift in Sources */,
 				31BCB72AB334917F6022D54B /* WeatherSystem.swift in Sources */,
 				3D432422E24EF5FA39D6831D /* Accessibility.swift in Sources */,
@@ -549,7 +542,6 @@
 				2469C39E8732DB1FA10EC970 /* DailyChallengeHelperTests.swift in Sources */,
 				C162D48C68DD6747E82350A2 /* DifficultyCurveTests.swift in Sources */,
 				5F4E7B27F4FDACDC7D844944 /* GameOverPanelTests.swift in Sources */,
-				C54408EF998AF298B8CF8D5C /* GhostRecorderTests.swift in Sources */,
 				91E9492F7D0444162969505A /* PersistenceTests.swift in Sources */,
 				C475EDE99F20AC8E8ED0D566 /* PowerUpTests.swift in Sources */,
 				0D02745C93ACB8C1925682B7 /* SeededRandomTests.swift in Sources */,

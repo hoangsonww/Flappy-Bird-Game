@@ -41,7 +41,6 @@ struct RunStats {
     var usedShield = false
     var sawNight = false
     var secondsInWind: TimeInterval = 0
-    var beatOwnGhost = false
     var seed: String = ""
 
     var duration: TimeInterval {

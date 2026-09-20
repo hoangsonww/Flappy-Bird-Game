@@ -1,6 +1,6 @@
 # Testing
 
-261 tests: **128 Swift unit**, **25 Swift UI** and **108 backend**, the last
+249 tests: **116 Swift unit**, **25 Swift UI** and **108 backend**, the last
 run against both storage drivers.
 
 ```bash
@@ -24,8 +24,7 @@ state or the simulator's real save file.
 | `SeededRandomTests` | Determinism, ranges, distribution of the seeded RNG |
 | `DifficultyCurveTests` | Monotonicity, floors, per-mode behaviour, daily overrides |
 | `PowerUpTests` | Activation, expiry, stacking, shield charges |
-| `GhostRecorderTests` | Sampling rate, clamping, interpolation, caps |
-| `PersistenceTests` | Runs, wallet, skins, achievements, ghost, reset |
+| `PersistenceTests` | Runs, wallet, skins, achievements, reset |
 | `AchievementSystemTests` | Every unlock path, including the client-only ones |
 | `DailyChallengeHelperTests` | **Byte-for-byte parity with the server** |
 | `BackendClientTests` | URL normalisation, discovery order, DTO decoding |

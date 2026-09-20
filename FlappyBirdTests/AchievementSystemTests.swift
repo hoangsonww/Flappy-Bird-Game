@@ -101,17 +101,6 @@ final class AchievementSystemTests: XCTestCase {
         XCTAssertTrue(unlocked.contains("perfect_start"))
     }
 
-    func testGhostRiderIsSecretAndNeedsTheGhostBeaten() {
-        let definition = AchievementCatalog.definition(for: "ghost_rider")
-        XCTAssertEqual(definition?.secret, true)
-
-        let unlocked = system.evaluate(
-            run: TestSupport.run(score: 30, beatGhost: true),
-            mode: .classic
-        ).map(\.code)
-        XCTAssertTrue(unlocked.contains("ghost_rider"))
-    }
-
     func testDailyDevoteeCountsCompletedChallenges() {
         for day in 1...7 {
             store.markDailyCompleted(String(format: "2026-03-%02d", day))

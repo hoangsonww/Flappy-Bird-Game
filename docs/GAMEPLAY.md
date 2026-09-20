@@ -107,13 +107,6 @@ Every 20 pipes the world moves to the next phase: **Day → Sunset → Night →
 Dawn**. The sky, ground and pipes are re-tinted over 1.1 s. Finishing a run
 during the night phase unlocks **Night Owl**.
 
-## The ghost
-
-Your best run is recorded at 20 Hz as normalised heights (`0…1` of the screen),
-so it replays correctly on any device. It flies as a translucent bird slightly
-behind you. Outliving it and beating its score unlocks the secret **Ghost
-Rider**. Turn it off in Settings ▸ Game.
-
 ## Medals
 
 | Medal | Score |
@@ -125,7 +118,7 @@ Rider**. Turn it off in Settings ▸ Game.
 
 ## Achievements
 
-18 of them, 955 points in total. They unlock offline and reconcile with the
+17 of them, 910 points in total. They unlock offline and reconcile with the
 server later — the merge only ever moves progress forward.
 
 | Code | Name | Requirement | Points |
@@ -147,7 +140,6 @@ server later — the merge only ever moves progress forward.
 | `storm_chaser` | Storm Chaser | 30 s of wind | 30 |
 | `daily_devotee` | Daily Devotee | 7 daily challenges | 70 |
 | `perfect_start` | Perfect Start | 10 pipes, no power-ups | 25 |
-| `ghost_rider` | Ghost Rider | Beat your own ghost | 45 *(secret)* |
 
 ## Skins
 
@@ -192,7 +184,6 @@ It rolls over at 00:00 UTC.
 | Haptics | Disables every feedback generator. |
 | Reduce flashing | Removes the red death flash. |
 | High contrast | Brighter HUD and panel text. |
-| Ghost replay | Hides the ghost. |
 | Reduce Motion *(system)* | Drops parallax, clouds and weather particles. |
 
 Buttons are exposed to VoiceOver with a `.button` trait and their title, and the

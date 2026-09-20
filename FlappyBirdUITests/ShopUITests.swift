@@ -20,51 +20,50 @@ final class ShopUITests: GameUITestCase {
     /// total stays at one.
     func testBuyingASkinUnlocksIt() throws {
         launch(screen: "shop")
-        let buys = app.buttons.matching(NSPredicate(format: "label == %@", "BUY"))
-        XCTAssertTrue(
-            buys.firstMatch.waitForExistence(timeout: GameUITestCase.uiTimeout),
-            "Everything is already owned"
-        )
+        waitForLabel(containing: "BUY")
 
         // Only the skins the wallet can afford are enabled, and they are not
         // first in the list — the dearer ones are dimmed and inert. The rows
         // scroll, so an affordable one also has to be on screen to tap.
+        let lockedBefore = actionCount("BUY")
         let buy = try XCTUnwrap(
-            buys.allElementsBoundByIndex.first { $0.isEnabled && app.frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) },
+            snapshotElements().first { element in
+                element.label == "BUY" && element.isEnabled
+                    && app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY))
+            },
             "No affordable skin visible on the shop screen"
         )
-        let lockedBefore = buys.count
-        tap(element: buy)
+        tap(snapshot: buy)
 
-        let fewerLocked = expectation(
-            for: NSPredicate(format: "count < %d", lockedBefore),
-            evaluatedWith: buys
-        )
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [fewerLocked], timeout: GameUITestCase.uiTimeout), .completed,
-            "Buying a skin left \(lockedBefore) locked skins on screen"
-        )
+        waitForLabels("one fewer locked skin") { _ in actionCount("BUY") < lockedBefore }
         capture("shop-after-purchase")
     }
 
     func testEquippingAnOwnedSkin() throws {
         launch(screen: "shop")
-        let equips = app.buttons.matching(NSPredicate(format: "label == %@", "EQUIP"))
         try XCTSkipUnless(
-            equips.firstMatch.waitForExistence(timeout: GameUITestCase.uiTimeout),
+            app.buttons["EQUIP"].firstMatch.waitForExistence(timeout: GameUITestCase.uiTimeout),
             "No owned-but-unequipped skin"
         )
         let equip = try XCTUnwrap(
-            equips.allElementsBoundByIndex.first { app.frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) },
+            snapshotElements().first { element in
+                element.label == "EQUIP"
+                    && app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY))
+            },
             "No owned-but-unequipped skin visible on the shop screen"
         )
 
-        tap(element: equip)
+        tap(snapshot: equip)
         // The row it was tapped on becomes the equipped one, so a tick appears.
         XCTAssertTrue(
             app.buttons["✓"].firstMatch.waitForExistence(timeout: GameUITestCase.uiTimeout),
             "Equipping a skin left no equipped marker"
         )
+    }
+
+    /// How many rows currently offer `action`, read atomically.
+    private func actionCount(_ action: String) -> Int {
+        snapshotElements().filter { $0.label == action }.count
     }
 
     func testShopReturnsToTheMenu() {

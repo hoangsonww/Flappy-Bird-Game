@@ -2,7 +2,7 @@
 
 # 🐦 Flappy Bird
 
-### A Swift + SpriteKit tribute with modes, power-ups, weather, ghost replays — and an optional backend for leaderboards
+### A Swift + SpriteKit tribute with modes, power-ups, weather, daily challenges — and an optional backend for leaderboards
 
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-2EA44F?style=for-the-badge)](LICENSE)
 
@@ -47,7 +47,7 @@
 
 <sub>**Testing**</sub>
 
-[![XCTest](https://img.shields.io/badge/XCTest-128%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCTest](https://img.shields.io/badge/XCTest-116%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![XCUITest](https://img.shields.io/badge/XCUITest-25%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![Vitest](https://img.shields.io/badge/Vitest-108%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
 [![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
@@ -106,8 +106,8 @@
 
 The original Flappy Bird loop — tap, dodge, repeat — rebuilt in Swift and
 SpriteKit, and then taken seriously: six modes, five power-ups, a coin economy,
-weather, a day/night cycle, 18 achievements, and a ghost of your best run flying
-alongside you.
+weather, a day/night cycle, 17 achievements, and a daily challenge that is the
+same for everyone who plays it.
 
 There is also a complete Node.js backend for accounts and leaderboards. **You do
 not need it.** Clone, open, press ⌘R.
@@ -160,8 +160,7 @@ and lets the bird fly itself.*
 - **Bounded difficulty** — gaps narrow and the world speeds up over 40 pipes, then plateaus
 - **Weather** — wind, rain and fog, rolled from the run seed
 - **Day → Sunset → Night → Dawn** every 20 pipes
-- **Ghost replay** of your best run, flying beside you
-- **18 achievements**, 955 points, one of them secret
+- **17 achievements**, 910 points
 - **Medals** — bronze, silver, gold, platinum
 
 </td><td width="50%" valign="top">
@@ -185,7 +184,7 @@ and lets the bird fly itself.*
 ### 🛠 And the boring parts done properly
 
 `make doctor` · a generated Xcode project that never conflicts · Docker Compose
-with observability profiles · a dev container · 261 tests run on every push ·
+with observability profiles · a dev container · 249 tests run on every push ·
 automatic releases from Conventional Commits · reproducible screenshots.
 
 ---
@@ -197,7 +196,7 @@ automatic releases from Conventional Commits · reproducible screenshots.
 ```bash
 make run      # build, install and launch in a simulator
 make demo     # the same, in self-playing attract mode
-make test     # 128 Swift unit tests
+make test     # 116 Swift unit tests
 make test-ui  # 25 Swift UI tests, driven on a simulator
 ```
 
@@ -280,12 +279,12 @@ FlappyBird/            the game
 ├── App/               UIApplication + the single view controller
 ├── Core/              config, modes, state, RNG, audio, haptics, persistence
 ├── Entities/          Bird, PipePair, Collectible, ParallaxWorld
-├── Systems/           difficulty, power-ups, weather, achievements, ghost
+├── Systems/           difficulty, power-ups, weather, achievements
 ├── UI/                buttons, panels, HUD, scroll container, toasts
 ├── Scenes/            one file per screen
 └── Backend/           the optional client: discovery, HTTP, models, sync
 
-FlappyBirdTests/       128 Swift unit tests
+FlappyBirdTests/       116 Swift unit tests
 FlappyBirdUITests/     25 Swift UI tests
 backend/               the optional API — 106 tests, OpenAPI 3.1
 docs/                  14 guides + 3 decision records

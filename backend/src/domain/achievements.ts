@@ -177,16 +177,6 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
     threshold: 1,
     secret: false,
   },
-  {
-    code: 'ghost_rider',
-    name: 'Ghost Rider',
-    description: 'Beat your own ghost replay.',
-    icon: '👻',
-    points: 45,
-    metric: 'special',
-    threshold: 1,
-    secret: true,
-  },
 ];
 
 export const ACHIEVEMENT_CODES = new Set(ACHIEVEMENTS.map((a) => a.code));
@@ -196,7 +186,7 @@ export const totalAchievementPoints = ACHIEVEMENTS.reduce((sum, a) => sum + a.po
 /**
  * Server-side evaluation of stat-driven achievements.
  *
- * `special` achievements are client-driven (the game knows about weather, ghosts
+ * `special` achievements are client-driven (the game knows about the weather
  * and power-up usage) and arrive through `POST /v1/achievements/me/sync`.
  */
 export function evaluateStatAchievements(

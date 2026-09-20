@@ -107,16 +107,42 @@ class GameUITestCase: XCTestCase {
         XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: timeout), .completed, "\"\(label)\" never went away")
     }
 
+    /// One atomic capture of the whole accessibility tree.
+    ///
+    /// Never enumerate with `allElementsBoundByIndex` here. That returns a list
+    /// of handles and then resolves each one in a separate call, and this game
+    /// never stops animating — an element can disappear between the two steps,
+    /// which fails the test outright with "No matches found for Element at
+    /// index N" rather than simply reading as absent. A snapshot is one call.
+    func snapshotElements() -> [XCUIElementSnapshot] {
+        guard let root = try? app.snapshot() else { return [] }
+        var found: [XCUIElementSnapshot] = []
+        func walk(_ node: XCUIElementSnapshot) {
+            found.append(node)
+            node.children.forEach(walk)
+        }
+        walk(root)
+        return found
+    }
+
     /// Every accessibility label currently published.
     ///
-    /// A single read of this is a *snapshot*. Straight after a launch or a
-    /// scene change the tree is routinely still empty, so asserting on one
-    /// read is the flakiest thing a test here can do — use `waitForLabels`.
+    /// A single read of this is still only a moment in time: straight after a
+    /// launch the tree is routinely empty, so assert through `waitForLabels`.
     func visibleLabels() -> [String] {
-        let buttons = app.buttons.allElementsBoundByIndex.map(\.label)
-        let texts = app.staticTexts.allElementsBoundByIndex.map(\.label)
-        let others = app.otherElements.allElementsBoundByIndex.map(\.label)
-        return (buttons + texts + others).filter { !$0.isEmpty }
+        snapshotElements().map(\.label).filter { !$0.isEmpty }
+    }
+
+    /// Tap the centre of a snapshotted element, which no longer has a handle.
+    func tap(snapshot element: XCUIElementSnapshot) {
+        let centre = CGPoint(x: element.frame.midX, y: element.frame.midY)
+        XCTAssertTrue(
+            app.frame.contains(centre),
+            "\"\(element.label)\" is off screen at \(element.frame); scroll to it before tapping"
+        )
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: centre.x, dy: centre.y))
+            .tap()
     }
 
     /// Poll the accessibility tree until `matches` holds, then return it.

@@ -21,23 +21,24 @@ final class SettingsUITests: GameUITestCase {
         tap("GAME")
 
         let onOff = Set(["on", "off"])
-        waitForLabels("a toggle on the GAME tab") { _ in
-            app.buttons.allElementsBoundByIndex.contains { onOff.contains(($0.value as? String) ?? "") }
+        func toggleSnapshot() -> XCUIElementSnapshot? {
+            snapshotElements().first { onOff.contains(($0.value as? String) ?? "") }
         }
-        let toggle = try XCTUnwrap(
-            app.buttons.allElementsBoundByIndex.first { onOff.contains(($0.value as? String) ?? "") },
-            "No on/off toggle on the GAME tab. On screen: \(visibleLabels())"
-        )
+
+        waitForLabels("a toggle on the GAME tab") { _ in toggleSnapshot() != nil }
+        let toggle = try XCTUnwrap(toggleSnapshot(), "No on/off toggle on the GAME tab")
         let before = (toggle.value as? String) ?? ""
         let after = before == "on" ? "off" : "on"
 
-        tap(element: toggle)
-        let flipped = expectation(
-            for: NSPredicate(format: "value == %@", after),
-            evaluatedWith: toggle
-        )
+        tap(snapshot: toggle)
+
+        // Addressed by its label, because the snapshot is a value: the live
+        // control is what has to end up reporting the new state.
+        let live = app.buttons[toggle.label]
+        let flipped = expectation(for: NSPredicate(format: "value == %@", after), evaluatedWith: live)
         XCTAssertEqual(
-            XCTWaiter().wait(for: [flipped], timeout: GameUITestCase.uiTimeout), .completed,
+            XCTWaiter().wait(for: [flipped], timeout: GameUITestCase.uiTimeout),
+            .completed,
             "\"\(toggle.label)\" was \(before) and did not become \(after)"
         )
     }

@@ -68,7 +68,12 @@ final class PipePair: SKNode {
         let moving = spec.moving
 
         let pair = PipePair()
-        pair.zPosition = ZPosition.pipes
+        // No zPosition here. SpriteKit adds a node's z to its ancestors', and
+        // the scene's `pipesNode` already carries `ZPosition.pipes` — setting it
+        // again put the pair at -20, exactly tying the sky/city band. Tied z
+        // draws in an undefined order, which is why a bottom pipe sometimes
+        // vanished behind the background partway down instead of reaching the
+        // ground, and sometimes did not.
         pair.gapCentre = gapCentre
         pair.gapHeight = gapHeight
 

@@ -10,7 +10,6 @@ import UIKit
 /// │   ├── sky / clouds / ground tiles   … ParallaxWorld
 /// │   └── pipesNode → PipePair*         … obstacles, gates, pickups
 /// ├── groundBody, ceilingBody           … static physics only
-/// ├── ghostNode                         … translucent replay of the best run
 /// ├── hud                               … HUDNode
 /// └── overlayNode                       … pause / game-over panels
 /// ```
@@ -31,7 +30,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private let worldNode = SKNode()
     private let pipesNode = SKNode()
     private let overlayNode = SKNode()
-    private var ghostNode: SKSpriteNode?
     private var bird: Bird!
     private var hud: HUDNode!
     private var parallax: ParallaxWorld!
@@ -60,8 +58,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     )
 
     private var demoPilot = DemoPilot()
-    private var ghostRecorder = GhostRecorder()
-    private var ghostPlayer: GhostPlayer?
     private var achievementSystem = AchievementSystem()
     private var statusToken: UUID?
 
@@ -85,7 +81,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         configureRun()
         buildWorld()
         buildBird()
-        buildGhost()
         buildHUD()
 
         addChild(overlayNode)
@@ -168,24 +163,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(bird)
     }
 
-    /// Translucent replay of the player's best run, when one is recorded.
-    private func buildGhost() {
-        guard settings.ghostEnabled, mode != .daily, let ghost = store.ghost else { return }
-        ghostPlayer = GhostPlayer(samples: ghost.samples, score: ghost.score)
-
-        let texture = SKTexture(imageNamed: "bird-01")
-        texture.filteringMode = .nearest
-        let node = SKSpriteNode(texture: texture)
-        node.setScale(GameConfig.birdScale)
-        node.alpha = 0.26
-        node.color = .white
-        node.colorBlendFactor = 0.6
-        node.zPosition = ZPosition.ghost
-        node.position = CGPoint(x: startPosition.x - 26, y: startPosition.y)
-        addChild(node)
-        ghostNode = node
-    }
-
     private func buildHUD() {
         let inset = view?.safeAreaInsets.top ?? 0
         hud = HUDNode(
@@ -250,8 +227,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         deathCause = .none
         powerUps.reset()
         demoPilot.reset()
-        ghostRecorder.reset()
-        ghostPlayer?.reset()
         weatherSystem.reset()
         elapsed = 0
         spawnAccumulator = 0
@@ -382,12 +357,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         updateWeather(delta: delta)
         updateSpawning(delta: delta)
         updateMagnet()
-        updateGhost(delta: delta)
         updateTimeAttack()
 
         bird.clampVelocity()
         bird.clampHorizontal(anchorX: startPosition.x, maxDrift: 46, deltaTime: delta)
-        ghostRecorder.record(normalisedHeight: Double(bird.position.y / size.height), deltaTime: delta)
     }
 
     /// Auto-pilot for `-demo` captures: aim at the next gap and flap to hold it.
@@ -475,23 +448,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
                     x: node.position.x + dx / distance * pull,
                     y: node.position.y + dy / distance * pull
                 )
-            }
-        }
-    }
-
-    private func updateGhost(delta: TimeInterval) {
-        guard var player = ghostPlayer, let node = ghostNode else { return }
-        player.advance(by: delta)
-        ghostPlayer = player
-
-        if let height = player.currentHeight {
-            node.position = CGPoint(x: node.position.x, y: CGFloat(height) * size.height)
-            node.isHidden = false
-        } else {
-            node.isHidden = true
-            // Outliving the ghost's recording means the player beat it.
-            if player.hasFinished, stats.score > player.score {
-                stats.beatOwnGhost = true
             }
         }
     }
@@ -714,9 +670,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         }
 
         let isPersonalBest = store.record(run: stats, mode: mode, deathCause: deathCause)
-        if isPersonalBest, mode != .daily {
-            store.storeGhost(samples: ghostRecorder.samples, score: stats.score)
-        }
         if mode == .daily, let challenge = dailyChallenge {
             store.markDailyCompleted(challenge.date)
         }

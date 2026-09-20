@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Flappy Bird — Swift &amp; SpriteKit, with an optional leaderboard backend</title>
-<meta name="description" content="An open-source Flappy Bird built with Swift and SpriteKit: six modes, power-ups, weather, ghost replays and 18 achievements — plus an optional Node.js backend for accounts and leaderboards. Play the full demo in your browser." />
+<meta name="description" content="An open-source Flappy Bird built with Swift and SpriteKit: six modes, power-ups, weather, daily challenges and 17 achievements — plus an optional Node.js backend for accounts and leaderboards. Play the full demo in your browser." />
 <meta name="author" content="Son Nguyen" />
 <meta name="theme-color" content="#070c16" />
 <meta name="color-scheme" content="dark" />
@@ -13,12 +13,12 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Flappy Bird" />
 <meta property="og:title" content="Flappy Bird — Swift &amp; SpriteKit, with an optional leaderboard backend" />
-<meta property="og:description" content="Six modes, power-ups, weather, ghost replays, 18 achievements — and a full Node.js backend you never have to run. Play the demo in your browser." />
+<meta property="og:description" content="Six modes, power-ups, weather, daily challenges, 17 achievements — and a full Node.js backend you never have to run. Play the demo in your browser." />
 <meta property="og:url" content="https://hoangsonww.github.io/Flappy-Bird-Game/" />
 <meta property="og:image" content="https://raw.githubusercontent.com/hoangsonww/Flappy-Bird-Game/master/img/screens/gameplay.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Flappy Bird — Swift &amp; SpriteKit" />
-<meta name="twitter:description" content="Six modes, power-ups, weather, ghost replays — and an optional leaderboard backend. Play the demo in your browser." />
+<meta name="twitter:description" content="Six modes, power-ups, weather, daily challenges — and an optional leaderboard backend. Play the demo in your browser." />
 <meta name="twitter:image" content="https://raw.githubusercontent.com/hoangsonww/Flappy-Bird-Game/master/img/screens/gameplay.png" />
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%A6%3C/text%3E%3C/svg%3E" />
@@ -31,7 +31,7 @@
   "name": "Flappy Bird",
   "applicationCategory": "GameApplication",
   "operatingSystem": "iOS 16+",
-  "description": "An open-source Flappy Bird built with Swift and SpriteKit, with six modes, power-ups, weather, ghost replays, achievements and an optional Node.js leaderboard backend.",
+  "description": "An open-source Flappy Bird built with Swift and SpriteKit, with six modes, power-ups, weather, daily challenges, achievements and an optional Node.js leaderboard backend.",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://opensource.org/licenses/MIT",
   "author": { "@type": "Person", "name": "Son Nguyen", "url": "https://github.com/hoangsonww" },
@@ -574,9 +574,9 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
       <h1>Tap. Dodge.<br /><em>Repeat forever.</em></h1>
       <p class="lede">
         The Flappy Bird loop, rebuilt properly — six modes, five power-ups,
-        weather, a day/night cycle and a ghost of your best run flying beside
-        you. <strong>Plus a full Node.js backend for leaderboards that you never
-        have to run.</strong>
+        weather, a day/night cycle and a daily challenge that is the same for
+        everyone who plays it. <strong>Plus a full Node.js backend for
+        leaderboards that you never have to run.</strong>
       </p>
       <div class="cta">
         <a class="btn btn-primary" href="#play">▶&nbsp; Play it right here</a>
@@ -585,7 +585,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
       <div class="hero-meta">
         <div><b data-count="228">228</b><span>tests passing</span></div>
         <div><b data-count="6">6</b><span>game modes</span></div>
-        <div><b data-count="18">18</b><span>achievements</span></div>
+        <div><b data-count="17">17</b><span>achievements</span></div>
         <div><b>0</b><span>setup steps</span></div>
       </div>
     </div>
@@ -619,7 +619,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
     <span><i aria-hidden="true">🐘</i> PostgreSQL 16</span>
     <span><i aria-hidden="true">🐳</i> Docker</span>
     <span><i aria-hidden="true">📗</i> OpenAPI 3.1</span>
-    <span><i aria-hidden="true">🧪</i> 261 tests</span>
+    <span><i aria-hidden="true">🧪</i> 249 tests</span>
   </div>
 </div>
 
@@ -667,7 +667,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
           <div class="glow" style="background:#51c0c9" aria-hidden="true"></div>
           <div class="frame tilt-r">
             <img src="img/screens/gameplay.png" width="1206" height="2622" loading="lazy"
-                 alt="A run in progress: pipes, coins, the score HUD and a ghost bird" />
+                 alt="A run in progress: pipes, coins and the score HUD" />
           </div>
         </div>
         <div class="show-body">
@@ -682,8 +682,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
             <li><span class="tick">✓</span><span><b>Five power-ups</b> — shield, slow-motion, magnet, double points, shrink.</span></li>
             <li><span class="tick">✓</span><span><b>Weather</b> — wind, rain and fog, rolled from the run seed.</span></li>
             <li><span class="tick">✓</span><span><b>Day → sunset → night → dawn</b>, every 20 pipes.</span></li>
-            <li><span class="tick">✓</span><span><b>Your ghost</b> flies beside you. Outrun it for the secret achievement.</span></li>
-          </ul>
+                      </ul>
         </div>
       </article>
 
@@ -705,7 +704,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
           <div class="kicker">Progress that sticks</div>
           <h3>Everything is counted, offline first</h3>
           <p>
-            18 achievements worth 955 points, lifetime stats down to how you
+            17 achievements worth 910 points, lifetime stats down to how you
             died, and eight bird skins bought with coins you actually earned.
             All of it unlocks with no account and no network.
           </p>
@@ -734,8 +733,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
       <div class="card reveal d1" style="--accent:#51c0c9"><div class="ico" aria-hidden="true">⚡</div><h3>Five power-ups</h3><p>Shield, slow-motion, coin magnet, double points and shrink. Re-collecting extends rather than replaces.</p></div>
       <div class="card reveal d2" style="--accent:#fbca3d"><div class="ico" aria-hidden="true">🪙</div><h3>Coins &amp; combos</h3><p>A coin streak multiplies rewards up to ×8 and feeds a shop of eight bird skins.</p></div>
       <div class="card reveal d3" style="--accent:#a586ff"><div class="ico" aria-hidden="true">🌪️</div><h3>Weather &amp; time</h3><p>Wind, rain and fog from the run seed; a world that cycles through night and dawn.</p></div>
-      <div class="card reveal" style="--accent:#5ce39a"><div class="ico" aria-hidden="true">👻</div><h3>Ghost replays</h3><p>Your best run, recorded at 20&nbsp;Hz and normalised so it plays back on any screen.</p></div>
-      <div class="card reveal d1" style="--accent:#fbca3d"><div class="ico" aria-hidden="true">🏆</div><h3>18 achievements</h3><p>955 points, one of them secret, unlocked offline and reconciled later.</p></div>
+      <div class="card reveal d1" style="--accent:#fbca3d"><div class="ico" aria-hidden="true">🏆</div><h3>17 achievements</h3><p>910 points, unlocked offline and reconciled later.</p></div>
       <div class="card reveal d2" style="--accent:#ff6b6f"><div class="ico" aria-hidden="true">🔊</div><h3>Synthesised audio</h3><p>Square and triangle waves rendered to PCM at launch. No audio assets ship at all.</p></div>
       <div class="card reveal d3" style="--accent:#5ce39a"><div class="ico" aria-hidden="true">♿</div><h3>Accessibility</h3><p>Reduce flashing, high contrast, VoiceOver labels and system Reduce Motion support.</p></div>
     </div>
@@ -1154,7 +1152,7 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
 <pre><span class="k">make</span> doctor   <span class="c"># what you have, what it unlocks</span>
 <span class="k">make</span> run      <span class="c"># build + launch in a simulator</span>
 <span class="k">make</span> demo     <span class="c"># attract mode — it plays itself</span>
-<span class="k">make</span> test     <span class="c"># 128 Swift unit tests</span>
+<span class="k">make</span> test     <span class="c"># 116 Swift unit tests</span>
 <span class="k">make</span> test-ui  <span class="c"># 25 Swift UI tests</span></pre>
           </div>
         </div>
@@ -1180,7 +1178,7 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
         <div class="step">
           <div class="n">2</div>
           <h4>Press ⌘R</h4>
-          <p>Everything saves locally — scores, coins, skins, achievements, your ghost, and the daily challenge.</p>
+          <p>Everything saves locally — scores, coins, skins, achievements, and the daily challenge.</p>
         </div>
         <div class="step">
           <div class="n">3</div>

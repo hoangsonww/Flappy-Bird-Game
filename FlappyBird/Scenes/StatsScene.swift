@@ -42,7 +42,6 @@ final class StatsScene: ListScene {
             Row(badge: "⚡️", title: "Power-ups collected", value: String(stats.powerUpsCollected)),
             Row(badge: "🌙", title: "Runs into the night", value: String(stats.nightRuns)),
             Row(badge: "📅", title: "Daily challenges done", value: String(profile.dailyChallengesCompleted.count)),
-            Row(badge: "👻", title: "Ghost best", value: profile.ghostScore > 0 ? String(profile.ghostScore) : "—"),
         ]
 
         setRows(rows.map { makeRow(badge: $0.badge, title: $0.title, subtitle: nil, value: $0.value) })

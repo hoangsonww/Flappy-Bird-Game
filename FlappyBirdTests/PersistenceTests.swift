@@ -146,25 +146,6 @@ final class PersistenceTests: XCTestCase {
         XCTAssertEqual(store.dailyChallengeStreakCount, 2)
     }
 
-    // MARK: - Ghost
-
-    func testGhostIsOnlyReplacedByABetterRun() {
-        store.storeGhost(samples: [0.1, 0.2], score: 10)
-        XCTAssertEqual(store.ghost?.score, 10)
-
-        store.storeGhost(samples: [0.9], score: 5)
-        XCTAssertEqual(store.ghost?.samples.count, 2, "A worse run must not overwrite the ghost")
-
-        store.storeGhost(samples: [0.3, 0.4, 0.5], score: 22)
-        XCTAssertEqual(store.ghost?.score, 22)
-        XCTAssertEqual(store.ghost?.samples.count, 3)
-    }
-
-    func testGhostSamplesAreCapped() {
-        store.storeGhost(samples: Array(repeating: 0.5, count: GameConfig.ghostMaxSamples + 100), score: 1)
-        XCTAssertEqual(store.ghost?.samples.count, GameConfig.ghostMaxSamples)
-    }
-
     // MARK: - Persistence & reset
 
     func testProfileSurvivesANewStoreOverTheSameDefaults() {
@@ -197,7 +178,6 @@ final class PersistenceTests: XCTestCase {
 
         XCTAssertTrue(settings.soundEnabled)
         XCTAssertTrue(settings.hapticsEnabled)
-        XCTAssertTrue(settings.ghostEnabled)
         XCTAssertTrue(settings.onlineEnabled)
         XCTAssertFalse(settings.showFPS)
         XCTAssertFalse(settings.highContrast)

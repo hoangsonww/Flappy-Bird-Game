@@ -23,7 +23,6 @@ enum ZPosition {
     static let distantCity: CGFloat = -20
     static let pipes: CGFloat = -10
     static let ground: CGFloat = 5
-    static let ghost: CGFloat = 8
     static let collectible: CGFloat = 10
     static let bird: CGFloat = 20
     static let particles: CGFloat = 25
@@ -106,13 +105,6 @@ enum GameConfig {
     // MARK: - Modes
 
     static let timeAttackDuration: TimeInterval = 60
-
-    // MARK: - Ghost replay
-
-    /// Sampling interval for the ghost recorder, in seconds.
-    static let ghostSampleInterval: TimeInterval = 1.0 / 20.0
-    /// Hard cap on recorded samples (~5 minutes at 20 Hz) to bound storage.
-    static let ghostMaxSamples = 6_000
 
     // MARK: - Presentation
 

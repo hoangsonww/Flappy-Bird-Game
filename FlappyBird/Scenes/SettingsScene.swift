@@ -46,10 +46,6 @@ final class SettingsScene: ListScene {
             if value { Haptics.shared.buttonTap() }
         })
 
-        rows.append(toggle("Ghost replay of best run", isOn: settings.ghostEnabled) { [weak self] value in
-            self?.settings.ghostEnabled = value
-        })
-
         rows.append(toggle("Show FPS counter", isOn: settings.showFPS) { [weak self] value in
             self?.settings.showFPS = value
             self?.applyDebugOverlay(value)

@@ -5,8 +5,10 @@ section is as important as the rest.
 
 ## Gameplay
 
-- [ ] **Ghost races against other players** — the run seed and the recorded path
-      are already stored, so racing a friend's ghost is mostly a UI problem.
+- [ ] **A replay mode** — a run's seed already reproduces its world exactly, so
+      a recorded flight path could be replayed as its own screen. The previous
+      attempt drew the replay into the live scene, where a second translucent
+      bird read as a rendering fault; it belongs in a mode of its own.
 - [ ] **Seasonal events** — themed skins and a modifier, driven by the same
       deterministic derivation as the daily challenge.
 - [ ] **A second obstacle type** — moving platforms or a rotating gap, restricted

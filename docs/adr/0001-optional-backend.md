@@ -14,7 +14,7 @@ experience, and it makes the repository much harder to evaluate.
 ## Decision
 
 The backend is strictly additive. The game is fully playable with no server:
-scores, coins, skins, achievements, the ghost replay and even the daily
+scores, coins, skins, achievements and even the daily
 challenge all work offline.
 
 Concretely:

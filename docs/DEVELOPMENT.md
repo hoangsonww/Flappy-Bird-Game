@@ -153,7 +153,7 @@ project's core promise.
 
 ```
 FlappyBird/          the game
-FlappyBirdTests/     128 Swift unit tests
+FlappyBirdTests/     116 Swift unit tests
 FlappyBirdUITests/   25 Swift UI tests
 backend/             the optional API (106 tests)
 docs/                these guides

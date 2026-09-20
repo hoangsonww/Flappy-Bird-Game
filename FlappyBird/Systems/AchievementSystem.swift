@@ -46,7 +46,6 @@ enum AchievementCatalog {
         Achievement(code: "storm_chaser", name: "Storm Chaser", detail: "Survive 30 seconds of wind.", icon: "🌪️", points: 30, metric: .special, threshold: 1, secret: false),
         Achievement(code: "daily_devotee", name: "Daily Devotee", detail: "Complete 7 daily challenges.", icon: "📅", points: 70, metric: .special, threshold: 7, secret: false),
         Achievement(code: "perfect_start", name: "Perfect Start", detail: "Pass 10 pipes without using a power-up.", icon: "🎯", points: 25, metric: .special, threshold: 1, secret: false),
-        Achievement(code: "ghost_rider", name: "Ghost Rider", detail: "Beat your own ghost replay.", icon: "👻", points: 45, metric: .special, threshold: 1, secret: true),
     ]
     // swiftformat:enable wrap wrapArguments
     // swiftlint:enable line_length
@@ -125,8 +124,6 @@ struct AchievementSystem {
             return profile.dailyChallengesCompleted.count
         case "perfect_start":
             return (run.pipesPassed >= 10 && run.powerUpsUsed == 0) ? 1 : store.progress(for: code).progress
-        case "ghost_rider":
-            return run.beatOwnGhost ? 1 : store.progress(for: code).progress
         default:
             return 0
         }
