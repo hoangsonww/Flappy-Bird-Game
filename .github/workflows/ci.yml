@@ -211,33 +211,45 @@ jobs:
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
           echo "Using simulator $UDID"
 
+      # `xcpretty` is only a log formatter. Piping to it with `|| <rerun>` meant
+      # any test failure ran the whole suite a second time, which doubled the
+      # job and buried which run actually failed — so its absence is handled
+      # with a branch instead of a fallback command.
       - name: Build and test
         run: |
           set -o pipefail
-          xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            -configuration Debug CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath TestResults.xcresult \
-            -only-testing:FlappyBirdTests \
-            test | xcpretty || xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            -configuration Debug CODE_SIGNING_ALLOWED=NO \
-            -only-testing:FlappyBirdTests test
+          if command -v xcpretty >/dev/null; then
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath TestResults.xcresult \
+              -only-testing:FlappyBirdTests test | xcpretty
+          else
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath TestResults.xcresult \
+              -only-testing:FlappyBirdTests test
+          fi
 
       # The UI suite drives a real simulator, so it is minutes rather than
       # seconds. It runs as its own step to keep the failure obvious.
       - name: UI tests
         run: |
           set -o pipefail
-          xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            -configuration Debug CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath UITestResults.xcresult \
-            -only-testing:FlappyBirdUITests \
-            test | xcpretty || xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            -configuration Debug CODE_SIGNING_ALLOWED=NO \
-            -only-testing:FlappyBirdUITests test
+          if command -v xcpretty >/dev/null; then
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath UITestResults.xcresult \
+              -only-testing:FlappyBirdUITests test | xcpretty
+          else
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath UITestResults.xcresult \
+              -only-testing:FlappyBirdUITests test
+          fi
 
       - name: Upload test results
         if: always()

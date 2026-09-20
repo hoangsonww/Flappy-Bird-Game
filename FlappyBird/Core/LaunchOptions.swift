@@ -27,6 +27,21 @@ enum LaunchOptions {
     /// tuning the flight model or diagnosing a capture that does not look right.
     static var showsDebugOverlay: Bool { arguments.contains("-debug-hud") }
 
+    /// End an attract-mode run after this many seconds (`-demo-die 6`).
+    ///
+    /// The summary panel is otherwise only reachable by waiting for the
+    /// auto-pilot to crash, and how long that takes is exactly as variable as
+    /// the flight model — the capture either caught the panel or missed it
+    /// depending on the run. This makes it a cue rather than a race.
+    static var demoDeathDelay: TimeInterval? {
+        guard let index = arguments.firstIndex(of: "-demo-die"),
+              arguments.indices.contains(index + 1),
+              let seconds = TimeInterval(arguments[index + 1]),
+              seconds > 0
+        else { return nil }
+        return seconds
+    }
+
     /// Skip the menu and open a specific screen.
     static var initialScreen: Screen? {
         guard let index = arguments.firstIndex(of: "-screen"),

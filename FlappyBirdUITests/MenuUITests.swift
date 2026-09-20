@@ -34,21 +34,36 @@ final class MenuUITests: GameUITestCase {
 
     func testCyclingForwardAndBackReturnsToTheSameMode() {
         launch()
-        let modes = ["CLASSIC", "ENDLESS", "TIME ATTACK", "HARDCORE", "ZEN", "DAILY"]
 
-        func currentMode() -> String? {
-            visibleLabels().first { label in modes.contains { label.contains($0) } }
-        }
-
-        let start = currentMode()
-        XCTAssertNotNil(start, "No mode name on the card. On screen: \(visibleLabels())")
-
+        let start = waitForModeName()
         tap("▶")
-        let advanced = currentMode()
+        let advanced = waitForModeName(otherThan: start)
         XCTAssertNotEqual(advanced, start, "The right arrow did not change the mode")
 
         tap("◀")
-        XCTAssertEqual(currentMode(), start, "Cycling back did not restore the mode")
+        XCTAssertEqual(waitForModeName(otherThan: advanced), start, "Cycling back did not restore the mode")
+    }
+
+    /// The mode name on the card, once one is published.
+    ///
+    /// Pass `otherThan` after tapping an arrow: the label is repainted a frame
+    /// or two later, so reading once can return the mode that was showing
+    /// before the tap.
+    private func waitForModeName(otherThan previous: String? = nil, file: StaticString = #filePath, line: UInt = #line) -> String {
+        let modes = ["CLASSIC", "ENDLESS", "TIME ATTACK", "HARDCORE", "ZEN", "DAILY"]
+        func nameOn(_ labels: [String]) -> String? {
+            labels.first { label in modes.contains { label.contains($0) } }
+        }
+
+        let labels = waitForLabels("a mode name on the card") { labels in
+            guard let name = nameOn(labels) else { return false }
+            return name != previous
+        }
+        guard let name = nameOn(labels) else {
+            XCTFail("No mode name on the card. On screen: \(labels)", file: file, line: line)
+            return ""
+        }
+        return name
     }
 
     func testEveryModeIsReachableAndKeepsItsLayout() {
@@ -57,10 +72,10 @@ final class MenuUITests: GameUITestCase {
 
         // One full lap of the selector. Each stop must keep its labels inside
         // the card — long subtitles used to run underneath the arrows.
+        var previous = waitForModeName()
         for step in 0..<GameMode.selectableCount {
             tap("▶")
-            let labels = visibleLabels()
-            XCTAssertFalse(labels.isEmpty, "Step \(step) left the card blank")
+            previous = waitForModeName(otherThan: previous)
             for element in app.staticTexts.allElementsBoundByIndex where element.frame.width > 0 {
                 XCTAssertLessThanOrEqual(
                     element.frame.width, play.frame.width,

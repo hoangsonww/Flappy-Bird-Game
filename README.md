@@ -47,7 +47,7 @@
 
 <sub>**Testing**</sub>
 
-[![XCTest](https://img.shields.io/badge/XCTest-124%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCTest](https://img.shields.io/badge/XCTest-128%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![XCUITest](https://img.shields.io/badge/XCUITest-25%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![Vitest](https://img.shields.io/badge/Vitest-108%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
 [![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
@@ -185,7 +185,7 @@ and lets the bird fly itself.*
 ### 🛠 And the boring parts done properly
 
 `make doctor` · a generated Xcode project that never conflicts · Docker Compose
-with observability profiles · a dev container · 257 tests run on every push ·
+with observability profiles · a dev container · 261 tests run on every push ·
 automatic releases from Conventional Commits · reproducible screenshots.
 
 ---
@@ -197,7 +197,7 @@ automatic releases from Conventional Commits · reproducible screenshots.
 ```bash
 make run      # build, install and launch in a simulator
 make demo     # the same, in self-playing attract mode
-make test     # 124 Swift unit tests
+make test     # 128 Swift unit tests
 make test-ui  # 25 Swift UI tests, driven on a simulator
 ```
 
@@ -285,7 +285,7 @@ FlappyBird/            the game
 ├── Scenes/            one file per screen
 └── Backend/           the optional client: discovery, HTTP, models, sync
 
-FlappyBirdTests/       124 Swift unit tests
+FlappyBirdTests/       128 Swift unit tests
 FlappyBirdUITests/     25 Swift UI tests
 backend/               the optional API — 106 tests, OpenAPI 3.1
 docs/                  14 guides + 3 decision records

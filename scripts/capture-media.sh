@@ -106,7 +106,10 @@ shoot "achievements" 4   -seed-demo -screen achievements
 shoot "shop"         4   -seed-demo -screen shop
 shoot "stats"        4   -seed-demo -screen stats
 shoot "settings"     4   -seed-demo -screen settings
-shoot "gameover"    22   -seed-demo -demo -mode hardcore
+# `-demo-die` ends the run on cue; waiting for the auto-pilot to crash meant
+# the shot caught the summary panel only on the runs where it happened to die
+# inside the window.
+shoot "gameover"    17   -seed-demo -demo -demo-die 12 -mode hardcore
 
 xcrun simctl status_bar "$UDID" clear >/dev/null 2>&1 || true
 xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true

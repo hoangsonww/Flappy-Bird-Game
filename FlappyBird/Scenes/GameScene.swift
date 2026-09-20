@@ -294,6 +294,13 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         state = .playing
         settings.hasSeenTutorial = true
 
+        if LaunchOptions.isDemoMode, let delay = LaunchOptions.demoDeathDelay {
+            run(
+                .sequence([.wait(forDuration: delay), .run { [weak self] in self?.endRunOnCue() }]),
+                withKey: "demo-death"
+            )
+        }
+
         bird.stopIdleBob()
         bird.physicsBody?.isDynamic = true
         stats.startedAt = Date()
@@ -678,6 +685,13 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     // MARK: - Ending a run
+
+    /// End the run deliberately so `-demo-die` can capture the summary panel.
+    private func endRunOnCue() {
+        guard state == .playing else { return }
+        deathCause = .pipe
+        finishRun()
+    }
 
     private func finishRun() {
         guard state == .playing else { return }

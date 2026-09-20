@@ -6,8 +6,9 @@ final class ShopUITests: GameUITestCase {
     func testShopListsSkinsWithActions() {
         launch(screen: "shop")
         XCTAssertTrue(waitFor("‹").exists)
-        let actions = visibleLabels().filter { ["BUY", "EQUIP", "✓"].contains($0) }
-        XCTAssertFalse(actions.isEmpty, "The shop has no purchase or equip actions")
+        waitForLabels("a purchase or equip action") { labels in
+            labels.contains { ["BUY", "EQUIP", "✓"].contains($0) }
+        }
         capture("shop")
     }
 

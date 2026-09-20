@@ -34,7 +34,11 @@ final class GameOverPanel: PanelNode {
         onShare: (() -> Void)?
     ) {
         let hasRank = summary.rank != nil
-        let height: CGFloat = hasRank ? 400 : 372
+        // Derived, not guessed. The old fixed 372/400 were about 26 points
+        // short of the content, which pushed the MENU/SHARE row past the
+        // panel's own bottom edge — it rendered 2 points *outside* the card.
+        let rowCount = hasRank || summary.queuedForSync ? 5 : 4
+        let height = GameOverPanel.height(forRows: rowCount)
         super.init(
             size: CGSize(width: width, height: height),
             title: summary.isPersonalBest ? "NEW BEST!" : "GAME OVER",
@@ -79,6 +83,8 @@ final class GameOverPanel: PanelNode {
         addChild(bestLabel)
         y -= 36
 
+        // The row count is decided before layout so the panel can be sized for
+        // it; this must produce exactly `rowCount` entries.
         let rows: [(String, String)] = {
             var rows = [
                 ("Pipes cleared", String(summary.pipesPassed)),
@@ -95,11 +101,13 @@ final class GameOverPanel: PanelNode {
             return rows
         }()
 
+        assert(rows.count == rowCount, "The panel was sized for \(rowCount) rows but built \(rows.count)")
+
         for (label, value) in rows {
             let row = PanelNode.statRow(label: label, value: value, width: contentWidth, fontSize: 14)
             row.position = CGPoint(x: 0, y: y)
             addChild(row)
-            y -= 24
+            y -= GameOverPanel.rowPitch
         }
 
         y -= 10
@@ -131,6 +139,23 @@ final class GameOverPanel: PanelNode {
         }
 
         present()
+    }
+
+    // MARK: - Geometry
+
+    /// Fixed vertical cost of everything above the stat rows, plus the two
+    /// button blocks below them, measured from `PanelNode.contentTop`.
+    private static let fixedContentHeight: CGFloat = 226
+    /// `PanelNode.contentTop` sits this far below the top edge when titled.
+    private static let titleAllowance: CGFloat = 52
+    /// Clear space between the last button and the panel's bottom edge.
+    private static let bottomPadding: CGFloat = 24
+    /// Vertical pitch of one stat row.
+    private static let rowPitch: CGFloat = 24
+
+    /// Panel height that leaves `bottomPadding` under the last button.
+    static func height(forRows rows: Int) -> CGFloat {
+        titleAllowance + fixedContentHeight + CGFloat(rows) * rowPitch + bottomPadding
     }
 
     private static func causeText(_ cause: DeathCause, mode: GameMode) -> String {

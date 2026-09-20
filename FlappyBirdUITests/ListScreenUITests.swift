@@ -32,10 +32,6 @@ final class ListScreenUITests: GameUITestCase {
     /// Seeded runs have to show up somewhere, or the screen is lying.
     func testStatsShowsSeededProgress() {
         launch(screen: "stats")
-        let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
-        XCTAssertTrue(
-            labels.contains { $0.contains("Games played") },
-            "Stats has no totals. On screen: \(labels)"
-        )
+        waitForLabel(containing: "Games played")
     }
 }

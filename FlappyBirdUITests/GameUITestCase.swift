@@ -107,11 +107,46 @@ class GameUITestCase: XCTestCase {
         XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: timeout), .completed, "\"\(label)\" never went away")
     }
 
-    /// Every accessibility label currently published, for failure messages.
+    /// Every accessibility label currently published.
+    ///
+    /// A single read of this is a *snapshot*. Straight after a launch or a
+    /// scene change the tree is routinely still empty, so asserting on one
+    /// read is the flakiest thing a test here can do — use `waitForLabels`.
     func visibleLabels() -> [String] {
         let buttons = app.buttons.allElementsBoundByIndex.map(\.label)
+        let texts = app.staticTexts.allElementsBoundByIndex.map(\.label)
         let others = app.otherElements.allElementsBoundByIndex.map(\.label)
-        return (buttons + others).filter { !$0.isEmpty }
+        return (buttons + texts + others).filter { !$0.isEmpty }
+    }
+
+    /// Poll the accessibility tree until `matches` holds, then return it.
+    ///
+    /// Everything that inspects the tree goes through here. `XCUIElement` has
+    /// `waitForExistence` for a single element, but nothing for "the screen has
+    /// finished publishing itself", and the empty-tree window after a launch is
+    /// long enough to lose a race on a loaded CI runner.
+    @discardableResult
+    func waitForLabels(
+        _ what: String,
+        timeout: TimeInterval = GameUITestCase.uiTimeout,
+        where matches: ([String]) -> Bool
+    ) -> [String] {
+        let deadline = Date().addingTimeInterval(timeout)
+        var labels = visibleLabels()
+        while !matches(labels), Date() < deadline {
+            usleep(150_000)
+            labels = visibleLabels()
+        }
+        XCTAssertTrue(matches(labels), "Timed out waiting for \(what). On screen: \(labels)")
+        return labels
+    }
+
+    /// Wait until some published label contains `text`.
+    @discardableResult
+    func waitForLabel(containing text: String, timeout: TimeInterval = GameUITestCase.uiTimeout) -> [String] {
+        waitForLabels("a label containing \"\(text)\"", timeout: timeout) { labels in
+            labels.contains { $0.contains(text) }
+        }
     }
 
     /// Attach a screenshot under `name` so a full run leaves a visual trail.
@@ -133,13 +168,16 @@ class GameUITestCase: XCTestCase {
     /// pause control is not enough — the menu's push transition is still
     /// running, and a tap during it never reaches the scene, which leaves the
     /// bird bobbing in its ready state for the rest of the test.
+    ///
+    /// The scene flashes its "tap to start" prompt on entering the ready state,
+    /// which is the first moment a tap will do anything. Waiting for that is
+    /// exact, where the fixed delay it replaces was a guess that held locally
+    /// and lost on a slower runner.
     func startRun() {
         tap("PLAY")
-        waitFor("II")
-        Thread.sleep(forTimeInterval: GameUITestCase.sceneTransition)
+        waitForLabels("the game scene's ready prompt") { labels in
+            labels.contains { $0.contains("TAP TO") }
+        }
         flap()
     }
-
-    /// The menu→game push, plus a margin.
-    static let sceneTransition: TimeInterval = 0.6
 }

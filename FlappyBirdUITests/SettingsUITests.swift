@@ -21,6 +21,9 @@ final class SettingsUITests: GameUITestCase {
         tap("GAME")
 
         let onOff = Set(["on", "off"])
+        waitForLabels("a toggle on the GAME tab") { _ in
+            app.buttons.allElementsBoundByIndex.contains { onOff.contains(($0.value as? String) ?? "") }
+        }
         let toggle = try XCTUnwrap(
             app.buttons.allElementsBoundByIndex.first { onOff.contains(($0.value as? String) ?? "") },
             "No on/off toggle on the GAME tab. On screen: \(visibleLabels())"
@@ -41,21 +44,15 @@ final class SettingsUITests: GameUITestCase {
 
     func testAccessibilityTabListsItsSwitches() {
         launch(screen: "settings", segment: 1)
-        let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
-        XCTAssertTrue(
-            labels.contains { $0.contains("Reduce") },
-            "The accessibility tab has no reduce-motion row. On screen: \(labels)"
-        )
+        waitForLabel(containing: "Reduce")
         capture("settings-access")
     }
 
     func testServerTabExplainsTheOptionalBackend() {
         launch(screen: "settings", segment: 2)
-        let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
-        XCTAssertTrue(
-            labels.contains { $0.contains("Server URL") || $0.contains("Backend") },
-            "The server tab says nothing about the backend. On screen: \(labels)"
-        )
+        waitForLabels("the server tab's backend copy") { labels in
+            labels.contains { $0.contains("Server URL") || $0.contains("Backend") }
+        }
         capture("settings-server")
     }
 
