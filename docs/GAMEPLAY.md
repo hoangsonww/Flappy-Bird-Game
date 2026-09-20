@@ -41,17 +41,26 @@ bird much higher.
 t = 1 − (1 − min(1, pipesPassed / 40))³
 ```
 
-| Passed | Gap | Spawn every | Scroll |
-|-------:|----:|------------:|-------:|
-| 0 | 155 pt | 1.90 s | 0.0100 s/pt |
-| 10 | 128 pt | 1.38 s | 0.0077 s/pt |
-| 25 | 114 pt | 1.12 s | 0.0065 s/pt |
-| 40+ | 111 pt | 1.05 s | 0.0062 s/pt |
+| Passed | Gap | Spawn every | Scroll | Pitch |
+|-------:|----:|------------:|-------:|------:|
+| 0 | 155 pt | 2.20 s | 0.0100 s/pt | 220 pt |
+| 10 | 130 pt | 1.65 s | 0.0078 s/pt | 212 pt |
+| 25 | 113 pt | 1.30 s | 0.0064 s/pt | 203 pt |
+| 40+ | 111 pt | 1.25 s | 0.0062 s/pt | 202 pt |
 
-Hard floors: the gap never drops below **104 pt** and the spawn interval never
-below **1.05 s**, whatever the mode or challenge asks for. Past 25 pipes, some
-pairs start drifting vertically — the amplitude stays inside the gap, so a
-moving pair is always passable.
+**Spawn every** is the reaction window — the seconds between one gap and the
+next — and **pitch** is what that looks like on screen, since a faster scroll
+covers more ground in the same time. The window is the number that decides
+whether the game feels fair; at 1.90 s it read as unfair rather than demanding,
+so both ends were widened.
+
+Hard floors: the gap never drops below **104 pt** and the window never below
+**1.25 s**, whatever the mode or challenge asks for, and tests assert both
+across every mode. Past 25 pipes, some pairs start drifting vertically — the
+amplitude stays inside the gap, so a moving pair is always passable.
+
+Classic and Zen do not ramp at all, so they stay at the top row for the whole
+run.
 
 ## Coins and combos
 

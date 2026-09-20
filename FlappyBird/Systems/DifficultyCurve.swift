@@ -11,6 +11,17 @@ struct DifficultySnapshot: Equatable {
     var scrollRate: TimeInterval
     /// Gravity applied to the bird.
     var gravity: CGFloat
+
+    /// Distance between one pipe pair and the next, in points.
+    ///
+    /// `scrollRate` is seconds per point, so this is what the spawn interval
+    /// actually buys the player on screen. Useful for reasoning about spacing:
+    /// the *time* window is `spawnInterval`, but two modes with the same window
+    /// look very different if one scrolls faster.
+    var horizontalSpacing: CGFloat {
+        guard scrollRate > 0 else { return 0 }
+        return CGFloat(spawnInterval / scrollRate)
+    }
 }
 
 /// Maps "how far into the run are we?" onto concrete difficulty numbers.

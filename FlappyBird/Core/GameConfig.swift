@@ -67,8 +67,14 @@ enum GameConfig {
     /// Smallest gap the difficulty curve will ever produce.
     static let minimumVerticalPipeGap: CGFloat = 104
     /// Seconds between pipe spawns at the easiest difficulty.
-    static let baseSpawnInterval: TimeInterval = 1.9
-    static let minimumSpawnInterval: TimeInterval = 1.05
+    ///
+    /// This is the reaction window: the time between one gap and the next,
+    /// whatever the scroll speed. Classic does not ramp, so it sits here for the
+    /// whole run — at 1.9s it was tight enough to read as unfair rather than
+    /// demanding, so both ends were widened.
+    static let baseSpawnInterval: TimeInterval = 2.2
+    /// The shortest window the curve will ever produce, at full difficulty.
+    static let minimumSpawnInterval: TimeInterval = 1.25
     /// Seconds a pipe takes to cross one point of horizontal distance.
     static let baseScrollRate: TimeInterval = 0.010
     static let fastestScrollRate: TimeInterval = 0.0062

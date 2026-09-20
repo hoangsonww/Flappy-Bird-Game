@@ -794,21 +794,22 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
       <div class="panel" role="tabpanel" id="p-curve" aria-labelledby="t-curve" hidden>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Pipes passed</th><th>Gap</th><th>Spawn every</th><th>Scroll</th></tr></thead>
+            <thead><tr><th>Pipes passed</th><th>Gap</th><th>Spawn every</th><th>Scroll</th><th>Pitch</th></tr></thead>
             <tbody>
-              <tr><td><code>0</code></td><td>155 pt</td><td>1.90 s</td><td>0.0100 s/pt</td></tr>
-              <tr><td><code>10</code></td><td>128 pt</td><td>1.38 s</td><td>0.0077 s/pt</td></tr>
-              <tr><td><code>25</code></td><td>114 pt</td><td>1.12 s</td><td>0.0065 s/pt</td></tr>
-              <tr><td><code>40+</code></td><td>111 pt</td><td>1.05 s</td><td>0.0062 s/pt</td></tr>
+              <tr><td><code>0</code></td><td>155 pt</td><td>2.20 s</td><td>0.0100 s/pt</td><td>220 pt</td></tr>
+              <tr><td><code>10</code></td><td>130 pt</td><td>1.65 s</td><td>0.0078 s/pt</td><td>212 pt</td></tr>
+              <tr><td><code>25</code></td><td>113 pt</td><td>1.30 s</td><td>0.0064 s/pt</td><td>203 pt</td></tr>
+              <tr><td><code>40+</code></td><td>111 pt</td><td>1.25 s</td><td>0.0062 s/pt</td><td>202 pt</td></tr>
             </tbody>
           </table>
         </div>
         <div class="note">
           <strong>Ease-out cubic, with hard floors.</strong> The gap never drops
-          below <code>104 pt</code> and the spawn interval never below
-          <code>1.05 s</code> — a long run stays hard but never becomes
-          impossible. Past 25 pipes some pairs start drifting vertically, with an
-          amplitude that always fits inside the gap.
+          below <code>104 pt</code> and the reaction window never below
+          <code>1.25 s</code> — a long run stays hard but never becomes
+          impossible, and tests assert both across every mode. Past 25 pipes some
+          pairs start drifting vertically, with an amplitude that always fits
+          inside the gap.
         </div>
       </div>
 

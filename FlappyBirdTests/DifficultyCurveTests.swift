@@ -85,6 +85,52 @@ final class DifficultyCurveTests: XCTestCase {
         XCTAssertLessThan(hardcore.gravity, classic.gravity, "Gravity is negative, so stronger is lower")
     }
 
+    /// The reaction window is the thing that decides whether the game is fair:
+    /// the seconds between one gap and the next, whatever the scroll speed.
+    func testEveryModeKeepsAUsableReactionWindow() {
+        for mode in GameMode.allCases {
+            for pipes in [0, 10, 40, 200, 2_000] {
+                let snapshot = DifficultyCurve(mode: mode).snapshot(pipesPassed: pipes)
+                XCTAssertGreaterThanOrEqual(
+                    snapshot.spawnInterval,
+                    GameConfig.minimumSpawnInterval,
+                    "\(mode) at \(pipes) pipes drops below the floor"
+                )
+                XCTAssertGreaterThanOrEqual(
+                    snapshot.spawnInterval,
+                    1.2,
+                    "\(mode) at \(pipes) pipes leaves too little time to react"
+                )
+            }
+        }
+    }
+
+    /// Pitch in points, which is what the spacing actually looks like on screen.
+    func testPipesAreNeverPackedTooCloselyTogether() {
+        // One pipe is 60pt wide, so this leaves at least ~125pt of clear air.
+        let floor: CGFloat = 185
+
+        for mode in GameMode.allCases {
+            for pipes in [0, 10, 40, 200, 2_000] {
+                let snapshot = DifficultyCurve(mode: mode).snapshot(pipesPassed: pipes)
+                XCTAssertGreaterThanOrEqual(
+                    snapshot.horizontalSpacing,
+                    floor,
+                    "\(mode) at \(pipes) pipes spaces pipes only \(snapshot.horizontalSpacing)pt apart"
+                )
+            }
+        }
+    }
+
+    /// A daily challenge may speed the world up; it must not close the window.
+    func testASpedUpDailyStillKeepsItsWindow() {
+        let curve = DifficultyCurve(mode: .daily, gravityScale: 1.15, speedScale: 1.25)
+        let late = curve.snapshot(pipesPassed: 200)
+
+        XCTAssertGreaterThanOrEqual(late.spawnInterval, GameConfig.minimumSpawnInterval)
+        XCTAssertGreaterThanOrEqual(late.horizontalSpacing, 185)
+    }
+
     func testLevelClimbsWithProgress() {
         let curve = DifficultyCurve(mode: .endless)
         XCTAssertEqual(curve.level(pipesPassed: 0), 1)

@@ -113,7 +113,7 @@ impossible:
 flowchart LR
     P["pipes passed"] --> T["t = 1 − (1 − min(1, pipes/40))³"]
     T --> G["gap: start → start − 44<br/>floor 104 pt"]
-    T --> S["spawn: 1.90 s → 1.05 s"]
+    T --> S["spawn: 2.20 s → 1.25 s"]
     T --> R["scroll: 0.0100 → 0.0062 s/pt"]
 
     style T fill:#fef3c7,stroke:#d97706,color:#92400e
