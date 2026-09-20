@@ -656,7 +656,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
           <ul class="show-list">
             <li><span class="tick">✓</span><span><b>Endless</b> — difficulty climbs over 40 pipes, then plateaus so it stays fair.</span></li>
             <li><span class="tick">✓</span><span><b>Time Attack</b> — 60 seconds. Score, not survival.</span></li>
-            <li><span class="tick">✓</span><span><b>Hardcore</b> — 118 pt gaps, heavier gravity, no power-ups.</span></li>
+            <li><span class="tick">✓</span><span><b>Hardcore</b> — 132 pt gaps, heavier gravity, no power-ups.</span></li>
             <li><span class="tick">✓</span><span><b>Daily</b> — derived from the date, so everyone plays the identical layout.</span></li>
           </ul>
         </div>
@@ -765,11 +765,11 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
           <table>
             <thead><tr><th>Mode</th><th>Ramps</th><th>Power-ups</th><th>Lethal</th><th>Ranked</th><th>Start gap</th></tr></thead>
             <tbody>
-              <tr><td>🐦 Classic</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>155 pt</code></td></tr>
-              <tr><td>♾️ Endless</td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>155 pt</code></td></tr>
-              <tr><td>⏱️ Time Attack</td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>165 pt</code></td></tr>
-              <tr><td>💀 Hardcore</td><td><span class="pill on">yes</span></td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>118 pt</code></td></tr>
-              <tr><td>🧘 Zen</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill off">no</span></td><td><span class="pill off">no</span></td><td><code>185 pt</code></td></tr>
+              <tr><td>🐦 Classic</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>170 pt</code></td></tr>
+              <tr><td>♾️ Endless</td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>170 pt</code></td></tr>
+              <tr><td>⏱️ Time Attack</td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>180 pt</code></td></tr>
+              <tr><td>💀 Hardcore</td><td><span class="pill on">yes</span></td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>132 pt</code></td></tr>
+              <tr><td>🧘 Zen</td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill off">no</span></td><td><span class="pill off">no</span></td><td><code>200 pt</code></td></tr>
               <tr><td>📅 Daily</td><td><span class="pill on">yes</span></td><td><span class="pill off">no</span></td><td><span class="pill on">yes</span></td><td><span class="pill on">yes</span></td><td><code>from seed</code></td></tr>
             </tbody>
           </table>
@@ -796,16 +796,16 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
           <table>
             <thead><tr><th>Pipes passed</th><th>Gap</th><th>Spawn every</th><th>Scroll</th><th>Pitch</th></tr></thead>
             <tbody>
-              <tr><td><code>0</code></td><td>155 pt</td><td>2.20 s</td><td>0.0100 s/pt</td><td>220 pt</td></tr>
-              <tr><td><code>10</code></td><td>130 pt</td><td>1.65 s</td><td>0.0078 s/pt</td><td>212 pt</td></tr>
-              <tr><td><code>25</code></td><td>113 pt</td><td>1.30 s</td><td>0.0064 s/pt</td><td>203 pt</td></tr>
-              <tr><td><code>40+</code></td><td>111 pt</td><td>1.25 s</td><td>0.0062 s/pt</td><td>202 pt</td></tr>
+              <tr><td><code>0</code></td><td>170 pt</td><td>2.20 s</td><td>0.0100 s/pt</td><td>220 pt</td></tr>
+              <tr><td><code>10</code></td><td>145 pt</td><td>1.65 s</td><td>0.0078 s/pt</td><td>212 pt</td></tr>
+              <tr><td><code>25</code></td><td>128 pt</td><td>1.30 s</td><td>0.0064 s/pt</td><td>203 pt</td></tr>
+              <tr><td><code>40+</code></td><td>126 pt</td><td>1.25 s</td><td>0.0062 s/pt</td><td>202 pt</td></tr>
             </tbody>
           </table>
         </div>
         <div class="note">
           <strong>Ease-out cubic, with hard floors.</strong> The gap never drops
-          below <code>104 pt</code> and the reaction window never below
+          below <code>118 pt</code> and the reaction window never below
           <code>1.25 s</code> — a long run stays hard but never becomes
           impossible, and tests assert both across every mode. Past 25 pipes some
           pairs start drifting vertically, with an amplitude that always fits
@@ -1216,16 +1216,22 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
     <div class="head center reveal">
       <div class="kicker">Documentation</div>
       <h2>Written down, not folklore</h2>
-      <p>Fourteen guides with diagrams, plus the decision records above.</p>
+      <p>Thirty guides with seventy-three diagrams, plus the decision records above.</p>
     </div>
 
     <div class="cards">
       <a class="card reveal" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/DEVELOPMENT.md"><div class="ico" aria-hidden="true">🚀</div><h3>Development</h3><p>Clone, run, add a file, open a pull request.</p><div class="more">Read →</div></a>
       <a class="card reveal d1" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/GAMEPLAY.md"><div class="ico" aria-hidden="true">🎯</div><h3>Gameplay</h3><p>Every mode, power-up and number behind the feel.</p><div class="more">Read →</div></a>
-      <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/ARCHITECTURE.md"><div class="ico" aria-hidden="true">🏗</div><h3>Architecture</h3><p>How the two halves fit, with diagrams.</p><div class="more">Read →</div></a>
+      <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/ARCHITECTURE.md"><div class="ico" aria-hidden="true">🏗</div><h3>Architecture</h3><p>How the two halves fit, with diagrams.</p><div class="more">Read →</div></a>
       <a class="card reveal" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/API.md"><div class="ico" aria-hidden="true">🔌</div><h3>API reference</h3><p>46 endpoints with request and response examples.</p><div class="more">Read →</div></a>
       <a class="card reveal d1" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/DATABASE.md"><div class="ico" aria-hidden="true">🗄</div><h3>Database</h3><p>Schema, indexes and the ranking query, explained.</p><div class="more">Read →</div></a>
       <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/SECURITY-MODEL.md"><div class="ico" aria-hidden="true">🔐</div><h3>Security model</h3><p>Tokens, fair play, and what is deliberately out of scope.</p><div class="more">Read →</div></a>
+      <a class="card reveal" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/RENDERING.md"><div class="ico" aria-hidden="true">🎨</div><h3>Rendering</h3><p>Scene graph, layer order, parallax and textures.</p><div class="more">Read →</div></a>
+      <a class="card reveal d1" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/PHYSICS.md"><div class="ico" aria-hidden="true">🪶</div><h3>Physics</h3><p>The flight model, collisions and the frame loop.</p><div class="more">Read →</div></a>
+      <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/REPLAYS.md"><div class="ico" aria-hidden="true">⏯</div><h3>Replays</h3><p>The recording format and why it is not re-simulated.</p><div class="more">Read →</div></a>
+      <a class="card reveal" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/ACCESSIBILITY.md"><div class="ico" aria-hidden="true">♿️</div><h3>Accessibility</h3><p>How a SpriteKit game reaches VoiceOver.</p><div class="more">Read →</div></a>
+      <a class="card reveal d1" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/SYNC.md"><div class="ico" aria-hidden="true">🔄</div><h3>Sync</h3><p>Discovery, sessions and the offline upload queue.</p><div class="more">Read →</div></a>
+      <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/OBSERVABILITY.md"><div class="ico" aria-hidden="true">📈</div><h3>Observability</h3><p>Logs, metrics, dashboards and what to watch.</p><div class="more">Read →</div></a>
     </div>
   </div>
 </section>

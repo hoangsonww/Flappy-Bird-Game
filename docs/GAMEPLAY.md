@@ -10,11 +10,11 @@ Tap to flap. Everything below is what was built on top of that.
 
 | Mode | Symbol | Ramps | Power-ups | Lethal | Ranked | Starting gap | Notes |
 |------|:------:|:-----:|:---------:|:------:|:------:|:------------:|-------|
-| Classic | 🐦 | — | ✅ | ✅ | ✅ | 155 pt | The original rules, steady pace. |
-| Endless | ♾️ | ✅ | ✅ | ✅ | ✅ | 155 pt | Difficulty climbs and then plateaus. |
-| Time Attack | ⏱️ | ✅ | ✅ | ✅ | ✅ | 165 pt | 60 seconds. Score, not survival. |
-| Hardcore | 💀 | ✅ | ❌ | ✅ | ✅ | 118 pt | Narrow gaps, heavier gravity, no help. |
-| Zen | 🧘 | — | ✅ | ❌ | ❌ | 185 pt | Contact bounces instead of killing. Practice. |
+| Classic | 🐦 | — | ✅ | ✅ | ✅ | 170 pt | The original rules, steady pace. |
+| Endless | ♾️ | ✅ | ✅ | ✅ | ✅ | 170 pt | Difficulty climbs and then plateaus. |
+| Time Attack | ⏱️ | ✅ | ✅ | ✅ | ✅ | 180 pt | 60 seconds. Score, not survival. |
+| Hardcore | 💀 | ✅ | ❌ | ✅ | ✅ | 132 pt | Narrow gaps, heavier gravity, no help. |
+| Zen | 🧘 | — | ✅ | ❌ | ❌ | 200 pt | Contact bounces instead of killing. Practice. |
 | Daily | 📅 | ✅ | ❌ | ✅ | ✅ | from seed | Everyone plays the same layout today. |
 
 Zen is deliberately unranked — a mode you cannot lose would flatten every
@@ -43,10 +43,10 @@ t = 1 − (1 − min(1, pipesPassed / 40))³
 
 | Passed | Gap | Spawn every | Scroll | Pitch |
 |-------:|----:|------------:|-------:|------:|
-| 0 | 155 pt | 2.20 s | 0.0100 s/pt | 220 pt |
-| 10 | 130 pt | 1.65 s | 0.0078 s/pt | 212 pt |
-| 25 | 113 pt | 1.30 s | 0.0064 s/pt | 203 pt |
-| 40+ | 111 pt | 1.25 s | 0.0062 s/pt | 202 pt |
+| 0 | 170 pt | 2.20 s | 0.0100 s/pt | 220 pt |
+| 10 | 145 pt | 1.65 s | 0.0078 s/pt | 212 pt |
+| 25 | 128 pt | 1.30 s | 0.0064 s/pt | 203 pt |
+| 40+ | 126 pt | 1.25 s | 0.0062 s/pt | 202 pt |
 
 **Spawn every** is the reaction window — the seconds between one gap and the
 next — and **pitch** is what that looks like on screen, since a faster scroll
@@ -54,9 +54,10 @@ covers more ground in the same time. The window is the number that decides
 whether the game feels fair; at 1.90 s it read as unfair rather than demanding,
 so both ends were widened.
 
-Hard floors: the gap never drops below **104 pt** and the window never below
+Hard floors: the gap never drops below **118 pt** and the window never below
 **1.25 s**, whatever the mode or challenge asks for, and tests assert both
-across every mode. Past 25 pipes, some pairs start drifting vertically — the
+across every mode. The gap is only half the story — the bird's collision circle
+is 36 pt across, so 170 pt of gap is 134 pt of actual clearance. Past 25 pipes, some pairs start drifting vertically — the
 amplitude stays inside the gap, so a moving pair is always passable.
 
 Classic and Zen do not ramp at all, so they stay at the top row for the whole

@@ -6,7 +6,7 @@ final class GameplayUITests: GameUITestCase {
     func testPlayStartsARunWithAPauseControl() {
         launch()
         tap("PLAY")
-        XCTAssertTrue(waitFor("II").exists, "No pause control after starting a run")
+        XCTAssertTrue(waitFor("Pause").exists, "No pause control after starting a run")
         capture("gameplay")
     }
 
@@ -19,7 +19,7 @@ final class GameplayUITests: GameUITestCase {
     func testPauseOverlayOffersResumeRestartAndMenu() {
         launch(mode: "zen")
         startRun()
-        tap("II")
+        tap("Pause")
 
         for label in ["RESUME", "RESTART", "MENU"] {
             XCTAssertTrue(waitFor(label).exists, "The pause overlay is missing \(label)")
@@ -28,13 +28,13 @@ final class GameplayUITests: GameUITestCase {
 
         tap("RESUME")
         waitForDisappearance("RESUME")
-        XCTAssertTrue(waitFor("II").exists, "Resuming did not restore the HUD")
+        XCTAssertTrue(waitFor("Pause").exists, "Resuming did not restore the HUD")
     }
 
     func testPauseThenMenuReturnsToTheMenu() {
         launch(mode: "zen")
         startRun()
-        tap("II")
+        tap("Pause")
         tap("MENU")
         XCTAssertTrue(waitFor("PLAY").exists, "Leaving a paused run did not reach the menu")
     }
@@ -42,10 +42,10 @@ final class GameplayUITests: GameUITestCase {
     func testPauseThenRestartBeginsAFreshRun() {
         launch(mode: "zen")
         startRun()
-        tap("II")
+        tap("Pause")
         tap("RESTART")
         waitForDisappearance("RESTART")
-        XCTAssertTrue(waitFor("II").exists, "Restarting did not return to a playable run")
+        XCTAssertTrue(waitFor("Pause").exists, "Restarting did not return to a playable run")
     }
 
     /// Crash on purpose by never flapping, then check the summary panel.
@@ -60,7 +60,7 @@ final class GameplayUITests: GameUITestCase {
 
         tap(element: retry)
         waitForDisappearance("PLAY AGAIN")
-        XCTAssertTrue(waitFor("II").exists, "PLAY AGAIN did not start another run")
+        XCTAssertTrue(waitFor("Pause").exists, "PLAY AGAIN did not start another run")
     }
 
     func testGameOverMenuButtonReturnsToTheMenu() {
@@ -79,7 +79,7 @@ final class GameplayUITests: GameUITestCase {
         // Prove the run is genuinely under way before asserting it never ends:
         // the pause overlay only opens from `.playing`, so a bird still sitting
         // in its ready state would fail here instead of passing by accident.
-        tap("II")
+        tap("Pause")
         waitFor("RESUME")
         tap("RESUME")
         waitForDisappearance("RESUME")
@@ -89,6 +89,6 @@ final class GameplayUITests: GameUITestCase {
             summary.waitForExistence(timeout: 12),
             "Zen mode showed a game-over panel"
         )
-        XCTAssertTrue(control("II").exists, "Zen mode lost its HUD")
+        XCTAssertTrue(control("Pause").exists, "Zen mode lost its HUD")
     }
 }

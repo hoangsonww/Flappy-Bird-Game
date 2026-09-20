@@ -13,6 +13,10 @@ final class HUDNode: SKNode {
     private static let sideInset: CGFloat = 14
     /// Side of the square pause button.
     private static let pauseSize: CGFloat = 40
+    /// Geometry of the two bars that make up the pause glyph.
+    private static let pauseBarWidth: CGFloat = 5
+    private static let pauseBarHeight: CGFloat = 17
+    private static let pauseBarGap: CGFloat = 5.5
 
     private let scoreLabel = SKLabelNode()
     private let bestLabel = SKLabelNode()
@@ -100,12 +104,26 @@ final class HUDNode: SKNode {
         badgeContainer.position = CGPoint(x: 18, y: topY - 54)
         addChild(badgeContainer)
 
+        // Drawn, not typed. "II" is two capital i's — at a glance it reads as a
+        // roman numeral or a letter, not a transport control. Two rounded bars
+        // are unambiguous, and do not depend on the display font having a glyph.
         pauseButton = ButtonNode(
-            title: "II",
+            title: "",
             size: CGSize(width: HUDNode.pauseSize, height: HUDNode.pauseSize),
-            fontSize: 18,
             action: onPause
         )
+        for offset in [-HUDNode.pauseBarGap, HUDNode.pauseBarGap] {
+            let bar = SKShapeNode(
+                rectOf: CGSize(width: HUDNode.pauseBarWidth, height: HUDNode.pauseBarHeight),
+                cornerRadius: HUDNode.pauseBarWidth / 2
+            )
+            bar.fillColor = Palette.primaryText
+            bar.strokeColor = .clear
+            bar.position = CGPoint(x: offset, y: 0)
+            pauseButton.addChild(bar)
+        }
+        // The button takes its label from its title, which is now empty.
+        pauseButton.accessibilityLabel = "Pause"
         pauseButton.position = CGPoint(x: rightEdge - HUDNode.pauseSize / 2, y: topY)
         addChild(pauseButton)
     }

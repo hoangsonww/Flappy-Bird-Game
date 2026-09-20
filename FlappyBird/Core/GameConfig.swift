@@ -60,12 +60,20 @@ enum GameConfig {
 
     static let pipeScale: CGFloat = 2.0
     static let groundScale: CGFloat = 2.0
-    static let birdScale: CGFloat = 2.0
+    /// Sprite scale for the bird.
+    ///
+    /// The collision circle is derived from the scaled sprite, so this changes
+    /// how much room the bird needs — but not how it flies, because
+    /// `birdMass` is pinned independently.
+    static let birdScale: CGFloat = 1.8
 
     /// Vertical gap between pipes at the easiest difficulty.
-    static let baseVerticalPipeGap: CGFloat = 155
+    ///
+    /// Read together with `birdScale`: what matters is the clearance left once
+    /// the bird is in the gap, not the gap on its own.
+    static let baseVerticalPipeGap: CGFloat = 170
     /// Smallest gap the difficulty curve will ever produce.
-    static let minimumVerticalPipeGap: CGFloat = 104
+    static let minimumVerticalPipeGap: CGFloat = 118
     /// Seconds between pipe spawns at the easiest difficulty.
     ///
     /// This is the reaction window: the time between one gap and the next,

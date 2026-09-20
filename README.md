@@ -4,10 +4,6 @@
 
 ### A Swift + SpriteKit tribute with modes, power-ups, weather, daily challenges — and an optional backend for leaderboards
 
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-2EA44F?style=for-the-badge)](LICENSE)
-
-<sub>**Game**</sub>
-
 [![Swift](https://img.shields.io/badge/Swift-5.9-F05138?style=flat-square&logo=swift&logoColor=white)](https://swift.org)
 [![SpriteKit](https://img.shields.io/badge/SpriteKit-game%20loop-147EFB?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/spritekit/)
 [![UIKit](https://img.shields.io/badge/UIKit-hosting%20%26%20haptics-2396F3?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/uikit)
@@ -19,9 +15,6 @@
 [![UIAccessibility](https://img.shields.io/badge/UIAccessibility-VoiceOver-005FCC?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/documentation/uikit/accessibility)
 [![Xcode](https://img.shields.io/badge/Xcode-16%2B-1575F9?style=flat-square&logo=xcode&logoColor=white)](https://developer.apple.com/xcode/)
 [![iOS](https://img.shields.io/badge/iOS-16%2B-000000?style=flat-square&logo=ios&logoColor=white)](https://developer.apple.com/ios/)
-
-<sub>**Backend**</sub>
-
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
@@ -38,23 +31,14 @@
 [![prom-client](https://img.shields.io/badge/prom--client-%2Fmetrics-E6522C?style=flat-square&logo=prometheus&logoColor=white)](https://github.com/siimon/prom-client)
 [![dotenv](https://img.shields.io/badge/dotenv-config-ECD53F?style=flat-square&logo=dotenv&logoColor=black)](https://github.com/motdotla/dotenv)
 [![YAML](https://img.shields.io/badge/YAML-spec%20loading-CB171E?style=flat-square&logo=yaml&logoColor=white)](https://eemeli.org/yaml/)
-
-<sub>**API contract**</sub>
-
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?style=flat-square&logo=openapiinitiative&logoColor=white)](backend/openapi/openapi.yaml)
 [![Swagger UI](https://img.shields.io/badge/Swagger%20UI-self--hosted-85EA2D?style=flat-square&logo=swagger&logoColor=black)](docs/API.md)
 [![REST](https://img.shields.io/badge/REST-JSON-005571?style=flat-square&logo=json&logoColor=white)](docs/API.md)
-
-<sub>**Testing**</sub>
-
 [![XCTest](https://img.shields.io/badge/XCTest-138%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![XCUITest](https://img.shields.io/badge/XCUITest-33%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![Vitest](https://img.shields.io/badge/Vitest-108%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
 [![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
 [![c8](https://img.shields.io/badge/v8%20coverage-thresholded-F7DF1E?style=flat-square&logo=v8&logoColor=black)](docs/TESTING.md)
-
-<sub>**Tooling**</sub>
-
 [![SwiftLint](https://img.shields.io/badge/SwiftLint-required%20job-FA7343?style=flat-square&logo=swift&logoColor=white)](.swiftlint.yml)
 [![SwiftFormat](https://img.shields.io/badge/SwiftFormat-whitespace%20only-FA7343?style=flat-square&logo=swift&logoColor=white)](.swiftformat)
 [![ESLint](https://img.shields.io/badge/ESLint-flat%20config-4B32C3?style=flat-square&logo=eslint&logoColor=white)](backend/eslint.config.js)
@@ -65,9 +49,6 @@
 [![Bash](https://img.shields.io/badge/Bash-scripts-4EAA25?style=flat-square&logo=gnubash&logoColor=white)](scripts/)
 [![Python](https://img.shields.io/badge/Python-project%20generator-3776AB?style=flat-square&logo=python&logoColor=white)](scripts/generate_xcodeproj.py)
 [![EditorConfig](https://img.shields.io/badge/EditorConfig-shared%20rules-FEFEFE?style=flat-square&logo=editorconfig&logoColor=black)](.editorconfig)
-
-<sub>**Infrastructure**</sub>
-
 [![Docker](https://img.shields.io/badge/Docker-multi--stage-2496ED?style=flat-square&logo=docker&logoColor=white)](backend/Dockerfile)
 [![Docker Compose](https://img.shields.io/badge/Compose-profiles-2496ED?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
 [![Alpine](https://img.shields.io/badge/Alpine-base%20image-0D597F?style=flat-square&logo=alpinelinux&logoColor=white)](https://alpinelinux.org)
@@ -77,26 +58,20 @@
 [![Grafana](https://img.shields.io/badge/Grafana-dashboard-F46800?style=flat-square&logo=grafana&logoColor=white)](ops/grafana/dashboards/backend.json)
 [![pgweb](https://img.shields.io/badge/pgweb-db%20browser-336791?style=flat-square&logo=postgresql&logoColor=white)](https://sosedoff.github.io/pgweb/)
 [![GHCR](https://img.shields.io/badge/GHCR-published%20image-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/hoangsonww/Flappy-Bird-Game/pkgs/container/flappy-bird-backend)
-
-<sub>**Automation**</sub>
-
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-12%20jobs-2088FF?style=flat-square&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
 [![Buildx](https://img.shields.io/badge/Buildx%20%2B%20QEMU-amd64%20%7C%20arm64-2496ED?style=flat-square&logo=docker&logoColor=white)](.github/workflows/release.yml)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=flat-square&logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org)
 [![Semantic Release](https://img.shields.io/badge/releases-automatic-E10079?style=flat-square&logo=semanticrelease&logoColor=white)](scripts/release.mjs)
 [![Dependabot](https://img.shields.io/badge/Dependabot-grouped%20weekly-025E8C?style=flat-square&logo=dependabot&logoColor=white)](.github/dependabot.yml)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-landing%20site-222222?style=flat-square&logo=githubpages&logoColor=white)](https://hoangsonww.github.io/Flappy-Bird-Game/)
-
-<sub>**Landing page & docs**</sub>
-
 [![HTML5](https://img.shields.io/badge/HTML5-single%20file-E34F26?style=flat-square&logo=html5&logoColor=white)](index.html)
 [![CSS3](https://img.shields.io/badge/CSS3-custom%20properties-1572B6?style=flat-square&logo=css3&logoColor=white)](index.html)
 [![JavaScript](https://img.shields.io/badge/JavaScript-no%20build%20step-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](index.html)
 [![Canvas](https://img.shields.io/badge/Canvas%202D-in--browser%20demo-FF6F00?style=flat-square&logo=html5&logoColor=white)](index.html)
-[![Mermaid](https://img.shields.io/badge/Mermaid-diagrams-FF3670?style=flat-square&logo=mermaid&logoColor=white)](docs/ARCHITECTURE.md)
-[![Markdown](https://img.shields.io/badge/Markdown-17%20documents-000000?style=flat-square&logo=markdown&logoColor=white)](docs/)
+[![Mermaid](https://img.shields.io/badge/Mermaid-73%20diagrams-FF3670?style=flat-square&logo=mermaid&logoColor=white)](ARCHITECTURE.md)
+[![Markdown](https://img.shields.io/badge/Markdown-29%20documents-000000?style=flat-square&logo=markdown&logoColor=white)](docs/)
 
-**[Play the browser demo →](https://hoangsonww.github.io/Flappy-Bird-Game/)** · **[Documentation →](docs/)** · **[API reference →](docs/API.md)**
+**[Play the browser demo →](https://hoangsonww.github.io/Flappy-Bird-Game/)** · **[Architecture →](ARCHITECTURE.md)** · **[Documentation →](docs/)** · **[API reference →](docs/API.md)**
 
 </div>
 
@@ -269,7 +244,7 @@ The dotted line is the entire relationship. The game holds a `URL` and some
 `Codable` structs; the backend has never heard of SpriteKit. Runs queue locally
 while you are offline and upload when a server appears.
 
-More: [architecture](docs/ARCHITECTURE.md) · [why the backend is optional](docs/adr/0001-optional-backend.md)
+More: [architecture](ARCHITECTURE.md) · [why the backend is optional](docs/adr/0001-optional-backend.md)
 
 ---
 
@@ -378,7 +353,7 @@ human tapping anything.
 |-------|---|
 | [Development](docs/DEVELOPMENT.md) | Clone → run → contribute |
 | [Gameplay](docs/GAMEPLAY.md) | Modes, power-ups, combos, weather, the numbers |
-| [Architecture](docs/ARCHITECTURE.md) | How it is put together |
+| [Architecture](ARCHITECTURE.md) | How it is put together |
 | [Backend](docs/BACKEND.md) | Running and operating the API |
 | [API reference](docs/API.md) | Every endpoint with examples |
 | [Database](docs/DATABASE.md) | Schema, indexes, the ranking query |
@@ -387,6 +362,19 @@ human tapping anything.
 | [CI/CD](docs/CI-CD.md) | The pipeline and automatic releases |
 | [Security model](docs/SECURITY-MODEL.md) | Tokens, fair play, threat model |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Symptoms → fixes |
+| [Screens](docs/SCREENS.md) | Every screen and how you reach it |
+| [Rendering](docs/RENDERING.md) | Scene graph, layer order, parallax, textures |
+| [Physics](docs/PHYSICS.md) | Flight model, collisions, the frame loop |
+| [Replays](docs/REPLAYS.md) | Recording format and playback |
+| [Audio](docs/AUDIO.md) | Synthesised sound and haptics |
+| [Persistence](docs/PERSISTENCE.md) | The three stores and their formats |
+| [Sync](docs/SYNC.md) | Discovery, sessions, the offline queue |
+| [Accessibility](docs/ACCESSIBILITY.md) | How SpriteKit reaches VoiceOver |
+| [Determinism](docs/DETERMINISM.md) | Seeds, the daily challenge, what is not reproducible |
+| [Performance](docs/PERFORMANCE.md) | The frame budget and profiling |
+| [Observability](docs/OBSERVABILITY.md) | Logs, metrics, dashboards |
+| [Configuration](docs/CONFIGURATION.md) | Every launch argument, setting and env var |
+| [Glossary](docs/GLOSSARY.md) | What the terms mean here |
 | [FAQ](docs/FAQ.md) · [Roadmap](docs/ROADMAP.md) · [Decisions](docs/adr/) | |
 
 ---

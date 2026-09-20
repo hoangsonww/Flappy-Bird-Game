@@ -79,7 +79,7 @@ enum GameMode: String, CaseIterable, Codable {
         case .classic: return GameConfig.baseVerticalPipeGap
         case .endless: return GameConfig.baseVerticalPipeGap
         case .timeAttack: return GameConfig.baseVerticalPipeGap + 10
-        case .hardcore: return 118
+        case .hardcore: return 132
         case .zen: return GameConfig.baseVerticalPipeGap + 30
         case .daily: return GameConfig.baseVerticalPipeGap
         }
