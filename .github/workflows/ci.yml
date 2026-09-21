@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload coverage
         if: matrix.node == '22' && matrix.driver == 'memory'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: backend-coverage
           path: backend/coverage
@@ -253,7 +253,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ios-test-results
           path: |
