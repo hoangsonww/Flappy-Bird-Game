@@ -149,6 +149,12 @@ what you watch cannot drift from what happened.
 
 ## Achievements
 
+<div align="center">
+  <img src="../img/screens/achievements.png" alt="The achievements screen" width="260" />
+  <br/>
+  <sub>Locked rows stay visible — the requirement is the hint.</sub>
+</div>
+
 17 of them, 910 points in total. They unlock offline and reconcile with the
 server later — the merge only ever moves progress forward.
 

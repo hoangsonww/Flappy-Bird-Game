@@ -9,7 +9,7 @@ URL="${1:-http://localhost:4000/healthz}"
 ATTEMPTS="${2:-60}"
 
 printf '▸ Waiting for %s ' "$URL"
-for attempt in $(seq 1 "$ATTEMPTS"); do
+for _ in $(seq 1 "$ATTEMPTS"); do
   if curl -fsS --max-time 2 "$URL" >/dev/null 2>&1; then
     printf ' ready\n'
     exit 0

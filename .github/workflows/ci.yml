@@ -322,6 +322,28 @@ jobs:
           print(f"index.html parsed, {len(html)} bytes, unclosed: {parser.stack[:5]}")
           PY
 
+      # Screenshots move, docs get renamed and headings get reworded; this is
+      # the check that stops a link rotting quietly between releases.
+      - name: Check every link, image, anchor and sitemap entry
+        run: python3 scripts/check-links.py
+
+      - name: Validate the sitemap and robots.txt
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+
+          tree = ET.parse("sitemap.xml")
+          urls = [e.text for e in tree.iter() if e.tag.endswith("}loc")]
+          images = [u for u in urls if u.endswith(".png")]
+          assert urls, "sitemap.xml lists no URLs"
+          print(f"sitemap.xml: {len(urls) - len(images)} page(s), {len(images)} image(s)")
+
+          robots = open("robots.txt", encoding="utf-8").read()
+          assert "Sitemap:" in robots, "robots.txt must point at the sitemap"
+          assert "User-agent: *" in robots, "robots.txt must have a wildcard group"
+          print("robots.txt: ok")
+          PY
+
   # ── Aggregate gate ─────────────────────────────────────────────────────────
   ci-passed:
     name: CI passed

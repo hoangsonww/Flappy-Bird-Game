@@ -52,15 +52,34 @@ make test         # Swift unit tests
 make test-ui      # Swift UI tests (drives a simulator)
 make run          # build + launch in the simulator
 make xcodegen     # regenerate the Xcode project from the file tree
+make check-links  # every doc link, image, anchor and sitemap entry
 make check        # everything CI runs except the iOS build
 make clean        # drop build output
 ```
+
+Two details about those iOS targets are worth knowing, because both have bitten
+this project already.
+
+**They resolve a simulator UDID, never a name.** `scripts/simulator-udid.sh`
+turns `SIMULATOR` (default `iPhone 17 Pro`) into a UDID, and falls back to any
+available iPhone when that model is not installed. Passing `name=iPhone 17 Pro`
+straight to `xcodebuild` looks equivalent but is not: with no `OS=` it defaults
+to `OS:latest`, so the moment a newer runtime is installed a device that only
+exists on the older one stops matching, and the failure reads
+`Unable to find a device matching the provided destination specifier` — which
+looks like a broken project rather than a missing runtime.
+
+**They exit non-zero when something fails.** The recipes used to pipe
+`xcodebuild` into `grep … || true`, which meant a compile error, a failing
+assertion and a missing simulator all exited 0 and printed almost nothing.
+`scripts/xcode.sh` filters the log the same way but keeps `xcodebuild`'s status
+and prints the last 40 lines of the real output on failure, so a red run is red.
 
 Backend:
 
 ```bash
 make dev          # hot reload, in-memory storage, no infrastructure
-make api-test     # 106 tests against the in-memory driver
+make api-test     # 108 tests against the in-memory driver
 make api-test-pg  # the same suite against Postgres
 make api-lint     # eslint + tsc
 make openapi      # validate the specification
@@ -142,9 +161,10 @@ in `UpperCamelCase`, everything else `lowerCamelCase`. Comments explain *why*.
 ## Before opening a pull request
 
 ```bash
-make check     # xcodegen check, backend lint, OpenAPI, backend tests
-make test      # Swift unit tests
-make test-ui   # Swift UI tests
+make check        # xcodegen check, backend lint, OpenAPI, backend tests
+make check-links  # docs, images, anchors, sitemap
+make test         # Swift unit tests
+make test-ui      # Swift UI tests
 ```
 
 Then confirm the game still runs with **no backend at all** — that is the
@@ -154,11 +174,14 @@ project's core promise.
 
 ```
 FlappyBird/          the game
-FlappyBirdTests/     138 Swift unit tests
-FlappyBirdUITests/   33 Swift UI tests
-backend/             the optional API (106 tests)
+FlappyBirdTests/     147 Swift unit tests
+FlappyBirdUITests/   34 Swift UI tests
+backend/             the optional API (108 tests)
 docs/                these guides
-scripts/             project generation, capture, bootstrap, release
+scripts/             project generation, xcodebuild wrappers, capture, release
+robots.txt           crawler rules for the published page
+sitemap.xml          the page and every screenshot, for search engines
+site.webmanifest     name, colours and icons for a saved page
 ops/                 Prometheus and Grafana configuration
 .github/workflows/   CI, release, Pages
 index.html           the landing page

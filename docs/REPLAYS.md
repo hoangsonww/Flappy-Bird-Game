@@ -8,6 +8,12 @@ earlier design that was removed.
 
 ## What you get
 
+<div align="center">
+  <img src="../img/screens/replays.png" alt="The saved replays list" width="260" />
+  <br/>
+  <sub>Ten slots, newest first. Mode, score and length on every row.</sub>
+</div>
+
 Finish a run of at least a second and it is saved. The **Replays** screen lists
 the ten newest, newest first; tapping one opens playback on its own screen.
 

@@ -39,6 +39,12 @@ server that has no use for it.
 
 ## The profile
 
+<div align="center">
+  <img src="../img/screens/stats.png" alt="Lifetime statistics" width="260" />
+  <br/>
+  <sub>Everything on this screen is one decoded `PlayerProfile`.</sub>
+</div>
+
 One `Codable` document, cached in memory because the scene reads it many times
 per frame.
 

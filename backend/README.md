@@ -32,7 +32,7 @@ Docker with migrations applied.
 | ------------------------------------ | -------------------------------------------- |
 | `npm run dev`                        | Hot reload via tsx                           |
 | `npm run build` / `start`            | Compile to `dist/` and run it                |
-| `npm test`                           | 106 tests                                    |
+| `npm test`                           | 108 tests                                    |
 | `npm run test:coverage`              | With a coverage report                       |
 | `npm run lint` / `typecheck`         | ESLint and `tsc --noEmit`                    |
 | `npm run migrate` / `migrate:status` | Apply / inspect migrations                   |

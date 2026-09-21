@@ -17,7 +17,6 @@ services:
   # ── PostgreSQL ─────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: flappy-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-flappy}
@@ -45,7 +44,6 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION:-22}
     image: flappy-bird-backend:local
-    container_name: flappy-backend
     restart: unless-stopped
     depends_on:
       postgres:
@@ -82,7 +80,6 @@ services:
   # ── Database browser (profile: tools) ──────────────────────────────────────
   pgweb:
     image: sosedoff/pgweb:latest
-    container_name: flappy-pgweb
     profiles: [tools]
     restart: unless-stopped
     depends_on:
@@ -97,7 +94,6 @@ services:
   # ── Metrics (profile: observability) ───────────────────────────────────────
   prometheus:
     image: prom/prometheus:latest
-    container_name: flappy-prometheus
     profiles: [observability]
     restart: unless-stopped
     command:
@@ -112,7 +108,6 @@ services:
 
   grafana:
     image: grafana/grafana-oss:latest
-    container_name: flappy-grafana
     profiles: [observability]
     restart: unless-stopped
     depends_on: [prometheus]

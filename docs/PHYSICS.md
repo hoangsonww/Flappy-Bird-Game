@@ -228,7 +228,7 @@ a great run stays hard but never becomes impossible. **Classic and Zen do not
 ramp at all**, so they sit at the easiest row for the whole run.
 
 The full table, and the reasoning behind the floors, is in
-[Gameplay](GAMEPLAY.md#difficulty). Tests assert the reaction window and the
+[Gameplay](GAMEPLAY.md#difficulty-curve). Tests assert the reaction window and the
 on-screen pitch never fall below their floors, for every mode.
 
 ---

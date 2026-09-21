@@ -100,6 +100,12 @@ accessibility element — see [Accessibility](ACCESSIBILITY.md).
 
 ## The menu
 
+<div align="center">
+  <img src="../img/screens/menu.png" alt="The main menu" width="260" />
+  <br/>
+  <sub>Captured by `make media`, straight from the simulator.</sub>
+</div>
+
 ```mermaid
 flowchart TB
     T["FLAPPY BIRD"] --> P["preview bird<br/><i>wearing the selected skin</i>"]
@@ -123,6 +129,12 @@ leaving an orphan cell.
 ---
 
 ## The game screen
+
+<div align="center">
+  <img src="../img/screens/gameplay.png" alt="A run in progress" width="260" />
+  <br/>
+  <sub>The HUD: score, level, wallet, pause. Everything else is the world.</sub>
+</div>
 
 ```mermaid
 stateDiagram-v2
@@ -149,6 +161,12 @@ summary panel appears.
 
 ## The summary panel
 
+<div align="center">
+  <img src="../img/screens/gameover.png" alt="The end-of-run summary" width="260" />
+  <br/>
+  <sub>The panel sizes itself from its row count.</sub>
+</div>
+
 ```mermaid
 flowchart TB
     Title["GAME OVER · or · NEW BEST!"] --> Cause["cause of death"]
@@ -167,6 +185,12 @@ derives it now, and `GameOverPanelTests` pins every variant.
 ---
 
 ## The replay screen
+
+<div align="center">
+  <img src="../img/screens/replays.png" alt="The saved replays list" width="260" />
+  <br/>
+  <sub>The list that feeds the replay screen — every row is a real recording.</sub>
+</div>
 
 ```mermaid
 flowchart TB

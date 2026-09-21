@@ -1,6 +1,6 @@
 # Testing
 
-279 tests: **138 Swift unit**, **33 Swift UI** and **108 backend**, the last
+289 tests: **147 Swift unit**, **34 Swift UI** and **108 backend**, the last
 run against both storage drivers.
 
 ```bash
@@ -10,7 +10,17 @@ make test-all     # both Swift suites
 make api-test     # backend, in-memory
 make api-test-pg  # backend, Postgres
 make check        # everything CI runs except the iOS build
+make check-links  # docs, images, anchors, sitemap
 ```
+
+Every one of those exits non-zero when it fails. That is worth stating because it
+was not always true: the Swift targets used to pipe `xcodebuild` into
+`grep … || true`, so a compile error, a failing assertion and a simulator that
+did not exist all printed nothing and exited 0.
+[`scripts/xcode.sh`](../scripts/xcode.sh) keeps `xcodebuild`'s status and dumps
+the tail of the real log when it fails; the destination is a UDID resolved by
+[`scripts/simulator-udid.sh`](../scripts/simulator-udid.sh) rather than a device
+name, which would otherwise be matched against `OS:latest` only.
 
 ## Swift
 

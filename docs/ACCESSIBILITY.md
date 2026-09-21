@@ -9,6 +9,12 @@ anything invisible to VoiceOver is also invisible to the tests.
 
 ## The core problem
 
+<div align="center">
+  <img src="../img/screens/settings.png" alt="The settings screen" width="260" />
+  <br/>
+  <sub>Every row here is a real accessibility element, not a painted label.</sub>
+</div>
+
 There is no view hierarchy. The whole game is `SKNode`s drawn into one
 `SKView` — no `UIButton`, no `UILabel`, nothing UIKit can describe on its own.
 SpriteKit bridges this, but only partly, and the gaps are sharp.

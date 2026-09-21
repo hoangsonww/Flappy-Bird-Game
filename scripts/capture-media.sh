@@ -16,6 +16,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 SIMULATOR="${SIMULATOR:-iPhone 17 Pro}"
+export SIMULATOR
 BUNDLE_ID="com.hoangsonww.flappybird"
 SCHEME="FlappyBird"
 PROJECT="Flappy Bird.xcodeproj"
@@ -29,11 +30,8 @@ fail()  { printf '\033[1;31m✖ %s\033[0m\n' "$*" >&2; exit 1; }
 command -v xcrun >/dev/null || fail "Xcode command line tools are required"
 
 # ── Resolve the simulator ────────────────────────────────────────────────────
-UDID="$(xcrun simctl list devices available \
-        | grep -F "$SIMULATOR (" \
-        | head -1 \
-        | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')"
-[ -n "$UDID" ] || fail "Simulator '$SIMULATOR' not found. Try: xcrun simctl list devices available"
+UDID="$(bash "$(dirname "${BASH_SOURCE[0]}")/simulator-udid.sh")" \
+  || fail "No iOS Simulator available. Try: xcrun simctl list devices available"
 info "Simulator: $SIMULATOR ($UDID)"
 
 # ── Build ────────────────────────────────────────────────────────────────────

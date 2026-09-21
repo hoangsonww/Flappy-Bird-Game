@@ -9,6 +9,9 @@ on:
     paths:
       - "index.html"
       - "img/**"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "site.webmanifest"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -35,6 +38,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html _site/
+          cp robots.txt sitemap.xml site.webmanifest _site/
           cp -r img _site/img
           # A no-op file that stops Pages from running Jekyll over the output.
           touch _site/.nojekyll

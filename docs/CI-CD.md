@@ -19,10 +19,10 @@ flowchart TB
     Push --> BT["backend-tests<br/>node 20 & 22 × memory & postgres"]
     Push --> BS["backend-smoke<br/>compose up → smoke → seed"]
     Push --> DI["docker-image<br/>build, boot, verify the handshake"]
-    Push --> IOS["ios<br/>project check · build · 122 tests"]
+    Push --> IOS["ios<br/>project check · build · 147 unit + 34 UI tests"]
     Push --> SL["swift-lint<br/>SwiftLint"]
     Push --> SC["scripts<br/>bash -n · shellcheck"]
-    Push --> ST["site<br/>index.html is well-formed"]
+    Push --> ST["site<br/>index.html · links · sitemap · robots"]
 
     BQ --> Gate["ci-passed"]
     SL --> Gate
@@ -75,6 +75,22 @@ rather than the warning, so the two tools cannot disagree about a line.
 **`ios`** runs the unit tests and the UI tests as separate steps. The UI suite
 drives a simulator, so it is minutes rather than seconds; splitting it keeps
 which of the two failed obvious in the run summary.
+
+Both steps resolve a simulator **UDID** first and pass `-destination id=…`.
+A bare `name=` makes `xcodebuild` default to `OS:latest`, so a device that only
+exists on an older runtime stops matching the moment the image adds a newer one —
+a failure that reads like a broken project. Both also run under
+`set -o pipefail`, because piping `xcodebuild` into a formatter otherwise reports
+the formatter's exit status and every failure comes out green.
+
+**`site`** does three things: parses `index.html` and asserts it has a title and
+a meta description; runs [`scripts/check-links.py`](../scripts/check-links.py),
+which resolves every relative link, image and heading anchor across all 37
+Markdown files plus the landing page, and checks the JSON-LD parses and its FAQ
+questions match the visible ones; and validates `sitemap.xml` and `robots.txt`.
+Screenshots get renamed and headings get reworded — this is the job that stops a
+link rotting quietly between releases. Run the same check locally with
+`make check-links`.
 
 ## Releases
 
@@ -137,9 +153,27 @@ the extra minutes.
 
 ## The landing page
 
-`index.html` plus `img/` are published to GitHub Pages whenever they change. The
-page is a single self-contained file and works just as well opened from a clone,
-so Pages is a convenience rather than a dependency.
+`index.html`, `img/`, `robots.txt`, `sitemap.xml` and `site.webmanifest` are
+published to GitHub Pages whenever any of them changes. The page is a single
+self-contained file and works just as well opened from a clone, so Pages is a
+convenience rather than a dependency.
+
+What ships alongside the page, and why:
+
+| File | What it does |
+|------|--------------|
+| `robots.txt` | Allows everything, points crawlers at the sitemap, and throttles the two SEO crawlers that only cost bandwidth on a static page |
+| `sitemap.xml` | The page plus an [image sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps) entry for all ten screenshots, each with a title and caption |
+| `site.webmanifest` | Name, colours, icons and screenshots, so a phone that saves the page gets the app icon rather than a rendering of the URL |
+| `img/icons/` | 192, 512 and the 180-point Apple touch icon, all derived from the app icon itself |
+
+The page's `<head>` carries thirty meta tags: description and keywords, Open
+Graph and Twitter cards pointing at a 1200×630 card generated from a real run,
+`robots` directives that allow large image previews, and a JSON-LD `@graph` with
+six entities — `WebSite`, `Person`, `VideoGame`, `SoftwareSourceCode`, `FAQPage`
+and `BreadcrumbList`. The FAQ entity is backed by a **visible** FAQ section on
+the page; structured data that describes content a visitor cannot see is a
+guideline violation, so `scripts/check-links.py` asserts the two match.
 
 ## Running CI locally
 

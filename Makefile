@@ -16,11 +16,15 @@ SHELL := /bin/bash
 
 PROJECT       := Flappy Bird.xcodeproj
 SCHEME        := FlappyBird
+# Resolved to a UDID at use time by scripts/simulator-udid.sh. Passing a bare
+# `name=` to xcodebuild makes it default to OS:latest, so a device that only
+# exists on an older runtime silently stops matching.
 SIMULATOR     ?= iPhone 17 Pro
-DESTINATION   := platform=iOS Simulator,name=$(SIMULATOR)
+export SIMULATOR
 DERIVED       ?= build/DerivedData
 CONFIGURATION ?= Debug
-BUNDLE_ID     := com.hoangsonww.flappybird
+# Exported so `make test CONFIGURATION=Release` reaches scripts/xcode.sh.
+export DERIVED CONFIGURATION
 
 BACKEND_DIR   := backend
 COMPOSE       := docker compose
@@ -65,38 +69,24 @@ touch-atlases:
 .PHONY: build
 build: touch-atlases ## Build the game for the simulator
 	@echo -e "$(CYAN)▸ Building $(SCHEME) ($(CONFIGURATION))$(RESET)"
-	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
-	  -destination "$(DESTINATION)" -configuration $(CONFIGURATION) \
-	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO build | \
-	  grep -E "error:|warning:|BUILD" || true
+	@bash scripts/xcode.sh build
 
 .PHONY: test
 test: touch-atlases ## Run the Swift unit tests
 	@echo -e "$(CYAN)▸ Testing $(SCHEME) (unit)$(RESET)"
-	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
-	  -destination "$(DESTINATION)" -configuration Debug \
-	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO \
-	  -only-testing:FlappyBirdTests test | \
-	  grep -E "error:|Executed|TEST (SUCCEEDED|FAILED)" || true
+	@bash scripts/xcode.sh test FlappyBirdTests
 
 # Drives the real UI on a simulator, so it is minutes rather than seconds —
 # kept out of `make test` and run on its own or via `make test-all`.
 .PHONY: test-ui
 test-ui: touch-atlases ## Run the XCUITest suite against a simulator
 	@echo -e "$(CYAN)▸ Testing $(SCHEME) (UI)$(RESET)"
-	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
-	  -destination "$(DESTINATION)" -configuration Debug \
-	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO \
-	  -only-testing:FlappyBirdUITests test | \
-	  grep -E "error:|Executed|TEST (SUCCEEDED|FAILED)" || true
+	@bash scripts/xcode.sh test FlappyBirdUITests
 
 .PHONY: test-all
 test-all: touch-atlases ## Run both the unit and the UI suites
 	@echo -e "$(CYAN)▸ Testing $(SCHEME) (unit + UI)$(RESET)"
-	@xcodebuild -project "$(PROJECT)" -scheme $(SCHEME) \
-	  -destination "$(DESTINATION)" -configuration Debug \
-	  -derivedDataPath $(DERIVED) CODE_SIGNING_ALLOWED=NO test | \
-	  grep -E "error:|Executed|TEST (SUCCEEDED|FAILED)" || true
+	@bash scripts/xcode.sh test all
 
 .PHONY: run
 run: build ## Build, install and launch the game in the simulator
@@ -117,6 +107,10 @@ xcodegen: ## Regenerate the Xcode project from the files on disk
 .PHONY: xcodegen-check
 xcodegen-check: ## Fail if the checked-in Xcode project is stale
 	@python3 scripts/generate_xcodeproj.py --check
+
+.PHONY: check-links
+check-links: ## Fail if any doc, image, anchor or sitemap entry is broken
+	@python3 scripts/check-links.py
 
 .PHONY: lint-swift
 lint-swift: ## Run SwiftLint when it is installed
@@ -238,7 +232,7 @@ health: ## Print the API health document
 # ── Quality gates ────────────────────────────────────────────────────────────
 
 .PHONY: check
-check: xcodegen-check api-lint openapi api-test ## Everything CI runs, except the iOS build
+check: xcodegen-check check-links api-lint openapi api-test ## Everything CI runs, except the iOS build
 	@echo -e "$(GREEN)✓ All checks passed$(RESET)"
 
 .PHONY: ci

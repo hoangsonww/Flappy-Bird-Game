@@ -43,16 +43,20 @@ jobs:
         id: plan
         run: |
           if [ -n "${{ inputs.force_version }}" ]; then
-            echo "should_release=true" >> "$GITHUB_OUTPUT"
-            echo "version=${{ inputs.force_version }}" >> "$GITHUB_OUTPUT"
-            echo "previous=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo '')" >> "$GITHUB_OUTPUT"
+            {
+              echo "should_release=true"
+              echo "version=${{ inputs.force_version }}"
+              echo "previous=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo '')"
+            } >> "$GITHUB_OUTPUT"
             node scripts/release.mjs --notes > release-notes.md || true
           else
             node scripts/release.mjs --json > plan.json
             cat plan.json
-            echo "should_release=$(jq -r .shouldRelease plan.json)" >> "$GITHUB_OUTPUT"
-            echo "version=$(jq -r '.version // empty' plan.json)" >> "$GITHUB_OUTPUT"
-            echo "previous=$(jq -r '.previousTag // empty' plan.json)" >> "$GITHUB_OUTPUT"
+            {
+              echo "should_release=$(jq -r .shouldRelease plan.json)"
+              echo "version=$(jq -r '.version // empty' plan.json)"
+              echo "previous=$(jq -r '.previousTag // empty' plan.json)"
+            } >> "$GITHUB_OUTPUT"
             jq -r .notes plan.json > release-notes.md
           fi
 

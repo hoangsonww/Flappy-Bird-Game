@@ -2,6 +2,11 @@
 
 Only the backend is containerised — the game needs macOS and Xcode.
 
+Compose owns container names instead of hard-coding them. That matters when a
+contributor runs an isolated validation stack with `docker compose -p …`: each
+project gets its own containers, network and volumes, so tests cannot collide
+with or truncate the normal development database.
+
 ## Quick start
 
 ```bash
