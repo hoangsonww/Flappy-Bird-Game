@@ -5,15 +5,11 @@ section is as important as the rest.
 
 ## Gameplay
 
-- [ ] **Sharing a replay** — recordings are self-contained and small, so one
-      could be exported, or pushed to the backend and watched from a
-      leaderboard row.
 - [ ] **Seasonal events** — themed skins and a modifier, driven by the same
       deterministic derivation as the daily challenge.
 - [ ] **A second obstacle type** — moving platforms or a rotating gap, restricted
       to the harder modes.
 - [ ] **Local two-player** — same device, alternating runs, shared leaderboard.
-- [ ] **Replay export** — turn a recorded run into a shareable clip.
 
 ## Presentation
 
@@ -46,7 +42,7 @@ section is as important as the rest.
 - **In-app purchases.** Coins are earned, and that is the whole economy.
 - **Ads.** No.
 - **Accounts as a requirement.** The game must always work offline and anonymous.
-- **Server-authoritative simulation.** Replaying every run server-side would be
+- **Server-authoritative simulation.** Simulating every run server-side would be
   the only real anti-cheat, and it is wildly disproportionate here. The current
   approach — reject the impossible, flag the improbable, keep the evidence — is
   documented honestly instead.

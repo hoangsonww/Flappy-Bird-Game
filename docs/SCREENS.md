@@ -17,20 +17,15 @@ flowchart TB
     Menu -->|ACHIEVEMENTS| Ach["AchievementsScene"]
     Menu -->|SHOP| Shop["ShopScene"]
     Menu -->|STATS| Stats["StatsScene"]
-    Menu -->|REPLAYS| Rep["ReplaysScene"]
     Menu -->|SETTINGS| Set["SettingsScene"]
 
     Game -->|pause ▸ MENU| Menu
     Game -->|summary ▸ MENU| Menu
     Game -->|PLAY AGAIN| Game
 
-    Rep -->|tap a row| Play["<b>ReplayScene</b>"]
-    Play -->|‹| Rep
-
     LB & Ach & Shop & Stats & Set -->|‹| Menu
 
     style Game fill:#fef3c7,stroke:#d97706,color:#92400e
-    style Play fill:#e0e7ff,stroke:#4f46e5,color:#312e81
     style Menu fill:#d1fae5,stroke:#059669,color:#065f46
 ```
 
@@ -43,7 +38,7 @@ which is why a single `‹` is always enough.
 
 ```mermaid
 flowchart LR
-    subgraph Live["GameScene · ReplayScene"]
+    subgraph Live["GameScene"]
         L1["frame loop"]
         L2["scrolling world"]
         L3["physics (game only)"]
@@ -94,7 +89,6 @@ accessibility element — see [Accessibility](ACCESSIBILITY.md).
 | Achievements | ALL · UNLOCKED · LOCKED |
 | Stats | TOTALS · BY MODE · RECENT |
 | Settings | GAME · ACCESS · SERVER |
-| Replays | — |
 
 ---
 
@@ -111,8 +105,9 @@ flowchart TB
     T["FLAPPY BIRD"] --> P["preview bird<br/><i>wearing the selected skin</i>"]
     P --> Card["mode card<br/>◀ &nbsp; SYMBOL NAME &nbsp; ▶<br/>subtitle · best"]
     Card --> Play["PLAY"]
-    Play --> Grid["2 × 3 grid<br/>LEADERBOARD · ACHIEVEMENTS<br/>SHOP · STATS<br/>REPLAYS · SETTINGS"]
-    Grid --> Foot["wallet · connection status"]
+    Play --> Grid["2 × 2 grid<br/>LEADERBOARD · ACHIEVEMENTS<br/>SHOP · STATS"]
+    Grid --> Settings["SETTINGS"]
+    Settings --> Foot["wallet · connection status"]
 ```
 
 Two details worth knowing:
@@ -122,9 +117,9 @@ usable width is the gap *between the arrows*, not the panel width. `fit(_:)`
 shrinks a label until it fits that gap — long subtitles used to run underneath
 the arrows.
 
-**The grid is 2 × 3.** Settings used to sit apart as a full-width button;
-folding it in kept every row the same shape when Replays joined, rather than
-leaving an orphan cell.
+**The primary grid is 2 × 2.** Settings sits below it as a full-width button,
+keeping the four progress screens visually grouped while making configuration
+easy to find.
 
 ---
 
@@ -184,31 +179,6 @@ derives it now, and `GameOverPanelTests` pins every variant.
 
 ---
 
-## The replay screen
-
-<div align="center">
-  <img src="../img/screens/replays.png" alt="The saved replays list" width="260" />
-  <br/>
-  <sub>The list that feeds the replay screen — every row is a real recording.</sub>
-</div>
-
-```mermaid
-flowchart TB
-    Banner["▶ REPLAY<br/><i>never mistakable for live play</i>"] --> Sum["MODE · n pts · n c"]
-    Sum --> World["the recorded run<br/><i>no physics</i>"]
-    World --> Tray["transport tray"]
-    Tray --> Bar["progress bar + 0.0s / 44.0s"]
-    Bar --> Btns["PAUSE &nbsp; RESTART"]
-```
-
-The transport sits on its own translucent panel. It overlays whatever the replay
-happens to be showing — pale sand, in a run that ends near the ground — and a
-thin progress bar and a small clock are unreadable against that.
-
-Detail in [Replays](REPLAYS.md).
-
----
-
 ## Opening a screen directly
 
 Every screen has a launch argument, which is what makes screenshots and UI tests
@@ -221,7 +191,7 @@ xcrun simctl launch booted com.hoangsonww.flappybird -screen stats -segment 2
 
 | Argument | Effect |
 |----------|--------|
-| `-screen <name>` | `menu`, `game`, `leaderboard`, `achievements`, `shop`, `stats`, `replays`, `settings` |
+| `-screen <name>` | `menu`, `game`, `leaderboard`, `achievements`, `shop`, `stats`, `settings` |
 | `-segment <n>` | Pre-select a filter chip |
 | `-mode <name>` | Force a game mode |
 | `-seed-demo` | Populate a believable profile |

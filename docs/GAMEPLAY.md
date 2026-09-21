@@ -117,27 +117,6 @@ Every 20 pipes the world moves to the next phase: **Day → Sunset → Night →
 Dawn**. The sky, ground and pipes are re-tinted over 1.1 s. Finishing a run
 during the night phase unlocks **Night Owl**.
 
-## Replays
-
-Every finished run of at least a second is recorded and kept; the ten newest are
-listed under **Replays** on the menu, newest first.
-
-A recording is small because a pipe's motion is fully determined the moment it
-spawns — the scene gives each pair one `moveBy` over a fixed duration and never
-touches it again — so an obstacle costs one entry rather than a position per
-frame. The bird is sampled at 30 Hz. Everything is stored as a fraction of the
-scene, so a run recorded on one device plays back correctly on another.
-
-Playback is its own screen, not an overlay: a **REPLAY** banner, the run's
-summary, a progress bar with an elapsed clock, and pause/restart. There is no
-physics during playback — nodes are positioned straight from the recording — so
-what you watch cannot drift from what happened.
-
-> An earlier attempt drew the best run into the live game as a translucent
-> second bird. It read as a rendering fault rather than a feature, and because
-> recording ran until the run ended, it replayed its own death dive. A replay
-> needs to announce itself as one, which means a screen of its own.
-
 ## Medals
 
 | Medal | Score |

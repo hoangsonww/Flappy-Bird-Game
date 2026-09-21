@@ -19,7 +19,7 @@ flowchart TB
     Push --> BT["backend-tests<br/>node 20 & 22 × memory & postgres"]
     Push --> BS["backend-smoke<br/>compose up → smoke → seed"]
     Push --> DI["docker-image<br/>build, boot, verify the handshake"]
-    Push --> IOS["ios<br/>project check · build · 147 unit + 34 UI tests"]
+    Push --> IOS["ios<br/>project check · build · 123 unit + 25 UI tests"]
     Push --> SL["swift-lint<br/>SwiftLint"]
     Push --> SC["scripts<br/>bash -n · shellcheck"]
     Push --> ST["site<br/>index.html · links · sitemap · robots"]

@@ -84,13 +84,11 @@ sprites from one atlas are one draw call; four separate images are four.
 
 ```mermaid
 flowchart LR
-    A["delta = min(1/20, now − last)"] --> B["replay: advance"]
-    B --> C["power-ups: expire"]
+    A["delta = min(1/20, now − last)"] --> C["power-ups: expire"]
     C --> D["weather"]
     D --> E["spawning"]
     E --> F["magnet"]
     F --> G["clamps"]
-    G --> H["replay: sample"]
 ```
 
 Every step is O(1) or O(pipes on screen), and pipes on screen is at most four.
@@ -148,10 +146,6 @@ What to look at, in order:
 |-------|--------:|----:|
 | Profile | a few KB | 50 runs + 200 queued |
 | Settings | bytes | — |
-| Replays | ~40 KB each | 10 recordings |
-
-Replays dominate, which is exactly why they are kept out of the profile — see
-[Persistence](PERSISTENCE.md).
 
 ---
 

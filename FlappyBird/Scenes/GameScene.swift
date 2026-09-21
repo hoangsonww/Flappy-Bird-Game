@@ -58,7 +58,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     )
 
     private var demoPilot = DemoPilot()
-    private let replayRecorder = ReplayRecorder()
     private var achievementSystem = AchievementSystem()
     private var statusToken: UUID?
 
@@ -231,7 +230,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         deathCause = .none
         powerUps.reset()
         demoPilot.reset()
-        replayRecorder.reset()
         weatherSystem.reset()
         elapsed = 0
         spawnAccumulator = 0
@@ -356,7 +354,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         elapsed += delta
         stats.endedAt = nil
-        replayRecorder.advance(by: delta)
 
         if LaunchOptions.isDemoMode { updateDemoPilot() }
         updatePowerUps(delta: delta)
@@ -367,10 +364,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         bird.clampVelocity()
         bird.clampHorizontal(anchorX: startPosition.x, maxDrift: 46, deltaTime: delta)
-        replayRecorder.record(
-            height: Double(bird.position.y / size.height),
-            rotation: Double(bird.zRotation)
-        )
     }
 
     /// Auto-pilot for `-demo` captures: aim at the next gap and flap to hold it.
@@ -519,14 +512,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         pair.run(.sequence([move, .removeFromParent()]))
 
         pipesNode.addChild(pair)
-
-        replayRecorder.recordObstacle(
-            gapCentre: Double(centre / size.height),
-            gapHeight: Double(gap / size.height),
-            startX: Double(pair.position.x / size.width),
-            travel: Double(distance / size.width),
-            duration: duration
-        )
     }
 
     // MARK: - Contacts
@@ -693,15 +678,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             store.markDailyCompleted(challenge.date)
         }
 
-        if let replay = replayRecorder.finish(
-            mode: mode,
-            score: stats.score,
-            coins: stats.coins,
-            pipesPassed: stats.pipesPassed
-        ) {
-            ReplayStore.shared.save(replay)
-        }
-
         let unlocked = achievementSystem.evaluate(run: stats, mode: mode)
         OnlineService.shared.pushAchievements()
 
@@ -765,7 +741,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         showPanel(for: summary)
 
-        if LaunchOptions.isDemoMode {
+        // An ordinary attract run loops. A capture with an explicit death cue
+        // must keep the summary on screen long enough for the media script to
+        // take its screenshot.
+        if LaunchOptions.isDemoMode, LaunchOptions.demoDeathDelay == nil {
             run(.sequence([.wait(forDuration: 2.6), .run { [weak self] in self?.restart() }]))
         }
 

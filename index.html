@@ -72,7 +72,7 @@
       "@id": "https://hoangsonww.github.io/Flappy-Bird-Game/#game",
       "name": "Flappy Bird",
       "url": "https://hoangsonww.github.io/Flappy-Bird-Game/",
-      "description": "An open-source Flappy Bird rebuilt in Swift and SpriteKit: six modes, five power-ups, weather, a day/night cycle, 17 achievements, replays and a deterministic daily challenge — plus an optional Node.js and PostgreSQL backend for accounts and leaderboards.",
+      "description": "An open-source Flappy Bird rebuilt in Swift and SpriteKit: six modes, five power-ups, weather, a day/night cycle, 17 achievements and a deterministic daily challenge — plus an optional Node.js and PostgreSQL backend for accounts and leaderboards.",
       "image": [
         "https://hoangsonww.github.io/Flappy-Bird-Game/img/og-card.png",
         "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/gameplay.png"
@@ -81,8 +81,7 @@
         "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/menu.png",
         "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/gameplay.png",
         "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/leaderboard.png",
-        "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/shop.png",
-        "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/replays.png"
+        "https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/shop.png"
       ],
       "applicationCategory": "GameApplication",
       "applicationSubCategory": "Arcade",
@@ -151,7 +150,7 @@
           "name": "Do I need the backend to play?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. Clone the repository, open it in Xcode and press Command-R. Six modes, power-ups, weather, achievements, replays and the daily challenge all work locally. The backend only adds accounts, leaderboards and cloud saves, and the game detects it automatically when it is running."
+            "text": "No. Clone the repository, open it in Xcode and press Command-R. Six modes, power-ups, weather, achievements and the daily challenge all work locally. The backend only adds accounts, leaderboards and cloud saves, and the game detects it automatically when it is running."
           }
         },
         {
@@ -483,6 +482,14 @@ section { padding: 6rem 0; position: relative; }
 /* ═══ Phone + demo ════════════════════════════════════════════════════════ */
 .demo-col { justify-self: center; width: 100%; max-width: 358px; }
 
+.preview-note {
+  margin: 0 0 .85rem; padding: .72rem .85rem;
+  border-left: 2px solid var(--gold); border-radius: 0 8px 8px 0;
+  background: rgba(251,202,61,.07); color: var(--muted);
+  font-size: .78rem; line-height: 1.5;
+}
+.preview-note strong { color: var(--gold); font-weight: 700; }
+
 .phone {
   position: relative; border-radius: 46px; padding: 12px;
   background: linear-gradient(160deg, #35486a, #0f1728 60%);
@@ -813,7 +820,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
         <a class="btn btn-ghost" href="https://github.com/hoangsonww/Flappy-Bird-Game">Read the source</a>
       </div>
       <div class="hero-meta">
-        <div><b data-count="289">289</b><span>tests passing</span></div>
+        <div><b data-count="256">256</b><span>tests passing</span></div>
         <div><b data-count="6">6</b><span>game modes</span></div>
         <div><b data-count="17">17</b><span>achievements</span></div>
         <div><b>0</b><span>setup steps</span></div>
@@ -821,6 +828,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
     </div>
 
     <div class="demo-col" id="play">
+      <p class="preview-note"><strong>Browser preview only.</strong> This compact demo captures the core flight loop; clone the project to play the complete iOS game.</p>
       <div class="phone">
         <div class="screen">
           <canvas id="game" width="320" height="568" role="img"
@@ -849,7 +857,7 @@ footer.site { border-top: 1px solid var(--line); padding: 3.5rem 0 3rem; color: 
     <span><i aria-hidden="true">🐘</i> PostgreSQL 16</span>
     <span><i aria-hidden="true">🐳</i> Docker</span>
     <span><i aria-hidden="true">📗</i> OpenAPI 3.1</span>
-    <span><i aria-hidden="true">🧪</i> 289 tests</span>
+    <span><i aria-hidden="true">🧪</i> 256 tests</span>
   </div>
 </div>
 
@@ -1121,7 +1129,6 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
       <figure style="margin:0" class="frame"><img src="img/screens/leaderboard.png" width="1206" height="2622" loading="lazy" alt="Global leaderboard" /><figcaption class="demo-hint" style="margin:.6rem 0 .2rem">leaderboard</figcaption></figure>
       <figure style="margin:0" class="frame"><img src="img/screens/shop.png" width="1206" height="2622" loading="lazy" alt="The skin shop" /><figcaption class="demo-hint" style="margin:.6rem 0 .2rem">shop</figcaption></figure>
       <figure style="margin:0" class="frame"><img src="img/screens/settings.png" width="1206" height="2622" loading="lazy" alt="Settings, including the optional server configuration" /><figcaption class="demo-hint" style="margin:.6rem 0 .2rem">settings</figcaption></figure>
-      <figure style="margin:0" class="frame"><img src="img/screens/replays.png" width="1206" height="2622" loading="lazy" alt="Saved replays, each row a real recorded run" /><figcaption class="demo-hint" style="margin:.6rem 0 .2rem">replays</figcaption></figure>
     </div>
   </div>
 </section>
@@ -1384,8 +1391,8 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
 <pre><span class="k">make</span> doctor   <span class="c"># what you have, what it unlocks</span>
 <span class="k">make</span> run      <span class="c"># build + launch in a simulator</span>
 <span class="k">make</span> demo     <span class="c"># attract mode — it plays itself</span>
-<span class="k">make</span> test     <span class="c"># 147 Swift unit tests</span>
-<span class="k">make</span> test-ui  <span class="c"># 34 Swift UI tests</span></pre>
+<span class="k">make</span> test     <span class="c"># 123 Swift unit tests</span>
+<span class="k">make</span> test-ui  <span class="c"># 25 Swift UI tests</span></pre>
           </div>
         </div>
 
@@ -1420,7 +1427,7 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
         <div class="step">
           <div class="n">4</div>
           <h4>Read the docs</h4>
-          <p>Twenty-five guides and three decision records covering architecture, the API, the schema, CI and the security model.</p>
+          <p>Twenty-four guides and three decision records covering architecture, the API, the schema, CI and the security model.</p>
         </div>
       </div>
     </div>
@@ -1431,8 +1438,8 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
 <section style="padding-top:0">
   <div class="wrap">
     <div class="stats reveal">
-      <div class="stat"><b data-count="289">0</b><span>tests passing</span></div>
-      <div class="stat"><b data-count="47">0</b><span>Swift sources</span></div>
+      <div class="stat"><b data-count="256">0</b><span>tests passing</span></div>
+      <div class="stat"><b data-count="43">0</b><span>Swift sources</span></div>
       <div class="stat"><b data-count="46">0</b><span>API endpoints</span></div>
       <div class="stat"><b data-count="17">0</b><span>achievements</span></div>
       <div class="stat"><b data-count="8">0</b><span>bird skins</span></div>
@@ -1447,7 +1454,7 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
     <div class="head center reveal">
       <div class="kicker">Documentation</div>
       <h2>Written down, not folklore</h2>
-      <p>Twenty-five guides with seventy-four Mermaid diagrams, plus the decision records above.</p>
+      <p>Twenty-four guides with sixty-eight Mermaid diagrams, plus the decision records above.</p>
     </div>
 
     <div class="cards">
@@ -1459,7 +1466,6 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
       <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/SECURITY-MODEL.md"><div class="ico" aria-hidden="true">🔐</div><h3>Security model</h3><p>Tokens, fair play, and what is deliberately out of scope.</p><div class="more">Read →</div></a>
       <a class="card reveal" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/RENDERING.md"><div class="ico" aria-hidden="true">🎨</div><h3>Rendering</h3><p>Scene graph, layer order, parallax and textures.</p><div class="more">Read →</div></a>
       <a class="card reveal d1" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/PHYSICS.md"><div class="ico" aria-hidden="true">🪶</div><h3>Physics</h3><p>The flight model, collisions and the frame loop.</p><div class="more">Read →</div></a>
-      <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/REPLAYS.md"><div class="ico" aria-hidden="true">⏯</div><h3>Replays</h3><p>The recording format and why it is not re-simulated.</p><div class="more">Read →</div></a>
       <a class="card reveal" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/ACCESSIBILITY.md"><div class="ico" aria-hidden="true">♿️</div><h3>Accessibility</h3><p>How a SpriteKit game reaches VoiceOver.</p><div class="more">Read →</div></a>
       <a class="card reveal d1" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/SYNC.md"><div class="ico" aria-hidden="true">🔄</div><h3>Sync</h3><p>Discovery, sessions and the offline upload queue.</p><div class="more">Read →</div></a>
       <a class="card reveal d2" href="https://github.com/hoangsonww/Flappy-Bird-Game/blob/master/docs/OBSERVABILITY.md"><div class="ico" aria-hidden="true">📈</div><h3>Observability</h3><p>Logs, metrics, dashboards and what to watch.</p><div class="more">Read →</div></a>
@@ -1481,7 +1487,7 @@ xcrun simctl launch booted <span class="t">com.hoangsonww.flappybird</span> \
         <summary>Do I need the backend to play?</summary>
         <p>
           No. Clone the repository, open it in Xcode and press ⌘R. Six modes,
-          power-ups, weather, achievements, replays and the daily challenge all
+          power-ups, weather, achievements and the daily challenge all
           work locally. The backend only adds accounts, leaderboards and cloud
           saves, and the game detects it automatically when it is running.
         </p>

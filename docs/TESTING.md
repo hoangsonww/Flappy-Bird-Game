@@ -1,7 +1,7 @@
 # Testing
 
-289 tests: **147 Swift unit**, **34 Swift UI** and **108 backend**, the last
-run against both storage drivers.
+256 tests: **123 Swift unit**, **25 Swift UI** and **108 backend**, with the
+backend run against both storage drivers.
 
 ```bash
 make test         # Swift unit tests (seconds)
@@ -41,7 +41,6 @@ state or the simulator's real save file.
 | `AuthStoreTests` | Session storage when the Keychain is unavailable |
 | `ThemeTests` | Skins, time-of-day cycle, weather weighting, font fallback |
 | `GameOverPanelTests` | Summary-panel geometry for every row count |
-| `ReplayTests` | Recording, interpolation, obstacle visibility, storage |
 
 Two of these are contract tests rather than unit tests:
 
@@ -73,7 +72,6 @@ test. If VoiceOver cannot reach a control, neither can the suite, and it fails.
 | `ListScreenUITests` | Every filter chip on the leaderboard, achievements and stats |
 | `ShopUITests` | Buying, equipping, and what an unaffordable skin does |
 | `SettingsUITests` | All three tabs, a toggle's value, the optional-backend copy |
-| `ReplayUITests` | The replay list, playback, pause/restart, the advancing clock |
 
 Every read of the accessibility tree goes through `waitForLabels`. A bare
 `allElementsBoundByIndex` is a *snapshot*, and the window in which the tree is

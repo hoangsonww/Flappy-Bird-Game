@@ -37,7 +37,7 @@ class GameUITestCase: XCTestCase {
     ///   - mode: force a game mode.
     ///   - seedDemoData: fill the profile with a plausible history.
     ///   - autoPilot: let the bird fly itself, ending the run after this many
-    ///     seconds. The only way to record a run of a known length.
+    ///     seconds so timing-sensitive screens are deterministic.
     @discardableResult
     func launch(
         screen: String? = nil,

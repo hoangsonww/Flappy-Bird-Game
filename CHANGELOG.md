@@ -22,9 +22,7 @@ on every merge to `master` — see [docs/CI-CD.md](docs/CI-CD.md).
   over the first 40 pipes, then plateaus. Drifting pipe pairs appear past 25.
 - Weather — wind, rain and fog — rolled deterministically from the run seed.
 - A day/night cycle that re-tints the world every 20 pipes.
-- A ghost replay of your best run, recorded at 20 Hz and normalised so it plays
-  back correctly on any device.
-- 18 achievements (955 points) with a toast queue, and bronze/silver/gold/platinum medals.
+- 17 achievements (910 points) with a toast queue, and bronze/silver/gold/platinum medals.
 - A deterministic daily challenge derived from the date, identical on the server
   and offline.
 - New screens: main menu with mode selection, leaderboard, achievements, shop,

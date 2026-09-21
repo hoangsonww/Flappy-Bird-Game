@@ -6,8 +6,8 @@ import Foundation
 /// for every player, so the level generator cannot use `arc4random`. Seeding this
 /// with the challenge seed gives an identical sequence everywhere.
 ///
-/// It is also what makes a run reproducible from its stored `seed`, which the
-/// replays and shared daily challenges rely on.
+/// It also makes world generation reproducible from a stored `seed`, which
+/// shared daily challenges rely on.
 struct SeededRandom: RandomNumberGenerator {
     private var state: UInt64
 

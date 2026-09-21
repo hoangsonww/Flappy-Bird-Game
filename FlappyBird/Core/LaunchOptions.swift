@@ -16,7 +16,7 @@ enum LaunchOptions {
 
     private static let arguments = ProcessInfo.processInfo.arguments
 
-    /// Auto-pilot: the bird plays itself. Used for attract-mode recordings.
+    /// Auto-pilot: the bird plays itself. Used for automated media captures.
     static var isDemoMode: Bool { arguments.contains("-demo") }
 
     /// Populate the local profile with believable progress so capture screens
@@ -74,20 +74,17 @@ enum LaunchOptions {
         case shop
         case stats
         case settings
-        case replays
     }
 
     /// Fill the store with a plausible history: a few dozen runs, some coins,
     /// unlocked skins and a mix of earned achievements.
     static func seedDemoDataIfRequested(
         store: GameStore = .shared,
-        settings: Settings = .shared,
-        replays: ReplayStore = .shared
+        settings: Settings = .shared
     ) {
         guard shouldSeedDemoData else { return }
 
         store.resetProgress()
-        replays.removeAll()
 
         var generator = SeededRandom(seed: 20_260_319)
         let modes: [GameMode] = [.classic, .endless, .timeAttack, .hardcore]
@@ -146,12 +143,6 @@ enum LaunchOptions {
         // is part of what it resets.
         settings.selectedMode = .classic
         settings.hasSeenTutorial = true
-
-        // No replays are seeded. A replay is a recording of a run; a
-        // generated sine wave through evenly spaced pipes is not one, and
-        // putting fabricated entries in the list made the feature look broken
-        // to anyone who opened it. `-seed-demo` clears them, and a real run
-        // fills the list the moment one is played.
     }
 }
 

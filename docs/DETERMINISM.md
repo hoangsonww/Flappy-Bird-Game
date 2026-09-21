@@ -1,9 +1,9 @@
 # Determinism and seeds
 
-Three things in this project must produce identical results in two places at
-once: the daily challenge (Swift *and* TypeScript), a run's world (from its
-seed), and a replay (across releases). This page explains how each is achieved
-and, more usefully, where determinism deliberately stops.
+Two things in this project must produce identical results in two places at
+once: the daily challenge (Swift *and* TypeScript) and a run's world (from its
+seed). This page explains how each is achieved and, more usefully, where
+determinism deliberately stops.
 
 ---
 
@@ -14,7 +14,6 @@ flowchart TB
     subgraph Must["Must be identical"]
         D["Daily challenge<br/><i>Swift ≡ TypeScript</i>"]
         W["A run's world<br/><i>from its seed</i>"]
-        R["A replay<br/><i>across releases</i>"]
     end
 
     subgraph Cannot["Cannot be, and is not relied on"]
@@ -133,28 +132,16 @@ flowchart TB
     style Drift fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
 ```
 
-So the seed determines **what** the world contains, not **when**. That is why
-replays are recorded rather than re-simulated — a design decision covered in
-[Replays](REPLAYS.md).
+So the seed determines **what** the world contains, not **when**. A seed is
+therefore suitable for daily-challenge fairness and diagnostics, but it does
+not promise frame-for-frame reproduction of an entire run.
 
 ### Making spawning deterministic would be possible
 
 Drive the accumulator from a fixed simulation step rather than wall-clock delta.
-It is a real option, and it would make seed-only replays viable. It would also
-mean decoupling the simulation from the render loop, which is a much larger
-change than it sounds, and the recorded-replay approach removes the need.
-
----
-
-## Replays across releases
-
-Because a replay stores what happened rather than the inputs to a simulation, it
-stays correct even when the difficulty constants change. A recording made before
-the pipe spacing was widened still plays back at its original spacing — it is a
-record of that run, not a re-run of it.
-
-This is the main practical argument for recording over re-simulation, beyond the
-timing problem: **balance changes do not invalidate history.**
+It is a real option, but it would mean decoupling the simulation from the render
+loop, which is a much larger change than it sounds and is not required by the
+current game.
 
 ---
 
@@ -179,6 +166,5 @@ Detail in [Testing](TESTING.md).
 ## Where to look next
 
 - [Gameplay](GAMEPLAY.md) — what the daily challenge modifiers do
-- [Replays](REPLAYS.md) — why recording beat re-simulation
 - [Testing](TESTING.md) — the contract test, and test determinism
 - [API reference](API.md) — the challenge endpoints

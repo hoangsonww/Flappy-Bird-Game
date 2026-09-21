@@ -24,7 +24,6 @@
 		4C07F2EC20A3C7BBB9F8EDB6 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AF1F2E8A89920833C2FF1B /* Haptics.swift */; };
 		1A3E83B223E9342DF81B921F /* LaunchOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1204582CE2DD02B30F80239D /* LaunchOptions.swift */; };
 		3ABCFE418BABA4B3B3EC7889 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCEF37E42BCEBB63882405 /* Log.swift */; };
-		853DDCCF3B0561C44593ED8B /* ReplayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBE328E1413B0DF5BD6C2DF /* ReplayStore.swift */; };
 		AF14730A2B58F44973ADE2E2 /* SeededRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC6FF37DAE13534C46E4872 /* SeededRandom.swift */; };
 		E7D25334DC814F8F376C1E84 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18183265268F972C7B80726C /* Settings.swift */; };
 		E81CE863DF6074B435319896 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4282CC43E5F5F3C2BB8010 /* Theme.swift */; };
@@ -37,15 +36,12 @@
 		0379B42ACD3D572678DC77A9 /* LeaderboardScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B68A0293DC368E6AA4747F4 /* LeaderboardScene.swift */; };
 		04A2D2FC08902A17B6860BCD /* ListScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7413600E7E4E3884E701ED25 /* ListScene.swift */; };
 		FC8DA8D03BE98CA64929E5E7 /* MenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BA31E52C07EB4D678E793B /* MenuScene.swift */; };
-		7954E1DE927F27C6ACB2DEBB /* ReplayScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED349E8C88D471CEF9B783E /* ReplayScene.swift */; };
-		C02028C745ECDF730224E45F /* ReplaysScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A37EDBAE6DFF17542660B1 /* ReplaysScene.swift */; };
 		AFC25881D3F4C773530503F6 /* SettingsScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F66B723AD21694FA907D21 /* SettingsScene.swift */; };
 		9EC5922F564A58C436D7422A /* ShopScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE46D99B5E41DAA595636E1 /* ShopScene.swift */; };
 		EADF85D48F9BAD0EF24A125B /* StatsScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41C64B768A9D864393CA82D /* StatsScene.swift */; };
 		B5A90C4330BEB7EE82045D16 /* AchievementSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E26F9FED7925407A4689877 /* AchievementSystem.swift */; };
 		A2720214770664CF78D910DC /* DifficultyCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5190CDDC6FC710D900854E38 /* DifficultyCurve.swift */; };
 		340B2B7BE18A0EA7D822997E /* PowerUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94582672BA25A8A5AF89C385 /* PowerUp.swift */; };
-		E9F344156A625227A189E929 /* Replay.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCA3574E3FBF105B6D867EC /* Replay.swift */; };
 		31BCB72AB334917F6022D54B /* WeatherSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */; };
 		3D432422E24EF5FA39D6831D /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1851D2C9358412F0979CF30 /* Accessibility.swift */; };
 		08714A84615F18D4A9401319 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AE83E36227232B785873D6 /* ButtonNode.swift */; };
@@ -66,7 +62,6 @@
 		5F4E7B27F4FDACDC7D844944 /* GameOverPanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F13C0FBA55521AEFDC06F2 /* GameOverPanelTests.swift */; };
 		91E9492F7D0444162969505A /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B212DACB4944FBEF16E49135 /* PersistenceTests.swift */; };
 		C475EDE99F20AC8E8ED0D566 /* PowerUpTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1957C5C2B8F06F0ED091500 /* PowerUpTests.swift */; };
-		F2BC1C2A6F39D2EA7F2391B5 /* ReplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB009012F87FE948BF4B51D /* ReplayTests.swift */; };
 		0D02745C93ACB8C1925682B7 /* SeededRandomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A33E9BDF90C5C355F4C7241 /* SeededRandomTests.swift */; };
 		D042A968ED412A9560E57346 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D43F61D9F24B851630CE8D6 /* TestSupport.swift */; };
 		D0BA4CE1E0425ED263C2F305 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD30938D824F6BC4BD16A46D /* ThemeTests.swift */; };
@@ -74,7 +69,6 @@
 		D1AFC62DFDBFD28E35C711EF /* GameplayUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B87DED94C4BA8361AE7D9D0 /* GameplayUITests.swift */; };
 		BACF01DEFA081DF41CB28862 /* ListScreenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BFE3B7508F0C2F38F884C4 /* ListScreenUITests.swift */; };
 		18B2BC674190B9E5A14A9A05 /* MenuUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C562B9AE4105F081001E14 /* MenuUITests.swift */; };
-		DF36B1AB09E952F3E1DAC2BB /* ReplayUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F2562DF85080F2015278594 /* ReplayUITests.swift */; };
 		13A287259FA8B24E642DDA27 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73AECE609B2D8379C7F09AC5 /* SettingsUITests.swift */; };
 		1D432775DA105C34AEC5EE0A /* ShopUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E779432C7763ADCC447E81 /* ShopUITests.swift */; };
 /* End PBXBuildFile section */
@@ -117,7 +111,6 @@
 		F8AF1F2E8A89920833C2FF1B /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		1204582CE2DD02B30F80239D /* LaunchOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchOptions.swift; sourceTree = "<group>"; };
 		0CBCEF37E42BCEBB63882405 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
-		FFBE328E1413B0DF5BD6C2DF /* ReplayStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayStore.swift; sourceTree = "<group>"; };
 		8BC6FF37DAE13534C46E4872 /* SeededRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandom.swift; sourceTree = "<group>"; };
 		18183265268F972C7B80726C /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		FE4282CC43E5F5F3C2BB8010 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -130,15 +123,12 @@
 		4B68A0293DC368E6AA4747F4 /* LeaderboardScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardScene.swift; sourceTree = "<group>"; };
 		7413600E7E4E3884E701ED25 /* ListScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListScene.swift; sourceTree = "<group>"; };
 		77BA31E52C07EB4D678E793B /* MenuScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuScene.swift; sourceTree = "<group>"; };
-		BED349E8C88D471CEF9B783E /* ReplayScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayScene.swift; sourceTree = "<group>"; };
-		85A37EDBAE6DFF17542660B1 /* ReplaysScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaysScene.swift; sourceTree = "<group>"; };
 		02F66B723AD21694FA907D21 /* SettingsScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScene.swift; sourceTree = "<group>"; };
 		AEE46D99B5E41DAA595636E1 /* ShopScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopScene.swift; sourceTree = "<group>"; };
 		E41C64B768A9D864393CA82D /* StatsScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsScene.swift; sourceTree = "<group>"; };
 		5E26F9FED7925407A4689877 /* AchievementSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementSystem.swift; sourceTree = "<group>"; };
 		5190CDDC6FC710D900854E38 /* DifficultyCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyCurve.swift; sourceTree = "<group>"; };
 		94582672BA25A8A5AF89C385 /* PowerUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerUp.swift; sourceTree = "<group>"; };
-		ECCA3574E3FBF105B6D867EC /* Replay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Replay.swift; sourceTree = "<group>"; };
 		49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherSystem.swift; sourceTree = "<group>"; };
 		B1851D2C9358412F0979CF30 /* Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
 		D6AE83E36227232B785873D6 /* ButtonNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
@@ -160,7 +150,6 @@
 		77F13C0FBA55521AEFDC06F2 /* GameOverPanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverPanelTests.swift; sourceTree = "<group>"; };
 		B212DACB4944FBEF16E49135 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		E1957C5C2B8F06F0ED091500 /* PowerUpTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerUpTests.swift; sourceTree = "<group>"; };
-		1AB009012F87FE948BF4B51D /* ReplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayTests.swift; sourceTree = "<group>"; };
 		7A33E9BDF90C5C355F4C7241 /* SeededRandomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandomTests.swift; sourceTree = "<group>"; };
 		4D43F61D9F24B851630CE8D6 /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
 		CD30938D824F6BC4BD16A46D /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
@@ -169,7 +158,6 @@
 		2B87DED94C4BA8361AE7D9D0 /* GameplayUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameplayUITests.swift; sourceTree = "<group>"; };
 		F1BFE3B7508F0C2F38F884C4 /* ListScreenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListScreenUITests.swift; sourceTree = "<group>"; };
 		80C562B9AE4105F081001E14 /* MenuUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuUITests.swift; sourceTree = "<group>"; };
-		8F2562DF85080F2015278594 /* ReplayUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayUITests.swift; sourceTree = "<group>"; };
 		73AECE609B2D8379C7F09AC5 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		E8E779432C7763ADCC447E81 /* ShopUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopUITests.swift; sourceTree = "<group>"; };
 		00BA10F6C35969236D359739 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -255,7 +243,6 @@
 				F8AF1F2E8A89920833C2FF1B /* Haptics.swift */,
 				1204582CE2DD02B30F80239D /* LaunchOptions.swift */,
 				0CBCEF37E42BCEBB63882405 /* Log.swift */,
-				FFBE328E1413B0DF5BD6C2DF /* ReplayStore.swift */,
 				8BC6FF37DAE13534C46E4872 /* SeededRandom.swift */,
 				18183265268F972C7B80726C /* Settings.swift */,
 				FE4282CC43E5F5F3C2BB8010 /* Theme.swift */,
@@ -282,8 +269,6 @@
 				4B68A0293DC368E6AA4747F4 /* LeaderboardScene.swift */,
 				7413600E7E4E3884E701ED25 /* ListScene.swift */,
 				77BA31E52C07EB4D678E793B /* MenuScene.swift */,
-				BED349E8C88D471CEF9B783E /* ReplayScene.swift */,
-				85A37EDBAE6DFF17542660B1 /* ReplaysScene.swift */,
 				02F66B723AD21694FA907D21 /* SettingsScene.swift */,
 				AEE46D99B5E41DAA595636E1 /* ShopScene.swift */,
 				E41C64B768A9D864393CA82D /* StatsScene.swift */,
@@ -297,7 +282,6 @@
 				5E26F9FED7925407A4689877 /* AchievementSystem.swift */,
 				5190CDDC6FC710D900854E38 /* DifficultyCurve.swift */,
 				94582672BA25A8A5AF89C385 /* PowerUp.swift */,
-				ECCA3574E3FBF105B6D867EC /* Replay.swift */,
 				49BF9ABE420B67078BBB5306 /* WeatherSystem.swift */,
 			);
 			path = Systems;
@@ -348,7 +332,6 @@
 				3336386F0B01AF8F8C4E9F22 /* Info.plist */,
 				B212DACB4944FBEF16E49135 /* PersistenceTests.swift */,
 				E1957C5C2B8F06F0ED091500 /* PowerUpTests.swift */,
-				1AB009012F87FE948BF4B51D /* ReplayTests.swift */,
 				7A33E9BDF90C5C355F4C7241 /* SeededRandomTests.swift */,
 				4D43F61D9F24B851630CE8D6 /* TestSupport.swift */,
 				CD30938D824F6BC4BD16A46D /* ThemeTests.swift */,
@@ -364,7 +347,6 @@
 				00BA10F6C35969236D359739 /* Info.plist */,
 				F1BFE3B7508F0C2F38F884C4 /* ListScreenUITests.swift */,
 				80C562B9AE4105F081001E14 /* MenuUITests.swift */,
-				8F2562DF85080F2015278594 /* ReplayUITests.swift */,
 				73AECE609B2D8379C7F09AC5 /* SettingsUITests.swift */,
 				E8E779432C7763ADCC447E81 /* ShopUITests.swift */,
 			);
@@ -520,7 +502,6 @@
 				4C07F2EC20A3C7BBB9F8EDB6 /* Haptics.swift in Sources */,
 				1A3E83B223E9342DF81B921F /* LaunchOptions.swift in Sources */,
 				3ABCFE418BABA4B3B3EC7889 /* Log.swift in Sources */,
-				853DDCCF3B0561C44593ED8B /* ReplayStore.swift in Sources */,
 				AF14730A2B58F44973ADE2E2 /* SeededRandom.swift in Sources */,
 				E7D25334DC814F8F376C1E84 /* Settings.swift in Sources */,
 				E81CE863DF6074B435319896 /* Theme.swift in Sources */,
@@ -533,15 +514,12 @@
 				0379B42ACD3D572678DC77A9 /* LeaderboardScene.swift in Sources */,
 				04A2D2FC08902A17B6860BCD /* ListScene.swift in Sources */,
 				FC8DA8D03BE98CA64929E5E7 /* MenuScene.swift in Sources */,
-				7954E1DE927F27C6ACB2DEBB /* ReplayScene.swift in Sources */,
-				C02028C745ECDF730224E45F /* ReplaysScene.swift in Sources */,
 				AFC25881D3F4C773530503F6 /* SettingsScene.swift in Sources */,
 				9EC5922F564A58C436D7422A /* ShopScene.swift in Sources */,
 				EADF85D48F9BAD0EF24A125B /* StatsScene.swift in Sources */,
 				B5A90C4330BEB7EE82045D16 /* AchievementSystem.swift in Sources */,
 				A2720214770664CF78D910DC /* DifficultyCurve.swift in Sources */,
 				340B2B7BE18A0EA7D822997E /* PowerUp.swift in Sources */,
-				E9F344156A625227A189E929 /* Replay.swift in Sources */,
 				31BCB72AB334917F6022D54B /* WeatherSystem.swift in Sources */,
 				3D432422E24EF5FA39D6831D /* Accessibility.swift in Sources */,
 				08714A84615F18D4A9401319 /* ButtonNode.swift in Sources */,
@@ -566,7 +544,6 @@
 				5F4E7B27F4FDACDC7D844944 /* GameOverPanelTests.swift in Sources */,
 				91E9492F7D0444162969505A /* PersistenceTests.swift in Sources */,
 				C475EDE99F20AC8E8ED0D566 /* PowerUpTests.swift in Sources */,
-				F2BC1C2A6F39D2EA7F2391B5 /* ReplayTests.swift in Sources */,
 				0D02745C93ACB8C1925682B7 /* SeededRandomTests.swift in Sources */,
 				D042A968ED412A9560E57346 /* TestSupport.swift in Sources */,
 				D0BA4CE1E0425ED263C2F305 /* ThemeTests.swift in Sources */,
@@ -581,7 +558,6 @@
 				D1AFC62DFDBFD28E35C711EF /* GameplayUITests.swift in Sources */,
 				BACF01DEFA081DF41CB28862 /* ListScreenUITests.swift in Sources */,
 				18B2BC674190B9E5A14A9A05 /* MenuUITests.swift in Sources */,
-				DF36B1AB09E952F3E1DAC2BB /* ReplayUITests.swift in Sources */,
 				13A287259FA8B24E642DDA27 /* SettingsUITests.swift in Sources */,
 				1D432775DA105C34AEC5EE0A /* ShopUITests.swift in Sources */,
 			);

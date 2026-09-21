@@ -183,16 +183,14 @@ flowchart TB
 
     subgraph Sim["Simulation, in order"]
         direction TB
-        S1["replayRecorder.advance"]
-        S2["demo pilot (if -demo)"]
-        S3["power-ups: expire"]
-        S4["weather"]
-        S5["spawning"]
-        S6["magnet"]
-        S7["time attack clock"]
-        S8["clamp velocity + drift"]
-        S9["record a replay sample"]
-        S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7 --> S8 --> S9
+        S1["demo pilot (if -demo)"]
+        S2["power-ups: expire"]
+        S3["weather"]
+        S4["spawning"]
+        S5["magnet"]
+        S6["time attack clock"]
+        S7["clamp velocity + drift"]
+        S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
     end
 ```
 
@@ -202,12 +200,6 @@ Two details worth knowing:
 slow frame, coming back from the background — an unclamped delta would teleport
 the bird through a pipe. Clamping trades a moment of slow motion for never
 tunnelling.
-
-**Order matters for replays.** `replayRecorder.advance` runs *first*, so an
-obstacle spawned later in the same frame is stamped with the current time. See
-[Replays](REPLAYS.md).
-
----
 
 ## Difficulty
 
@@ -274,5 +266,4 @@ is precisely why the mass is pinned.
 
 - [Rendering](RENDERING.md) — the layers the physics moves through
 - [Gameplay](GAMEPLAY.md) — the full difficulty table and scoring
-- [Replays](REPLAYS.md) — how a run is captured from this loop
 - [Performance](PERFORMANCE.md) — the frame budget these steps share

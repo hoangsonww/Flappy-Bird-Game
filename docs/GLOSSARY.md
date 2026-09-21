@@ -70,9 +70,6 @@ it all, which is how pause and slow motion are each one line.
 **Profile** — the `PlayerProfile` document under `player.profile.v2`: scores,
 wallet, skins, achievements, history and the upload queue.
 
-**Replay** — a recorded run: bird frames at 30 Hz plus one entry per obstacle
-spawn. Stored under its own key, never sent to the server.
-
 **Seed** — the value a run's world is generated from. Stored with every run.
 
 ---

@@ -258,16 +258,13 @@ final class MenuScene: SKScene {
         addChild(play)
         y -= 66
 
-        // Six destinations in a 2x3 grid. Settings used to sit apart as a
-        // full-width button; folding it in keeps every row the same shape once
-        // Replays joined them, instead of leaving an orphan cell.
+        // Four primary destinations in a compact 2x2 grid, with Settings kept
+        // full-width below them so the five-item menu stays balanced.
         let columns: [(String, () -> Void)] = [
             ("LEADERBOARD", { [weak self] in self?.present(LeaderboardScene(size: self?.size ?? .zero)) }),
             ("ACHIEVEMENTS", { [weak self] in self?.present(AchievementsScene(size: self?.size ?? .zero)) }),
             ("SHOP", { [weak self] in self?.present(ShopScene(size: self?.size ?? .zero)) }),
             ("STATS", { [weak self] in self?.present(StatsScene(size: self?.size ?? .zero)) }),
-            ("REPLAYS", { [weak self] in self?.present(ReplaysScene(size: self?.size ?? .zero)) }),
-            ("SETTINGS", { [weak self] in self?.present(SettingsScene(size: self?.size ?? .zero)) }),
         ]
 
         let buttonWidth = (panelWidth - 10) / 2
@@ -287,6 +284,17 @@ final class MenuScene: SKScene {
             button.zPosition = ZPosition.hud
             addChild(button)
         }
+
+        let settings = ButtonNode(
+            title: "SETTINGS",
+            size: CGSize(width: panelWidth, height: 42),
+            fontSize: 14
+        ) { [weak self] in
+            self?.present(SettingsScene(size: self?.size ?? .zero))
+        }
+        settings.position = CGPoint(x: size.width / 2, y: y - 100)
+        settings.zPosition = ZPosition.hud
+        addChild(settings)
     }
 
     private func buildFooter() {

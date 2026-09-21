@@ -28,10 +28,6 @@
       <image:title>The skin shop</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/replays.png</image:loc>
-      <image:title>Saved replays</image:title>
-    </image:image>
-    <image:image>
       <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/achievements.png</image:loc>
       <image:title>Achievements</image:title>
     </image:image>

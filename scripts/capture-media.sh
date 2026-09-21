@@ -109,10 +109,6 @@ shoot "settings"     4   -seed-demo -screen settings
 # inside the window.
 shoot "gameover"    17   -seed-demo -demo -demo-die 12 -mode hardcore
 
-# After the run above, so the list holds a real recording. No `-seed-demo`
-# here: seeding clears the replays, and nothing fabricated is ever written.
-shoot "replays"      4   -screen replays
-
 xcrun simctl status_bar "$UDID" clear >/dev/null 2>&1 || true
 xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
 

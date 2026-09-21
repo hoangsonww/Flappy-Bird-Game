@@ -50,19 +50,19 @@ xcrun simctl launch booted com.hoangsonww.flappybird -screen shop -seed-demo
 | `-debug-hud` | — | Overlay state, velocity and the targeted gap |
 
 Screens: `menu`, `game`, `leaderboard`, `achievements`, `shop`, `stats`,
-`replays`, `settings`.
+`settings`.
 Modes: `classic`, `endless`, `timeAttack`, `hardcore`, `zen`, `daily`.
 
 ### What `-seed-demo` writes
 
 ```mermaid
 flowchart LR
-    Seed["-seed-demo"] --> Reset["resetProgress() + replays.removeAll()"]
+    Seed["-seed-demo"] --> Reset["resetProgress()"]
     Reset --> Runs["36 runs from a fixed RNG seed"]
     Runs --> Wallet["wallet = 1450"]
     Wallet --> Skins["4 skins unlocked"]
     Skins --> Daily["5 daily challenges completed"]
-    Daily --> Norm["skin = classic · mode = classic<br/>queue cleared · replays cleared"]
+    Daily --> Norm["skin = classic · mode = classic<br/>queue cleared"]
 
     style Norm fill:#d1fae5,stroke:#059669,color:#065f46
 ```
@@ -75,10 +75,6 @@ Three details that exist because of real bugs:
   ran with `-mode zen` would leave Zen selected for the next one.
 - **The skin is reset to classic.** The seeded profile is what screenshots show,
   and that should be the bird the game ships with.
-- **Replays are cleared, and none are seeded.** A replay is a recording of a
-  run. Fabricated entries were seeded here once, and anyone who opened the list
-  saw a generated wave through evenly spaced pipes and reasonably concluded the
-  feature was broken.
 
 ---
 
@@ -109,7 +105,6 @@ hunting through scene code.
 | World | pipe gaps, spawn intervals, scroll rates |
 | Scoring | points per pipe, coin value, combo cap |
 | Power-ups | spawn chance and per-kind durations |
-| Replays | sample interval, frame and obstacle caps |
 | Presentation | death flash, toast duration |
 
 > `birdMass` is pinned deliberately. SpriteKit derives mass from body area, so

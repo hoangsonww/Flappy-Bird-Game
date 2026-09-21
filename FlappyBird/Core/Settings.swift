@@ -53,7 +53,7 @@ final class Settings {
         set { defaults.set(newValue, forKey: Key.haptics) }
     }
 
-    /// Show a translucent replay of the player's best run.
+    /// Increase contrast for HUD and panel text.
     var highContrast: Bool {
         get { defaults.bool(forKey: Key.highContrast) }
         set { defaults.set(newValue, forKey: Key.highContrast) }

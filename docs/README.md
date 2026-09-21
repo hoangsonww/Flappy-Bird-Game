@@ -22,9 +22,8 @@ Start with [Architecture](../ARCHITECTURE.md) for the map, then pick a track.
 | [Screens and navigation](SCREENS.md) | Every screen, how you reach it, what it is built from. |
 | [Rendering](RENDERING.md) | The scene graph, layer order, parallax and textures. |
 | [Physics and flight](PHYSICS.md) | The flight model, collision categories and the frame loop. |
-| [Replays](REPLAYS.md) | The recording format, playback, and the design that was removed. |
 | [Audio and haptics](AUDIO.md) | Synthesised sound, the cue table, feedback. |
-| [Persistence and state](PERSISTENCE.md) | The three stores, formats and migrations. |
+| [Persistence and state](PERSISTENCE.md) | Local stores, formats and migrations. |
 | [Accessibility](ACCESSIBILITY.md) | How a SpriteKit game reaches VoiceOver. |
 | [Determinism and seeds](DETERMINISM.md) | What must be reproducible, and what is not. |
 | [Performance](PERFORMANCE.md) | The frame budget and how to profile it. |

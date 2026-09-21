@@ -13,7 +13,7 @@ final class PersistenceTests: XCTestCase {
 
     // MARK: - Runs
 
-    func testRecordingARunUpdatesBestScoreAndStats() {
+    func testSavingARunUpdatesBestScoreAndStats() {
         let run = TestSupport.run(score: 25, coins: 8, combo: 4)
         let isBest = store.record(run: run, mode: .classic, deathCause: .pipe)
 

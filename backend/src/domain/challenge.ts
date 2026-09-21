@@ -9,7 +9,7 @@ const MODES: GameMode[] = ['classic', 'endless', 'timeAttack', 'hardcore'];
  * Deterministically derive the daily challenge for a UTC date.
  *
  * Both the server and the game run this function, so a player can preview and
- * replay the exact same layout offline — the server is only needed to compare
+ * reproduce the exact same layout offline — the server is only needed to compare
  * scores with other players.
  *
  * The algorithm is intentionally simple and stable: SHA-256 of

@@ -1510,7 +1510,7 @@ components:
         durationMs: { type: integer, minimum: 0 }
         maxCombo: { type: integer, minimum: 0 }
         powerUpsUsed: { type: integer, minimum: 0 }
-        seed: { type: string, description: Run seed; lets the game replay the same pipe layout. }
+        seed: { type: string, description: Run seed; lets the game reproduce the same pipe layout. }
         clientVersion: { type: [string, 'null'] }
         deviceModel: { type: [string, 'null'] }
         flagged: { type: boolean, description: Flagged runs are excluded from boards and stats. }

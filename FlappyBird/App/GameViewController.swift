@@ -66,7 +66,6 @@ final class GameViewController: UIViewController {
         case .shop: return ShopScene(size: size)
         case .stats: return StatsScene(size: size)
         case .settings: return SettingsScene(size: size)
-        case .replays: return ReplaysScene(size: size)
         case .menu, .none: return MenuScene(size: size)
         }
     }
