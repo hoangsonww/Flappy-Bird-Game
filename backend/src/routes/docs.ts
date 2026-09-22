@@ -205,6 +205,14 @@ const SWAGGER_PAGE = `<!doctype html>
       }
       .swagger-ui section.models h4 { border-color: var(--line); color: var(--ink); }
       .swagger-ui .model-container { background: #f2f5f2; }
+      .swagger-ui .json-schema-2020-12-accordion,
+      .swagger-ui .json-schema-2020-12-expand-deep-button {
+        appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        color: inherit;
+        box-shadow: none;
+      }
       .api-footer {
         border-top: 1px solid var(--line); color: var(--muted); padding: 1.4rem 1rem 2.2rem;
         text-align: center; font-size: .78rem;
