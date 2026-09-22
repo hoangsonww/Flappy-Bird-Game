@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://hoangsonww.github.io/Flappy-Bird-Game/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/og-card.png</image:loc>
+      <image:title>Flappy Bird — Swift and SpriteKit</image:title>
+      <image:caption>A run in progress: pipes, a coin and the score HUD.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/menu.png</image:loc>
+      <image:title>Main menu with the mode selector</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/gameplay.png</image:loc>
+      <image:title>Gameplay</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/leaderboard.png</image:loc>
+      <image:title>Global leaderboard</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/shop.png</image:loc>
+      <image:title>The skin shop</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/achievements.png</image:loc>
+      <image:title>Achievements</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/stats.png</image:loc>
+      <image:title>Lifetime statistics</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/settings.png</image:loc>
+      <image:title>Settings, including the optional server</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hoangsonww.github.io/Flappy-Bird-Game/img/screens/gameover.png</image:loc>
+      <image:title>End-of-run summary</image:title>
+    </image:image>
+  </url>
+</urlset>

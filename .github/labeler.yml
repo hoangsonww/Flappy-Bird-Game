@@ -1,0 +1,24 @@
+# Used by the optional labeler action; harmless if that workflow is not enabled.
+game:
+  - changed-files:
+      - any-glob-to-any-file: ["FlappyBird/**", "FlappyBirdTests/**", "Flappy Bird.xcodeproj/**"]
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: ["backend/**"]
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ["docs/**", "README.md", "*.md"]
+
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file: ["docker-compose.yml", "ops/**", ".devcontainer/**", "Makefile", "scripts/**"]
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: [".github/workflows/**"]
+
+website:
+  - changed-files:
+      - any-glob-to-any-file: ["index.html", "img/**"]

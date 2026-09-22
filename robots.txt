@@ -1,0 +1,16 @@
+# https://hoangsonww.github.io/Flappy-Bird-Game/
+#
+# Everything here is public and safe to crawl. The site is a single page plus
+# the screenshots it references.
+
+User-agent: *
+Allow: /
+
+# Crawlers that only cost bandwidth on a static page.
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+Sitemap: https://hoangsonww.github.io/Flappy-Bird-Game/sitemap.xml

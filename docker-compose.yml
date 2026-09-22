@@ -1,0 +1,135 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Flappy Bird — optional backend stack.
+#
+# The iOS game does NOT need any of this. Start it only if you want accounts,
+# cloud saves and leaderboards.
+#
+#   make up                  # postgres + backend (http://localhost:4000)
+#   make up-tools            # + pgweb database browser (http://localhost:8081)
+#   make up-observability    # + prometheus & grafana
+#   make down                # stop everything
+#
+# Override anything with a root .env file (see .env.example).
+# ──────────────────────────────────────────────────────────────────────────────
+name: flappy-bird
+
+services:
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-flappy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flappy}
+      POSTGRES_DB: ${POSTGRES_DB:-flappybird}
+      # Deterministic collation keeps username ordering stable across machines.
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C'
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-flappy} -d ${POSTGRES_DB:-flappybird}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks: [flappy]
+
+  # ── API ────────────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      target: prod
+      args:
+        NODE_VERSION: ${NODE_VERSION:-22}
+    image: flappy-bird-backend:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 4000
+      HOST: 0.0.0.0
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:4000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_DRIVER: postgres
+      DATABASE_URL: postgres://${POSTGRES_USER:-flappy}:${POSTGRES_PASSWORD:-flappy}@postgres:5432/${POSTGRES_DB:-flappybird}
+      DATABASE_AUTO_MIGRATE: 'true'
+      # Generate your own for a machine you share: openssl rand -hex 48
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me-0123456789abcdef}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-me-0123456789abcdef}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      RUN_SIGNING_SECRET: ${RUN_SIGNING_SECRET:-}
+      REQUIRE_SIGNED_RUNS: ${REQUIRE_SIGNED_RUNS:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      ENABLE_DOCS: ${ENABLE_DOCS:-true}
+      ENABLE_METRICS: ${ENABLE_METRICS:-true}
+      ENABLE_SSE: ${ENABLE_SSE:-true}
+    ports:
+      - '${BACKEND_PORT:-4000}:4000'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:4000/healthz']
+      interval: 15s
+      timeout: 4s
+      retries: 5
+      start_period: 20s
+    networks: [flappy]
+
+  # ── Database browser (profile: tools) ──────────────────────────────────────
+  pgweb:
+    image: sosedoff/pgweb:latest
+    profiles: [tools]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGWEB_DATABASE_URL: postgres://${POSTGRES_USER:-flappy}:${POSTGRES_PASSWORD:-flappy}@postgres:5432/${POSTGRES_DB:-flappybird}?sslmode=disable
+    ports:
+      - '${PGWEB_PORT:-8081}:8081'
+    networks: [flappy]
+
+  # ── Metrics (profile: observability) ───────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: [observability]
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - '${PROMETHEUS_PORT:-9090}:9090'
+    networks: [flappy]
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    profiles: [observability]
+    restart: unless-stopped
+    depends_on: [prometheus]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - '${GRAFANA_PORT:-3001}:3000'
+    networks: [flappy]
+
+networks:
+  flappy:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  grafana-data:

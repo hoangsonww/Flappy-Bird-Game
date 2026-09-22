@@ -1,0 +1,18 @@
+# Scrapes the backend's /metrics endpoint. Only used by the `observability` profile.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: flappy-bird
+
+scrape_configs:
+  - job_name: flappy-bird-backend
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['backend:4000']
+        labels:
+          service: flappy-bird-backend
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']

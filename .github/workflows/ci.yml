@@ -1,0 +1,360 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  # ── Backend ────────────────────────────────────────────────────────────────
+  backend-quality:
+    name: Backend · lint, types, spec
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Validate the OpenAPI specification
+        run: npm run openapi:validate
+
+      - name: Build
+        run: npm run build
+
+  backend-tests:
+    name: Backend · tests (${{ matrix.driver }}, node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+        driver: [memory, postgres]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: flappy
+          POSTGRES_PASSWORD: flappy
+          POSTGRES_DB: flappybird
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U flappy -d flappybird"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci || npm install --no-audit --no-fund
+
+      # Running the same suite against both drivers is what keeps them
+      # behaviourally identical — it has already caught real divergences.
+      - name: Test
+        run: npm test
+        env:
+          DB_DRIVER: ${{ matrix.driver }}
+          DATABASE_URL: postgres://flappy:flappy@localhost:5432/flappybird
+
+      - name: Coverage
+        if: matrix.node == '22' && matrix.driver == 'memory'
+        run: npm run test:coverage
+
+      - name: Upload coverage
+        if: matrix.node == '22' && matrix.driver == 'memory'
+        uses: actions/upload-artifact@v6
+        with:
+          name: backend-coverage
+          path: backend/coverage
+          retention-days: 7
+
+  backend-smoke:
+    name: Backend · end-to-end smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Start the stack
+        run: docker compose up -d --build postgres backend
+
+      - name: Wait for health
+        run: bash scripts/wait-for-health.sh http://localhost:4000/healthz 90
+
+      - name: Install smoke-test dependencies
+        working-directory: backend
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Run the smoke test
+        working-directory: backend
+        run: npm run smoke
+        env:
+          BASE_URL: http://localhost:4000
+
+      - name: Seed demo data
+        working-directory: backend
+        run: npm run seed
+        env:
+          DB_DRIVER: postgres
+          DATABASE_URL: postgres://flappy:flappy@localhost:5432/flappybird
+          SEED_PLAYERS: "6"
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs --no-color backend postgres
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
+
+  docker-image:
+    name: Backend · container image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build the production image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          target: prod
+          push: false
+          load: true
+          tags: flappy-bird-backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Boot it with the in-memory driver
+        run: |
+          docker run -d --name flappy-ci -p 4000:4000 \
+            -e DB_DRIVER=memory \
+            -e JWT_ACCESS_SECRET=ci-access-secret-0123456789abcdef \
+            -e JWT_REFRESH_SECRET=ci-refresh-secret-0123456789abcdef \
+            -e NODE_ENV=development \
+            flappy-bird-backend:ci
+          bash scripts/wait-for-health.sh http://localhost:4000/healthz 60
+          curl -fsS http://localhost:4000/v1/meta/config | grep -q 'flappy-bird/1'
+
+      - name: Stop
+        if: always()
+        run: docker rm -f flappy-ci || true
+
+  # ── iOS game ───────────────────────────────────────────────────────────────
+  ios:
+    name: iOS · build and test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app || sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Show toolchain
+        run: xcodebuild -version
+
+      # The project file is generated from the file tree; a stale one means
+      # somebody added a source file without running `make xcodegen`.
+      - name: Verify the Xcode project is up to date
+        run: python3 scripts/generate_xcodeproj.py --check
+
+      - name: Resolve a simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available | grep -E "iPhone 16|iPhone 15" | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "Using simulator $UDID"
+
+      # `xcpretty` is only a log formatter. Piping to it with `|| <rerun>` meant
+      # any test failure ran the whole suite a second time, which doubled the
+      # job and buried which run actually failed — so its absence is handled
+      # with a branch instead of a fallback command.
+      - name: Build and test
+        run: |
+          set -o pipefail
+          if command -v xcpretty >/dev/null; then
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath TestResults.xcresult \
+              -only-testing:FlappyBirdTests test | xcpretty
+          else
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath TestResults.xcresult \
+              -only-testing:FlappyBirdTests test
+          fi
+
+      # The UI suite drives a real simulator, so it is minutes rather than
+      # seconds. It runs as its own step to keep the failure obvious.
+      - name: UI tests
+        run: |
+          set -o pipefail
+          if command -v xcpretty >/dev/null; then
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath UITestResults.xcresult \
+              -only-testing:FlappyBirdUITests test | xcpretty
+          else
+            xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -configuration Debug CODE_SIGNING_ALLOWED=NO \
+              -resultBundlePath UITestResults.xcresult \
+              -only-testing:FlappyBirdUITests test
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ios-test-results
+          path: |
+            TestResults.xcresult
+            UITestResults.xcresult
+          retention-days: 7
+
+  swift-lint:
+    name: iOS · SwiftLint
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      # SwiftLint exits non-zero only for `error`-severity violations, so a new
+      # release adding rules surfaces as warnings rather than breaking the build.
+      - name: Lint
+        run: swiftlint lint --reporter github-actions-logging
+
+  # ── Repository hygiene ─────────────────────────────────────────────────────
+  scripts:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check syntax
+        run: for f in scripts/*.sh; do bash -n "$f"; done
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          shellcheck -S warning scripts/*.sh || true
+
+  site:
+    name: Landing page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check the page is well-formed
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          import sys
+
+          class Check(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.stack = []
+                  self.void = {"area","base","br","col","embed","hr","img","input",
+                               "link","meta","source","track","wbr"}
+              def handle_starttag(self, tag, attrs):
+                  if tag not in self.void:
+                      self.stack.append(tag)
+              def handle_endtag(self, tag):
+                  if tag in self.void:
+                      return
+                  if self.stack and self.stack[-1] == tag:
+                      self.stack.pop()
+
+          html = open("index.html", encoding="utf-8").read()
+          parser = Check()
+          parser.feed(html)
+          assert "<title>" in html, "index.html needs a <title>"
+          assert 'name="description"' in html, "index.html needs a meta description"
+          print(f"index.html parsed, {len(html)} bytes, unclosed: {parser.stack[:5]}")
+          PY
+
+      # Screenshots move, docs get renamed and headings get reworded; this is
+      # the check that stops a link rotting quietly between releases.
+      - name: Check every link, image, anchor and sitemap entry
+        run: python3 scripts/check-links.py
+
+      - name: Validate the sitemap and robots.txt
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+
+          tree = ET.parse("sitemap.xml")
+          urls = [e.text for e in tree.iter() if e.tag.endswith("}loc")]
+          images = [u for u in urls if u.endswith(".png")]
+          assert urls, "sitemap.xml lists no URLs"
+          print(f"sitemap.xml: {len(urls) - len(images)} page(s), {len(images)} image(s)")
+
+          robots = open("robots.txt", encoding="utf-8").read()
+          assert "Sitemap:" in robots, "robots.txt must point at the sitemap"
+          assert "User-agent: *" in robots, "robots.txt must have a wildcard group"
+          print("robots.txt: ok")
+          PY
+
+  # ── Aggregate gate ─────────────────────────────────────────────────────────
+  ci-passed:
+    name: CI passed
+    runs-on: ubuntu-latest
+    needs: [backend-quality, backend-tests, backend-smoke, docker-image, ios, swift-lint, scripts, site]
+    if: always()
+    steps:
+      - name: Verify every required job succeeded
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "One or more jobs failed."
+            exit 1
+          fi
+          echo "All jobs green."

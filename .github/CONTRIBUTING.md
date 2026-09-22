@@ -1,73 +1,139 @@
-# Contributing to Flappy Bird Game
+# Contributing
 
-First and foremost, thank you for considering contributing to StickyNotes App! Your time and skills are valuable to us, and we appreciate any help you can provide to make this app better for everyone. Whether you're fixing a bug, adding a new feature, or improving the documentation, your contribution is essential.
+Thanks for being here. This is a small project, so the process is short.
 
-## Code of Conduct
+## Before you start
 
-Our community is dedicated to providing a harassment-free experience for everyone. We do not tolerate harassment of community members in any form. Please refer to our Code of Conduct for complete details.
+```bash
+git clone https://github.com/hoangsonww/Flappy-Bird-Game.git
+cd Flappy-Bird-Game
+make doctor      # what do you have, what does it unlock
+make bootstrap   # git hooks, backend dependencies, .env
+```
 
-## Getting Started
+Only **Xcode** and **Python 3** are required. Node and Docker are needed solely
+for the optional backend.
 
-Before you begin, please ensure you have a GitHub account and have familiarized yourself with the [GitHub flow](https://guides.github.com/introduction/flow/). This will involve creating a branch, making changes, submitting a pull request, and reviewing and discussing these changes.
+Full setup notes: [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md).
 
-### Reporting Bugs
+## The one rule
 
-Bugs are tracked as GitHub issues. To report a bug, please follow these guidelines:
+**The game must keep working with no backend at all.** Every online feature needs
+an offline path — the leaderboard screen falls back to local scores, the daily
+challenge is derived locally, runs queue and upload later. A change that makes
+the server necessary will be asked to change.
 
-1. **Use the GitHub issue search** to check if the issue has already been reported.
-2. If the issue is unreported, **open a new issue**. Provide a **clear title and description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
+## Workflow
 
-### Suggesting Enhancements
+1. Open an issue first for anything substantial. Small fixes can go straight to a PR.
+2. Branch from `master`: `feat/coin-magnet`, `fix/leaderboard-ties`.
+3. Commit with [Conventional Commits](https://www.conventionalcommits.org/) —
+   the release version is derived from them.
+4. Run the checks.
+5. Open a PR using the template.
 
-This section guides you through submitting an enhancement suggestion for StickyNotes App, including completely new features and minor improvements to existing functionality.
+### Commit prefixes
 
-1. **Use the GitHub issue search** to check if the enhancement has already been suggested.
-2. If it hasn't, **open a new issue**. Provide a **clear title and description**, as detailed as possible and if possible, include **examples** of how the enhancement would work.
+| Prefix | Release | Use for |
+|--------|---------|---------|
+| `feat` | minor | New behaviour |
+| `fix` | patch | Bug fixes |
+| `perf` | patch | Faster, same behaviour |
+| `refactor` | none | No behaviour change |
+| `docs` | none | Documentation only |
+| `test` | none | Tests only |
+| `build`, `ci`, `chore` | none | Tooling |
 
-### Your First Code Contribution
+Add `!` or a `BREAKING CHANGE:` body for a major bump.
 
-Unsure where to begin contributing to StickyNotes App? Look for the `good first issue` label in the issues section, which is a great start for newcomers.
+```
+feat(game): add a coin magnet power-up
+fix(backend): stop flagged runs from affecting aggregate stats
+docs(api): document the SSE leaderboard stream
+```
 
-### Pull Requests
+## Checks
 
-1. **Fork** the repo and **create your branch** from `main`.
-2. **Make your changes** and ensure they meet the project standards.
-3. **Write or adapt tests** as needed.
-4. **Ensure your code lints** (if applicable).
-5. **Issue that pull request!**
+```bash
+make check    # xcodegen check, backend lint + types, OpenAPI, backend tests
+make test     # Swift tests
+```
 
-## Styleguides
+Then launch the game once with the backend stopped.
 
-### Git Commit Messages
+## Adding a Swift file
 
-- Use the present tense ("Add feature" not "Added feature").
-- Use the imperative mood ("Move cursor to..." not "Moves cursor to...").
-- Limit the first line to 72 characters or less.
-- Reference issues and pull requests liberally after the first line.
+Never edit `project.pbxproj` by hand — it is generated:
 
-### JavaScript Styleguide
+```bash
+touch FlappyBird/Systems/MyNewSystem.swift
+make xcodegen
+```
 
-All JavaScript must adhere to [JavaScript Standard Style](https://standardjs.com/).
+CI fails if the checked-in project does not match the files on disk, and the
+pre-commit hook from `make bootstrap` catches it before you push.
 
-### CSS/HTML Styleguide
+## Changing the API
 
-- Use soft tabs with two spaces—they're the only way to guarantee code renders the same in any environment.
-- Use HTML5 doctype (`<!DOCTYPE html>`).
-- Avoid inline styles where possible.
+1. Update the route and its tests.
+2. Update [`backend/openapi/openapi.yaml`](../backend/openapi/openapi.yaml).
+3. `make openapi` to validate it.
+4. `make api-test` — a test diffs the specification against the real routes in
+   both directions, so an undocumented endpoint fails the build.
 
-## Additional Notes
+If the change affects the game, update the Swift client in `FlappyBird/Backend/`
+and its tests too.
 
-### Issue and Pull Request Labels
+## Changing the database
 
-This section lists the labels we use to help us track and manage issues and pull requests.
+Add a **new** migration; never edit an applied one — the migrator reports that as
+drift rather than silently diverging.
 
-- **`good first issue`** – Good for newcomers.
-- **`bug`** – Something isn't working.
-- **`enhancement`** – New feature or request.
-- **`help wanted`** – Extra attention is needed.
+```bash
+# backend/migrations/005_your_change.sql
+make migrate
+make api-test-pg     # run the suite against Postgres
+```
 
-## Conclusion
+If you change the repository contracts, both drivers must implement them. The
+shared suite runs against both, which is how divergences get caught.
 
-Contributions to StickyNotes App are greatly appreciated and vital for its continuous development. By participating in this project, you agree to abide by its terms. Thank you for your contributions – happy coding!
+## Style
 
----
+**Swift** — 4-space indent, 120 columns, `final class` unless subclassed.
+`make format-swift` and `make lint-swift` if you have the tools installed.
+
+**TypeScript** — 2-space indent, 100 columns, single quotes, trailing commas,
+`strict`. `npm run format` in `backend/`.
+
+**Comments** explain *why*. The code already says what it does.
+
+## Screenshots
+
+Gameplay changes deserve a picture. `make media` regenerates every screenshot
+from the simulator — reproducible, because the app can open any screen
+directly.
+
+## What gets merged quickly
+
+- A fix with a test that fails without it
+- Documentation that corrects something wrong
+- A feature discussed in an issue first
+- Anything that makes the first-run experience simpler
+
+## What gets pushed back on
+
+- Making the backend mandatory
+- New runtime dependencies without a clear reason
+- Hand-edited `project.pbxproj`
+- API changes without spec updates
+- Large refactors bundled with behaviour changes
+
+## Reporting bugs and vulnerabilities
+
+Use the [issue templates](https://github.com/hoangsonww/Flappy-Bird-Game/issues/new/choose).
+For security, follow [SECURITY.md](SECURITY.md) — please do not open a public issue.
+
+## Licence
+
+Contributions are accepted under the [MIT licence](../LICENSE).

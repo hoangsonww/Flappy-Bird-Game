@@ -1,0 +1,196 @@
+name: Release
+
+# Every merge to the default branch is evaluated for a release. The version is
+# derived from Conventional Commits (see scripts/release.mjs), so a merge that
+# only contains chores simply does not produce one.
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+    inputs:
+      force_version:
+        description: "Publish this exact version instead of deriving one (e.g. 1.4.0)"
+        required: false
+        type: string
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  decide:
+    name: Decide the next version
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.plan.outputs.should_release }}
+      version: ${{ steps.plan.outputs.version }}
+      previous: ${{ steps.plan.outputs.previous }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Derive the version
+        id: plan
+        run: |
+          if [ -n "${{ inputs.force_version }}" ]; then
+            {
+              echo "should_release=true"
+              echo "version=${{ inputs.force_version }}"
+              echo "previous=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo '')"
+            } >> "$GITHUB_OUTPUT"
+            node scripts/release.mjs --notes > release-notes.md || true
+          else
+            node scripts/release.mjs --json > plan.json
+            cat plan.json
+            {
+              echo "should_release=$(jq -r .shouldRelease plan.json)"
+              echo "version=$(jq -r '.version // empty' plan.json)"
+              echo "previous=$(jq -r '.previousTag // empty' plan.json)"
+            } >> "$GITHUB_OUTPUT"
+            jq -r .notes plan.json > release-notes.md
+          fi
+
+      - name: Upload the notes
+        if: steps.plan.outputs.should_release == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  verify:
+    name: Verify before releasing
+    needs: decide
+    if: needs.decide.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci || npm install --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run openapi:validate
+      - run: npm run build
+
+  publish:
+    name: Tag, release and publish the image
+    needs: [decide, verify]
+    if: needs.decide.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download the notes
+        uses: actions/download-artifact@v7
+        with:
+          name: release-notes
+
+      - name: Update CHANGELOG.md
+        run: |
+          VERSION="${{ needs.decide.outputs.version }}"
+          DATE="$(date -u +%Y-%m-%d)"
+          {
+            printf '# Changelog\n\n'
+            printf 'All notable changes to this project are documented here.\n'
+            printf 'The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)\n'
+            printf 'and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n'
+            sed "s|^## v${VERSION}$|## [v${VERSION}] - ${DATE}|" release-notes.md
+            printf '\n'
+            if [ -f CHANGELOG.md ]; then
+              tail -n +6 CHANGELOG.md
+            fi
+          } > CHANGELOG.new.md
+          mv CHANGELOG.new.md CHANGELOG.md
+          head -30 CHANGELOG.md
+
+      - name: Bump the marketing version in the Xcode project
+        run: |
+          VERSION="${{ needs.decide.outputs.version }}"
+          python3 - "$VERSION" <<'PY'
+          import re, sys
+          version = sys.argv[1]
+          path = "scripts/generate_xcodeproj.py"
+          source = open(path).read()
+          source = re.sub(r'MARKETING_VERSION = "[^"]*"', f'MARKETING_VERSION = "{version}"', source)
+          open(path, "w").write(source)
+          PY
+          python3 scripts/generate_xcodeproj.py
+
+      - name: Bump the backend package version
+        working-directory: backend
+        run: npm version "${{ needs.decide.outputs.version }}" --no-git-tag-version --allow-same-version
+
+      - name: Commit the release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md backend/package.json backend/package-lock.json scripts/generate_xcodeproj.py "Flappy Bird.xcodeproj/project.pbxproj"
+          git commit -m "chore(release): v${{ needs.decide.outputs.version }} [skip ci]" || echo "Nothing to commit"
+          git tag -a "v${{ needs.decide.outputs.version }}" -m "Release v${{ needs.decide.outputs.version }}"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "v${{ needs.decide.outputs.version }}"
+
+      - name: Create the GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.decide.outputs.version }}
+          name: v${{ needs.decide.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build and push the backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          target: prod
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/flappy-bird-backend:v${{ needs.decide.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/flappy-bird-backend:latest
+          labels: |
+            org.opencontainers.image.version=v${{ needs.decide.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        run: |
+          {
+            echo "## Released v${{ needs.decide.outputs.version }} 🎉"
+            echo ""
+            echo "- Tag: \`v${{ needs.decide.outputs.version }}\`"
+            echo "- Image: \`ghcr.io/${{ github.repository_owner }}/flappy-bird-backend:v${{ needs.decide.outputs.version }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

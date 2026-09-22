@@ -1,0 +1,44 @@
+name: ✨ Feature request
+description: Suggest a new mode, power-up, endpoint or quality-of-life improvement
+title: "feat: "
+labels: [enhancement, triage]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the project?
+      options:
+        - Gameplay (modes, power-ups, difficulty)
+        - Presentation (art, audio, effects)
+        - Backend API
+        - Developer experience (Docker, CI, scripts)
+        - Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the itch rather than the solution — it often leads somewhere better.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to see?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Would you like to build it?
+      options:
+        - label: I am willing to open a pull request for this

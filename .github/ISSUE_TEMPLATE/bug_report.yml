@@ -1,0 +1,86 @@
+name: 🐛 Bug report
+description: Something in the game or the backend does not work as expected
+title: "bug: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file this. The more precisely you can
+        describe what happened, the faster it gets fixed.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - iOS game
+        - Backend API
+        - Docker / local setup
+        - Documentation
+        - Landing page
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+      placeholder: The bird passes through pipes without scoring after about 40 points.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Shown in Settings ▸ Game ▸ Version, or the backend's `/healthz`.
+      placeholder: 1.1.0 (2)
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: iPhone 15 Pro simulator, iOS 18.2, Xcode 16.2, macOS 15.3
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Was a backend connected?
+      options:
+        - "No — offline only"
+        - "Yes — Docker (make up)"
+        - "Yes — npm run dev"
+        - "Not sure"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Game: `xcrun simctl spawn booted log stream --predicate 'subsystem == "com.hoangsonww.flappybird"'`
+        Backend: `make logs`
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues
+          required: true
+        - label: I can reproduce this on the latest `master`
+          required: false

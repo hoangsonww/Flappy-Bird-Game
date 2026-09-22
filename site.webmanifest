@@ -1,0 +1,42 @@
+{
+  "name": "Flappy Bird — Swift & SpriteKit",
+  "short_name": "Flappy Bird",
+  "description": "An open-source Flappy Bird for iOS built with Swift and SpriteKit, with an optional Node.js leaderboard backend.",
+  "start_url": "/Flappy-Bird-Game/",
+  "scope": "/Flappy-Bird-Game/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070c16",
+  "theme_color": "#070c16",
+  "categories": ["games", "developer", "education"],
+  "icons": [
+    {
+      "src": "img/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "img/screens/gameplay.png",
+      "sizes": "1206x2622",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "A run in progress"
+    },
+    {
+      "src": "img/screens/menu.png",
+      "sizes": "1206x2622",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "The main menu and mode selector"
+    }
+  ]
+}
