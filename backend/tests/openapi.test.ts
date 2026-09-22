@@ -142,9 +142,7 @@ describe('openapi specification', () => {
     expect(swagger.text).toContain('color-scheme: light only');
     expect(swagger.text).toContain('href="/favicon.svg"');
     expect(swagger.text).toContain('.json-schema-2020-12-accordion');
-    expect(swagger.text).toMatch(
-      /\.json-schema-2020-12-accordion[\s\S]*?appearance:\s*none/,
-    );
+    expect(swagger.text).toMatch(/\.json-schema-2020-12-accordion[\s\S]*?appearance:\s*none/);
 
     await request(app)
       .get('/docs/assets/swagger-ui.css')
