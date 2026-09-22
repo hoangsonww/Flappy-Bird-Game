@@ -62,7 +62,6 @@
 [![Buildx](https://img.shields.io/badge/Buildx%20%2B%20QEMU-amd64%20%7C%20arm64-2496ED?style=flat-square&logo=docker&logoColor=white)](.github/workflows/release.yml)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=flat-square&logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org)
 [![Semantic Release](https://img.shields.io/badge/releases-automatic-E10079?style=flat-square&logo=semanticrelease&logoColor=white)](scripts/release.mjs)
-[![Dependabot](https://img.shields.io/badge/Dependabot-grouped%20weekly-025E8C?style=flat-square&logo=dependabot&logoColor=white)](.github/dependabot.yml)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-landing%20site-222222?style=flat-square&logo=githubpages&logoColor=white)](https://hoangsonww.github.io/Flappy-Bird-Game/)
 [![HTML5](https://img.shields.io/badge/HTML5-single%20file-E34F26?style=flat-square&logo=html5&logoColor=white)](index.html)
 [![CSS3](https://img.shields.io/badge/CSS3-custom%20properties-1572B6?style=flat-square&logo=css3&logoColor=white)](index.html)
