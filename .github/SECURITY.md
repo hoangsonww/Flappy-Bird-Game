@@ -76,4 +76,3 @@ TRUST_PROXY=true
 - Three rate-limit buckets, `helmet` headers, a CORS allow-list
 - Log redaction of credentials and tokens
 - A non-root container running under `dumb-init`
-- Dependabot on a schedule

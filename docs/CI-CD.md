@@ -1,12 +1,12 @@
 # CI/CD
 
-Four workflows. Everything is GitHub-hosted; nothing needs a secret beyond the
-built-in `GITHUB_TOKEN`.
+Three repository workflows. Everything is GitHub-hosted; nothing needs a secret
+beyond the built-in `GITHUB_TOKEN`.
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | [`ci.yml`](../.github/workflows/ci.yml) | push, PR | Build, lint and test everything |
-| [`release.yml`](../.github/workflows/release.yml) | push to default branch | Version, tag, release, publish the image |
+| [`release.yml`](../.github/workflows/release.yml) | push to default branch | Tag, release, publish the image |
 | [`pages.yml`](../.github/workflows/pages.yml) | push (site files) | Deploy the landing page |
 
 ## CI
@@ -103,8 +103,7 @@ flowchart LR
     D -->|no release-worthy commits| Stop([done])
     D -->|version| V["verify<br/>lint · types · tests · spec · build"]
     V --> P["publish"]
-    P --> T["tag vX.Y.Z"]
-    P --> C["CHANGELOG.md + version bumps"]
+    P --> T["tag verified merge as vX.Y.Z"]
     P --> R["GitHub release"]
     P --> I["ghcr.io image<br/>amd64 + arm64"]
 
@@ -134,22 +133,18 @@ node scripts/release.mjs --notes  # the markdown body
 
 ### What a release does
 
-1. Prepends grouped notes to `CHANGELOG.md`.
-2. Bumps `MARKETING_VERSION` in the project generator and regenerates the Xcode
-   project, and bumps `backend/package.json`.
-3. Commits with `[skip ci]`, tags `vX.Y.Z`, pushes both.
-4. Creates the GitHub release with those notes.
-5. Builds and pushes `ghcr.io/<owner>/flappy-bird-backend:vX.Y.Z` and `:latest`
+1. Tags the already-verified merge commit as `vX.Y.Z` without modifying the
+   protected default branch.
+2. Creates the GitHub release with the generated notes.
+3. Builds and pushes `ghcr.io/<owner>/flappy-bird-backend:vX.Y.Z` and `:latest`
    for `linux/amd64` and `linux/arm64`.
 
 Need an exact version? Run the workflow manually with `force_version`.
 
-## Security scanning
+## Security automation
 
-Dependabot opens grouped weekly PRs for npm, GitHub Actions and the Docker base
-image. There is no static-analysis workflow: linting and type-checking run on
-every push, and the project has no untrusted input surface that would justify
-the extra minutes.
+Dependabot updates and alerts, and GitHub code scanning, are disabled for this
+repository. Linting and type-checking still run on every push and pull request.
 
 ## The landing page
 

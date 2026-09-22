@@ -106,49 +106,13 @@ jobs:
         with:
           name: release-notes
 
-      - name: Update CHANGELOG.md
-        run: |
-          VERSION="${{ needs.decide.outputs.version }}"
-          DATE="$(date -u +%Y-%m-%d)"
-          {
-            printf '# Changelog\n\n'
-            printf 'All notable changes to this project are documented here.\n'
-            printf 'The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)\n'
-            printf 'and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n'
-            sed "s|^## v${VERSION}$|## [v${VERSION}] - ${DATE}|" release-notes.md
-            printf '\n'
-            if [ -f CHANGELOG.md ]; then
-              tail -n +6 CHANGELOG.md
-            fi
-          } > CHANGELOG.new.md
-          mv CHANGELOG.new.md CHANGELOG.md
-          head -30 CHANGELOG.md
-
-      - name: Bump the marketing version in the Xcode project
-        run: |
-          VERSION="${{ needs.decide.outputs.version }}"
-          python3 - "$VERSION" <<'PY'
-          import re, sys
-          version = sys.argv[1]
-          path = "scripts/generate_xcodeproj.py"
-          source = open(path).read()
-          source = re.sub(r'MARKETING_VERSION = "[^"]*"', f'MARKETING_VERSION = "{version}"', source)
-          open(path, "w").write(source)
-          PY
-          python3 scripts/generate_xcodeproj.py
-
-      - name: Bump the backend package version
-        working-directory: backend
-        run: npm version "${{ needs.decide.outputs.version }}" --no-git-tag-version --allow-same-version
-
-      - name: Commit the release
+      # The default branch requires PRs and status checks. Tag the merge that
+      # already passed verification instead of pushing a generated commit to it.
+      - name: Tag the verified commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md backend/package.json backend/package-lock.json scripts/generate_xcodeproj.py "Flappy Bird.xcodeproj/project.pbxproj"
-          git commit -m "chore(release): v${{ needs.decide.outputs.version }} [skip ci]" || echo "Nothing to commit"
           git tag -a "v${{ needs.decide.outputs.version }}" -m "Release v${{ needs.decide.outputs.version }}"
-          git push origin HEAD:${{ github.ref_name }}
           git push origin "v${{ needs.decide.outputs.version }}"
 
       - name: Create the GitHub release

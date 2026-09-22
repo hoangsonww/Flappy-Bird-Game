@@ -754,7 +754,7 @@ flowchart TB
 ```
 
 `CI passed` is the aggregate required check on `master` (together with the key
-leaf jobs). Releases are cut by `release.yml` (version bump, notes, GHCR image).
+leaf jobs). Releases are cut by `release.yml` (tag, notes, GHCR image).
 Pages deploys from `pages.yml` when site files change.
 
 Read next: [Development](docs/DEVELOPMENT.md) · [CI/CD](docs/CI-CD.md) ·

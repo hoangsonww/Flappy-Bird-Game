@@ -135,7 +135,6 @@ outside production.
 - `x-powered-by` disabled
 - Non-root container user, `dumb-init` for signal handling
 - Health endpoints that never leak configuration
-- Dependabot on a schedule
 
 ## Reporting
 
