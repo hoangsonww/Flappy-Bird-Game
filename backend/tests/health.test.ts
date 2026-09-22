@@ -10,12 +10,9 @@ describe('operations endpoints', () => {
     app = await freshApp();
   });
 
-  it('reports the service identity at the root', async () => {
-    const response = await request(app).get('/').expect(200);
-    expect(response.body).toMatchObject({
-      service: 'flappy-bird-backend',
-      protocol: 'flappy-bird/1',
-    });
+  it('redirects the root to the interactive API documentation', async () => {
+    const response = await request(app).get('/').expect(302);
+    expect(response.headers.location).toBe('/docs');
   });
 
   it('answers liveness without touching storage', async () => {

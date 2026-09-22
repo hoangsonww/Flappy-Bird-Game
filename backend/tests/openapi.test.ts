@@ -134,8 +134,33 @@ describe('openapi specification', () => {
     const app = await freshApp();
     const swagger = await request(app).get('/docs').expect(200);
     expect(swagger.text).toContain('swagger-ui');
+    expect(swagger.text).toContain('href="/docs/assets/swagger-ui.css"');
+    expect(swagger.text).toContain('src="/docs/assets/swagger-ui-bundle.js"');
+    expect(swagger.text).toContain("url: '/openapi.json'");
+    expect(swagger.text).toContain("layout: 'BaseLayout'");
+    expect(swagger.text).not.toContain('SwaggerUIStandalonePreset');
+    expect(swagger.text).toContain('color-scheme: light only');
+    expect(swagger.text).toContain('href="/favicon.svg"');
+
+    await request(app)
+      .get('/docs/assets/swagger-ui.css')
+      .expect('Content-Type', /text\/css/)
+      .expect(200);
+    await request(app)
+      .get('/docs/assets/swagger-ui-bundle.js')
+      .expect('Content-Type', /javascript/)
+      .expect(200);
+    await request(app)
+      .get('/docs/assets/swagger-ui-standalone-preset.js')
+      .expect('Content-Type', /javascript/)
+      .expect(200);
+    await request(app)
+      .get('/favicon.svg')
+      .expect('Content-Type', /image\/svg\+xml/)
+      .expect(200);
 
     const redoc = await request(app).get('/redoc').expect(200);
     expect(redoc.text).toContain('redoc');
+    expect(redoc.text).toContain('spec-url="/openapi.json"');
   });
 });

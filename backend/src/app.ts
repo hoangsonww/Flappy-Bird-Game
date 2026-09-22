@@ -4,7 +4,6 @@ import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
-import { API_VERSION } from './config/constants.js';
 import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
@@ -57,20 +56,10 @@ export function createApp(): Express {
 
   if (env.ENABLE_METRICS) app.use(metricsMiddleware);
 
-  // Discovery root: the iOS client can confirm it is talking to the right service.
+  // Send human visitors straight to the interactive API documentation. The iOS
+  // client uses /v1/meta/config for its machine-readable discovery handshake.
   app.get('/', (_req: Request, res: Response) => {
-    res.json({
-      service: 'flappy-bird-backend',
-      apiVersion: API_VERSION,
-      protocol: 'flappy-bird/1',
-      documentation: env.ENABLE_DOCS ? `${env.publicUrl}/docs` : null,
-      endpoints: {
-        health: '/healthz',
-        metrics: env.ENABLE_METRICS ? '/metrics' : null,
-        api: '/v1',
-        config: '/v1/meta/config',
-      },
-    });
+    res.redirect(302, '/docs');
   });
 
   app.use(healthRouter);

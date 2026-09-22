@@ -21,17 +21,11 @@ info:
     switches the app into online mode; anything else keeps it offline. Nothing
     else about the app's behaviour depends on the server being present.
 
-    ```mermaid
-    sequenceDiagram
-      participant Game as iOS Game
-      participant API as Backend
-      Game->>API: GET /v1/meta/config
-      API-->>Game: 200 { protocol, capabilities, limits }
-      Game->>API: POST /v1/auth/guest  { deviceId }
-      API-->>Game: 201 { user, tokens }
-      Game->>API: POST /v1/scores      (Bearer access token)
-      API-->>Game: 201 { score, rank, unlockedAchievements }
-    ```
+    A typical first session makes three calls:
+
+    1. `GET /v1/meta/config` confirms compatibility and returns capabilities.
+    2. `POST /v1/auth/guest` creates or resumes the device-bound player.
+    3. `POST /v1/scores` records a completed run and returns rank changes.
 
     ## Authentication
 
@@ -129,25 +123,17 @@ paths:
   /:
     get:
       tags: [Meta]
-      summary: Service root
-      description: Minimal identity document. Handy for a quick `curl` sanity check.
+      summary: Open the interactive documentation
+      description: Redirects human visitors to the bundled Swagger UI.
       security: []
       operationId: getRoot
       responses:
-        '200':
-          description: Service identity
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  service: { type: string, example: flappy-bird-backend }
-                  apiVersion: { type: string, example: 1.0.0 }
-                  protocol: { type: string, example: flappy-bird/1 }
-                  documentation: { type: [string, 'null'], example: http://localhost:4000/docs }
-                  endpoints:
-                    type: object
-                    additionalProperties: { type: [string, 'null'] }
+        '302':
+          description: Redirect to `/docs`
+          headers:
+            Location:
+              description: Interactive documentation path
+              schema: { type: string, example: /docs }
 
   /healthz:
     get:
