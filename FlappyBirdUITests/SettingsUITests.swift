@@ -49,6 +49,23 @@ final class SettingsUITests: GameUITestCase {
         capture("settings-access")
     }
 
+    func testEverySettingsTabPublishesActionableControlsInsideTheScreen() {
+        launch(screen: "settings")
+        for tab in ["GAME", "ACCESS", "SERVER"] {
+            tap(tab)
+            let controls = snapshotElements().filter { snapshot in
+                snapshot.elementType == .button && snapshot.frame.width > 0
+            }
+            XCTAssertFalse(controls.isEmpty, "Settings tab \(tab) has no controls")
+            for control in controls {
+                XCTAssertTrue(
+                    app.frame.contains(CGPoint(x: control.frame.midX, y: control.frame.midY)),
+                    "\(control.label) is off screen on settings tab \(tab)"
+                )
+            }
+        }
+    }
+
     func testServerTabExplainsTheOptionalBackend() {
         launch(screen: "settings", segment: 2)
         waitForLabels("the server tab's backend copy") { labels in

@@ -12,6 +12,15 @@ final class ShopUITests: GameUITestCase {
         capture("shop")
     }
 
+    func testUnaffordablePurchasesAreExposedAsDisabled() {
+        launch(screen: "shop")
+        waitForLabel(containing: "BUY")
+        let buyActions = snapshotElements().filter { $0.label == "BUY" }
+        XCTAssertFalse(buyActions.isEmpty)
+        XCTAssertTrue(buyActions.contains { !$0.isEnabled }, "Every skin was buyable; unaffordable actions should be disabled")
+        XCTAssertTrue(buyActions.contains { $0.isEnabled }, "Seeded wallet should afford at least one skin")
+    }
+
     /// The seeded wallet affords at least one skin, so BUY must actually buy —
     /// one fewer locked skin afterwards.
     ///

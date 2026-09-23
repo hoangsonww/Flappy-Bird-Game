@@ -34,4 +34,31 @@ final class ListScreenUITests: GameUITestCase {
         launch(screen: "stats")
         waitForLabel(containing: "Games played")
     }
+
+    func testLeaderboardShowsSeededRunRowsRatherThanAnEmptyState() {
+        launch(screen: "leaderboard")
+        // A reachable backend renders @username rows; offline mode renders the
+        // seeded local history with a pipe count. Both are valid, non-empty
+        // leaderboard content and the test must not depend on local services.
+        let labels = waitForLabels("a leaderboard result row") { labels in
+            labels.contains { $0.contains("@") || $0.contains("pipes") }
+        }
+        XCTAssertFalse(labels.contains { $0.contains("No scores yet") })
+    }
+
+    func testAchievementsExposeSummaryAndNamedProgressRows() {
+        launch(screen: "achievements")
+        waitForLabel(containing: "unlocked")
+        waitForLabel(containing: "First Flight")
+    }
+
+    func testStatsModeSegmentExposesSeededContent() {
+        launch(screen: "stats", segment: 1)
+        waitForLabel(containing: "Classic")
+    }
+
+    func testStatsRecentSegmentExposesSeededContent() {
+        launch(screen: "stats", segment: 2)
+        waitForLabel(containing: "pts")
+    }
 }

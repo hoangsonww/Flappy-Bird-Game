@@ -2,10 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { evaluateStatAchievements, ACHIEVEMENTS } from '../src/domain/achievements.js';
 import { deriveDailyChallenge } from '../src/domain/challenge.js';
 import { emptyStats } from '../src/domain/models.js';
-import { parseDuration, utcDateKey, windowStart } from '../src/utils/time.js';
-import { decodeCursor, encodeCursor } from '../src/utils/pagination.js';
+import { nowIso, parseDuration, utcDateKey, windowStart } from '../src/utils/time.js';
+import { decodeCursor, encodeCursor, page, paginationSchema } from '../src/utils/pagination.js';
 import { hashPassword, safeEqual, sha256, signRun, verifyPassword } from '../src/utils/crypto.js';
-import { verifyRun } from '../src/services/antiCheat.js';
+import { verifyRun, verifySubmissionRate } from '../src/services/antiCheat.js';
+import {
+  AppError,
+  badRequest,
+  conflict,
+  forbidden,
+  internalError,
+  invalidCredentials,
+  isAppError,
+  notFound,
+  serviceUnavailable,
+  tokenExpired,
+  unauthorized,
+  unprocessable,
+  validationFailed,
+} from '../src/utils/errors.js';
 
 describe('time helpers', () => {
   it('formats a UTC date key', () => {
@@ -40,6 +55,22 @@ describe('time helpers', () => {
     expect(parseDuration('30d')).toBe(2_592_000_000);
     expect(() => parseDuration('soon')).toThrow();
   });
+
+  it('parses raw seconds, surrounding whitespace and uppercase units', () => {
+    expect(parseDuration(' 15 ')).toBe(15_000);
+    expect(parseDuration('2H')).toBe(7_200_000);
+    expect(parseDuration('0ms')).toBe(0);
+    expect(nowIso()).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('starts an ISO week correctly when today is Sunday or Monday', () => {
+    expect(windowStart('weekly', new Date('2026-03-22T23:00:00Z'))!.toISOString()).toBe(
+      '2026-03-16T00:00:00.000Z',
+    );
+    expect(windowStart('weekly', new Date('2026-03-23T12:00:00Z'))!.toISOString()).toBe(
+      '2026-03-23T00:00:00.000Z',
+    );
+  });
 });
 
 describe('pagination cursors', () => {
@@ -50,6 +81,19 @@ describe('pagination cursors', () => {
 
   it('rejects a malformed cursor', () => {
     expect(() => decodeCursor('!!!not-base64!!!')).toThrow();
+  });
+
+  it('builds offset pages and applies pagination defaults', () => {
+    expect(page(['b', 'c'], 5, { limit: 2, offset: 2 })).toEqual({
+      items: ['b', 'c'],
+      total: 5,
+      limit: 2,
+      offset: 2,
+      hasMore: true,
+    });
+    expect(page(['e'], 5, { limit: 2, offset: 4 }).hasMore).toBe(false);
+    expect(paginationSchema.parse({})).toEqual({ limit: 25, offset: 0 });
+    expect(() => paginationSchema.parse({ limit: 0 })).toThrow();
   });
 });
 
@@ -70,6 +114,12 @@ describe('crypto helpers', () => {
     expect(safeEqual('abc', 'abc')).toBe(true);
     expect(safeEqual('abc', 'abd')).toBe(false);
     expect(safeEqual('abc', 'abcd')).toBe(false);
+    expect(safeEqual('🐦', '🐦')).toBe(true);
+    expect(safeEqual('🐦', 'bird')).toBe(false);
+  });
+
+  it('treats malformed password hashes as failed verification', async () => {
+    expect(await verifyPassword('flappybird123', 'not-a-bcrypt-hash')).toBe(false);
   });
 
   it('signs a run deterministically from its canonical form', () => {
@@ -210,5 +260,50 @@ describe('anti-cheat verdicts', () => {
 
   it('accepts a correctly signed run', () => {
     expect(verifyRun({ ...base, signature: signRun(base) }).outcome).toBe('accept');
+  });
+
+  it('flags excessive power-up use and combines independent soft signals', () => {
+    const verdict = verifyRun({
+      ...base,
+      pipesPassed: 30,
+      durationMs: 500,
+      coins: 500,
+      maxCombo: 501,
+      powerUpsUsed: 100,
+    });
+    expect(verdict.outcome).toBe('flag');
+    expect(verdict.reasons).toHaveLength(4);
+  });
+
+  it('rejects scoring runs with zero duration and enforces submission-rate boundaries', () => {
+    expect(() => verifyRun({ ...base, durationMs: 0 })).toThrowError(AppError);
+    expect(verifySubmissionRate(20)).toBeNull();
+    expect(verifySubmissionRate(21)).toMatch(/human limits/);
+  });
+});
+
+describe('application errors', () => {
+  it('maps every public factory to its stable code and HTTP status', () => {
+    const errors = [
+      [badRequest('bad'), 'bad_request', 400],
+      [validationFailed('invalid'), 'validation_failed', 422],
+      [unauthorized(), 'unauthorized', 401],
+      [invalidCredentials(), 'invalid_credentials', 401],
+      [tokenExpired(), 'token_expired', 401],
+      [forbidden(), 'forbidden', 403],
+      [notFound(), 'not_found', 404],
+      [conflict('duplicate'), 'conflict', 409],
+      [unprocessable('invalid state'), 'unprocessable', 422],
+      [serviceUnavailable(), 'service_unavailable', 503],
+      [internalError(), 'internal_error', 500],
+    ] as const;
+
+    for (const [error, code, status] of errors) {
+      expect(isAppError(error)).toBe(true);
+      expect(error).toMatchObject({ code, status });
+      expect(error.expose).toBe(status < 500);
+      expect(error.toJSON()).toEqual({ code, message: error.message, details: error.details });
+    }
+    expect(isAppError(new Error('ordinary'))).toBe(false);
   });
 });

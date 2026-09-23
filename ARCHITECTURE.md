@@ -766,9 +766,9 @@ Read next: [Development](docs/DEVELOPMENT.md) · [CI/CD](docs/CI-CD.md) ·
 
 | Layer | Tooling | What it protects |
 |-------|---------|------------------|
-| Swift unit | XCTest · isolated `UserDefaults` | Flight math, store migrations, daily seed, discovery normalisation |
-| Swift UI | XCUITest on simulator | Critical navigation + accessibility hooks |
-| Backend unit/integration | Vitest + supertest | Both storage drivers, auth, scores, anti-cheat |
+| Swift unit | XCTest · isolated `UserDefaults` | Flight math, entities, store migrations, API DTOs, daily seed, discovery normalisation |
+| Swift UI | XCUITest on simulator | Six modes, critical navigation, real content, control state, accessibility frames |
+| Backend unit/integration | Vitest + SuperTest + native fetch | HTTP contracts, SSE, both storage drivers, auth, scores, anti-cheat |
 | Contract | OpenAPI ↔ Express route inventory | Drift between docs and code |
 | Lint / format | SwiftLint, SwiftFormat, ESLint, Prettier, ShellCheck | Consistency without reformatting wars |
 | Smoke | `scripts/smoke` against Compose | Real stack, same path the game uses |
@@ -792,9 +792,9 @@ make up && make smoke
 
 | Suite | Approx. count | Notable contracts |
 |-------|--------------:|-------------------|
-| `FlappyBirdTests` | 123 | Daily seed parity with TS · AuthStore Keychain fallback · difficulty floors |
-| `FlappyBirdUITests` | 25 | Menu destinations · pause/summary · shop buy/equip · Settings tabs |
-| Backend Vitest | 108 × 2 drivers | Auth rotation · anti-cheat rejects · OpenAPI ↔ router inventory |
+| `FlappyBirdTests` | 143 | Daily seed parity with TS · entity physics · DTO contracts · AuthStore fallback · difficulty floors |
+| `FlappyBirdUITests` | 38 | Six modes · menu destinations · real list content · pause/summary · shop states · Settings accessibility |
+| Backend Vitest | 133 × 2 drivers | HTTP/SSE contracts · repository parity · auth rotation · anti-cheat · OpenAPI ↔ router inventory |
 
 Swift UI tests **are** accessibility tests: every control is reached through
 `UIAccessibility`. If VoiceOver cannot see a button, neither can XCUITest.

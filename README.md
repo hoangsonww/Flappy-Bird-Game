@@ -34,11 +34,14 @@
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?style=flat-square&logo=openapiinitiative&logoColor=white)](backend/openapi/openapi.yaml)
 [![Swagger UI](https://img.shields.io/badge/Swagger%20UI-self--hosted-85EA2D?style=flat-square&logo=swagger&logoColor=black)](docs/API.md)
 [![REST](https://img.shields.io/badge/REST-JSON-005571?style=flat-square&logo=json&logoColor=white)](docs/API.md)
-[![XCTest](https://img.shields.io/badge/XCTest-123%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
-[![XCUITest](https://img.shields.io/badge/XCUITest-34%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
-[![Vitest](https://img.shields.io/badge/Vitest-108%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
+[![XCTest](https://img.shields.io/badge/XCTest-143%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCUITest](https://img.shields.io/badge/XCUITest-38%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![Vitest](https://img.shields.io/badge/Vitest-133%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
 [![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
-[![c8](https://img.shields.io/badge/v8%20coverage-thresholded-F7DF1E?style=flat-square&logo=v8&logoColor=black)](docs/TESTING.md)
+[![PostgreSQL tests](https://img.shields.io/badge/PostgreSQL-133%20integration-4169E1?style=flat-square&logo=postgresql&logoColor=white)](docs/TESTING.md#both-drivers-one-suite)
+[![SSE E2E](https://img.shields.io/badge/SSE-live%20stream%20E2E-FF6C37?style=flat-square&logo=html5&logoColor=white)](docs/TESTING.md#backend)
+[![V8 Coverage](https://img.shields.io/badge/V8%20Coverage-77.91%25-F7DF1E?style=flat-square&logo=v8&logoColor=black)](docs/TESTING.md#coverage)
+[![xccov](https://img.shields.io/badge/xccov-Swift%20coverage-1575F9?style=flat-square&logo=xcode&logoColor=white)](docs/TESTING.md#coverage)
 [![SwiftLint](https://img.shields.io/badge/SwiftLint-required%20job-FA7343?style=flat-square&logo=swift&logoColor=white)](.swiftlint.yml)
 [![SwiftFormat](https://img.shields.io/badge/SwiftFormat-whitespace%20only-FA7343?style=flat-square&logo=swift&logoColor=white)](.swiftformat)
 [![ESLint](https://img.shields.io/badge/ESLint-flat%20config-4B32C3?style=flat-square&logo=eslint&logoColor=white)](backend/eslint.config.js)
@@ -68,7 +71,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-no%20build%20step-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](index.html)
 [![Canvas](https://img.shields.io/badge/Canvas%202D-in--browser%20demo-FF6F00?style=flat-square&logo=html5&logoColor=white)](index.html)
 [![Mermaid](https://img.shields.io/badge/Mermaid-76%20diagrams-FF3670?style=flat-square&logo=mermaid&logoColor=white)](ARCHITECTURE.md)
-[![Markdown](https://img.shields.io/badge/Markdown-29%20documents-000000?style=flat-square&logo=markdown&logoColor=white)](docs/)
+[![Markdown](https://img.shields.io/badge/Markdown-36%20documents-000000?style=flat-square&logo=markdown&logoColor=white)](docs/)
 
 **[Play the browser demo →](https://hoangsonww.github.io/Flappy-Bird-Game/)** · **[Architecture →](ARCHITECTURE.md)** · **[Documentation →](docs/)** · **[API reference →](docs/API.md)**
 
@@ -158,7 +161,7 @@ and lets the bird fly itself.*
 ### 🛠 And the boring parts done properly
 
 `make doctor` · a generated Xcode project that never conflicts · Docker Compose
-with observability profiles · a dev container · 256 tests run on every push ·
+with observability profiles · a dev container · 314 tests run on every push ·
 automatic releases from Conventional Commits · reproducible screenshots.
 
 ---
@@ -170,8 +173,8 @@ automatic releases from Conventional Commits · reproducible screenshots.
 ```bash
 make run      # build, install and launch in a simulator
 make demo     # the same, in self-playing attract mode
-make test     # 123 Swift unit tests
-make test-ui  # 25 Swift UI tests, driven on a simulator
+make test     # 143 Swift unit tests
+make test-ui  # 38 Swift UI tests, driven on a simulator
 ```
 
 Every target exits non-zero when it fails, and `make` on its own lists them all.
@@ -262,7 +265,7 @@ FlappyBird/            the game
 
 FlappyBirdTests/       Swift unit tests
 FlappyBirdUITests/     Swift UI tests
-backend/               the optional API — 108 tests, OpenAPI 3.1
+backend/               the optional API — 133 tests × 2 drivers, OpenAPI 3.1
 docs/                  guides + architectural decision records
 scripts/               project generation, xcodebuild wrappers, capture, release
 ops/                   Prometheus and Grafana configuration

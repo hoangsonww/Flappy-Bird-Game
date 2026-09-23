@@ -79,7 +79,7 @@ Backend:
 
 ```bash
 make dev          # hot reload, in-memory storage, no infrastructure
-make api-test     # 108 tests against the in-memory driver
+make api-test     # 133 tests against the in-memory driver
 make api-test-pg  # the same suite against Postgres
 make api-lint     # eslint + tsc
 make openapi      # validate the specification
@@ -174,9 +174,9 @@ project's core promise.
 
 ```
 FlappyBird/          the game
-FlappyBirdTests/     123 Swift unit tests
-FlappyBirdUITests/   25 Swift UI tests
-backend/             the optional API (108 tests)
+FlappyBirdTests/     143 Swift unit tests
+FlappyBirdUITests/   38 Swift UI tests
+backend/             the optional API (133 tests × 2 storage drivers)
 docs/                these guides
 scripts/             project generation, xcodebuild wrappers, capture, release
 robots.txt           crawler rules for the published page

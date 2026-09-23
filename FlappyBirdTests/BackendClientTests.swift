@@ -195,6 +195,64 @@ final class BackendClientTests: XCTestCase {
         XCTAssertFalse(page.hasMore)
     }
 
+    func testOwnRankResponseDecodesRankedAndUnrankedStates() throws {
+        let ranked = try JSONDecoder().decode(OwnRankResponse.self, from: Data("""
+        {
+          "window": "weekly", "rank": 2, "total": 10,
+          "entry": {
+            "rank": 2, "userId": "u1", "username": "swiftbird",
+            "displayName": "Swift Bird", "avatarSkin": "classic", "country": null,
+            "score": 54, "mode": "classic", "achievedAt": "2026-09-20T12:00:00.000Z"
+          },
+          "neighbours": []
+        }
+        """.utf8))
+        XCTAssertEqual(ranked.rank, 2)
+        XCTAssertEqual(ranked.entry?.id, "2-u1")
+
+        let unranked = try JSONDecoder().decode(OwnRankResponse.self, from: Data("""
+        { "window": "all", "rank": null, "total": 0, "entry": null, "neighbours": [] }
+        """.utf8))
+        XCTAssertNil(unranked.rank)
+        XCTAssertNil(unranked.entry)
+        XCTAssertTrue(unranked.neighbours.isEmpty)
+    }
+
+    func testAchievementSyncResponseDecodesProgressAndUnlocks() throws {
+        let response = try JSONDecoder().decode(AchievementSyncResponse.self, from: Data("""
+        {
+          "items": [
+            { "code": "first_flight", "progress": 1, "unlockedAt": "2026-09-20T12:00:00.000Z" },
+            { "code": "century", "progress": 42, "unlockedAt": null }
+          ],
+          "synced": 2
+        }
+        """.utf8))
+        XCTAssertEqual(response.synced, 2)
+        XCTAssertEqual(response.items.first?.code, "first_flight")
+        XCTAssertNotNil(response.items.first?.unlockedAt)
+        XCTAssertNil(response.items.last?.unlockedAt)
+    }
+
+    func testDailyChallengeResponseDecodesEveryModifier() throws {
+        let response = try JSONDecoder().decode(DailyChallengeResponse.self, from: Data("""
+        {
+          "challenge": {
+            "date": "2026-09-22", "seed": "daily-seed", "mode": "daily",
+            "pipeGap": 148, "gravityScale": 1.05, "speedScale": 1.12,
+            "modifier": "windy", "description": "A gusty daily run"
+          },
+          "rollsOverAt": "2026-09-23T00:00:00.000Z"
+        }
+        """.utf8))
+        XCTAssertEqual(response.challenge.date, "2026-09-22")
+        XCTAssertEqual(response.challenge.pipeGap, 148)
+        XCTAssertEqual(response.challenge.gravityScale, 1.05, accuracy: 0.001)
+        XCTAssertEqual(response.challenge.speedScale, 1.12, accuracy: 0.001)
+        XCTAssertEqual(response.challenge.modifier, "windy")
+        XCTAssertEqual(response.rollsOverAt, "2026-09-23T00:00:00.000Z")
+    }
+
     func testErrorEnvelopeDecodes() throws {
         let json = """
         { "error": { "code": "validation_failed", "message": "Invalid request body", "requestId": "abc" } }
@@ -252,6 +310,40 @@ final class BackendClientTests: XCTestCase {
         XCTAssertEqual(submission.score, 42)
         XCTAssertEqual(submission.durationMs, 61_500)
         XCTAssertEqual(submission.seed, "a1b2c3d4")
+    }
+
+    func testScoreSubmissionEncodesTheCompleteBackendContract() throws {
+        let record = RunRecord(
+            score: 7,
+            mode: .hardcore,
+            coins: 3,
+            pipesPassed: 7,
+            durationMs: 12_345,
+            maxCombo: 3,
+            powerUpsUsed: 0,
+            seed: "contract-seed"
+        )
+        let submission = ScoreSubmission(
+            run: record,
+            clientVersion: "1.3.0",
+            deviceModel: "iPhone",
+            signature: "signed"
+        )
+        let object = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(submission)) as? [String: Any]
+        )
+
+        XCTAssertEqual(object["score"] as? Int, 7)
+        XCTAssertEqual(object["mode"] as? String, "hardcore")
+        XCTAssertEqual(object["coins"] as? Int, 3)
+        XCTAssertEqual(object["pipesPassed"] as? Int, 7)
+        XCTAssertEqual(object["durationMs"] as? Int, 12_345)
+        XCTAssertEqual(object["maxCombo"] as? Int, 3)
+        XCTAssertEqual(object["powerUpsUsed"] as? Int, 0)
+        XCTAssertEqual(object["seed"] as? String, "contract-seed")
+        XCTAssertEqual(object["clientVersion"] as? String, "1.3.0")
+        XCTAssertEqual(object["deviceModel"] as? String, "iPhone")
+        XCTAssertEqual(object["signature"] as? String, "signed")
     }
 }
 
