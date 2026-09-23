@@ -49,12 +49,55 @@ final class SettingsUITests: GameUITestCase {
         capture("settings-access")
     }
 
+    func testEverySettingsTabPublishesActionableControlsInsideTheScreen() {
+        launch(screen: "settings")
+        for tab in ["GAME", "ACCESS", "SERVER"] {
+            tap(tab)
+            let controls = snapshotElements().filter { snapshot in
+                snapshot.elementType == .button && snapshot.frame.width > 0
+            }
+            XCTAssertFalse(controls.isEmpty, "Settings tab \(tab) has no controls")
+            for control in controls {
+                XCTAssertTrue(
+                    app.frame.contains(CGPoint(x: control.frame.midX, y: control.frame.midY)),
+                    "\(control.label) is off screen on settings tab \(tab)"
+                )
+            }
+        }
+    }
+
     func testServerTabExplainsTheOptionalBackend() {
         launch(screen: "settings", segment: 2)
         waitForLabels("the server tab's backend copy") { labels in
             labels.contains { $0.contains("Server URL") || $0.contains("Backend") }
         }
         capture("settings-server")
+    }
+
+    func testAccountSheetAcceptsTypingAndKeepsValidationInline() {
+        launch(
+            screen: "settings",
+            segment: 2,
+            extraArguments: ["-show-account-form"]
+        )
+
+        let username = app.textFields["Username"]
+        XCTAssertTrue(username.waitForExistence(timeout: GameUITestCase.uiTimeout))
+        username.tap()
+        username.typeText("ab")
+
+        let password = app.secureTextFields["Password"]
+        XCTAssertTrue(password.waitForExistence(timeout: GameUITestCase.uiTimeout))
+        password.tap()
+        password.typeText("1234567")
+
+        XCTAssertEqual(username.value as? String, "ab")
+        XCTAssertEqual(password.value as? String, "•••••••")
+
+        app.buttons["Claim account"].tap()
+        XCTAssertTrue(app.staticTexts["Username must be 3–20 characters."].waitForExistence(timeout: 2))
+        XCTAssertTrue(username.exists, "Validation must stay inside the form instead of replacing Settings")
+        capture("settings-account-form-validation")
     }
 
     func testSettingsReturnsToTheMenu() {

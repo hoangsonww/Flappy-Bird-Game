@@ -1,7 +1,8 @@
 # Testing
 
-256 tests: **123 Swift unit**, **25 Swift UI** and **108 backend**, with the
-backend run against both storage drivers.
+322 tests: **150 Swift unit**, **39 Swift UI** and **133 backend**. CI runs the
+entire backend suite against both the in-memory and PostgreSQL drivers, so its
+133 cases produce 266 storage-backed executions per Node.js version.
 
 ```bash
 make test         # Swift unit tests (seconds)
@@ -30,17 +31,18 @@ state or the simulator's real save file.
 
 | File | Covers |
 |------|--------|
-| `CoreModelTests` | Medals, physics categories, run bookkeeping, mode rules |
+| `CoreModelTests` | Medals, physics, bird bounds, pipes, collectibles, weather, text fitting, mode rules |
 | `SeededRandomTests` | Determinism, ranges, distribution of the seeded RNG |
 | `DifficultyCurveTests` | Monotonicity, floors, per-mode behaviour, daily overrides |
 | `PowerUpTests` | Activation, expiry, stacking, shield charges |
 | `PersistenceTests` | Runs, wallet, skins, achievements, reset |
 | `AchievementSystemTests` | Every unlock path, including the client-only ones |
 | `DailyChallengeHelperTests` | **Byte-for-byte parity with the server** |
-| `BackendClientTests` | URL normalisation, discovery order, DTO decoding |
+| `BackendClientTests` | URL normalisation, discovery, all API DTOs, request encoding, guest-upgrade HTTP contract, errors |
 | `AuthStoreTests` | Session storage when the Keychain is unavailable |
 | `ThemeTests` | Skins, time-of-day cycle, weather weighting, font fallback |
-| `GameOverPanelTests` | Summary-panel geometry for every row count |
+| `GameOverPanelTests` | Summary geometry, empty-medal behavior, button, toggle, panel and VoiceOver contracts |
+| `SettingsFormTests` | Account-field boundaries and exact backend-compatible username/password rules |
 
 Two of these are contract tests rather than unit tests:
 
@@ -67,11 +69,11 @@ test. If VoiceOver cannot reach a control, neither can the suite, and it fails.
 
 | File | Covers |
 |------|--------|
-| `MenuUITests` | Every destination, mode cycling, and the mode card's layout at each mode |
-| `GameplayUITests` | Starting a run, the pause overlay, the summary panel, Zen's no-death rule |
-| `ListScreenUITests` | Every filter chip on the leaderboard, achievements and stats |
-| `ShopUITests` | Buying, equipping, and what an unaffordable skin does |
-| `SettingsUITests` | All three tabs, a toggle's value, the optional-backend copy |
+| `MenuUITests` | Every destination, mode cycling, layout, enabled state and on-screen accessibility frames |
+| `GameplayUITests` | All six modes, pause/restart/menu, summary routes and Zen's no-death rule |
+| `ListScreenUITests` | Every filter plus real seeded/online leaderboard, achievement and stats rows |
+| `ShopUITests` | Buying, equipping, enabled affordable actions and disabled unaffordable actions |
+| `SettingsUITests` | All tabs, toggle values, action-row bounds, editable account fields, inline validation and accessibility |
 
 Every read of the accessibility tree goes through `waitForLabels`. A bare
 `allElementsBoundByIndex` is a *snapshot*, and the window in which the tree is
@@ -117,6 +119,9 @@ storage layer.
 | `users.test.ts` | Profiles, editing, search, follow graph |
 | `admin.test.ts` | Auth gate, ban, flag, delete, maintenance |
 | `domain.test.ts` | Time windows, cursors, crypto, anti-cheat verdicts |
+| `api-contracts.test.ts` | Headers, CORS, parser failures, session counts, metadata, empty states, validation |
+| `events.test.ts` | Event-hub lifecycle and a real HTTP Server-Sent Events stream |
+| `repository-contract.test.ts` | User, token, score, stats, achievement, friend and challenge repository parity |
 | `openapi.test.ts` | **Every route is documented, every documented route exists** |
 
 ### Both drivers, one suite
@@ -134,7 +139,16 @@ real divergences that the in-memory driver hid:
 * tied players getting different ranks in SQL and the same rank in memory.
 
 Against Postgres the files run serially, because each one truncates the shared
-database between tests.
+database between tests. Never aim this command at a development database that
+contains data you care about. Create a dedicated test database instead:
+
+```bash
+createdb flappybird_test
+DB_DRIVER=postgres \
+DATABASE_URL=postgres://flappy:flappy@localhost:5432/flappybird_test \
+npm test
+dropdb flappybird_test
+```
 
 ### The OpenAPI guard
 
@@ -168,14 +182,34 @@ expect(response.body.rank).toBe(1);
 
 ```bash
 make api-coverage     # backend/coverage/index.html
+
+# Swift line coverage (result bundle is inspectable with xccov)
+xcodebuild -project "Flappy Bird.xcodeproj" -scheme FlappyBird \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -enableCodeCoverage YES -resultBundlePath /tmp/flappy-tests.xcresult \
+  -only-testing:FlappyBirdTests test
+xcrun xccov view --report /tmp/flappy-tests.xcresult
 ```
 
-CI uploads it as an artifact on every run.
+CI uploads the backend report as an artifact on every run. On the current
+suite, the in-memory backend run covers **77.91% statements/lines**, **84.63%
+branches** and **64.97% functions**. The most important pure layers are higher:
+routes are **96.54%**, the memory repositories **97.11%**, domain code **99.64%**
+and utilities **97.74%**. PostgreSQL is verified separately by executing the
+same 133 cases against a real PostgreSQL 16 schema; a memory-only V8 report
+naturally does not credit those SQL adapter lines.
+
+The 150 Swift unit tests report app line coverage through
+`xccov`. That number includes every SpriteKit scene and rendering path in the
+app target, even though simulator-driven behavior and accessibility are tested
+by the separate 39-case UI suite. Treat coverage as a map for missing behavior,
+not as a substitute for the cross-layer contract and UI assertions above.
 
 ## What is deliberately not tested
 
 * **SpriteKit rendering.** Snapshot-testing a particle system is expensive and
   brittle; `make media` produces real screenshots instead, which a human reads.
 * **Third-party behaviour.** Express routing, `pg` and bcrypt are assumed to work.
-* **The network layer end-to-end.** `make smoke` covers that against a real
-  server rather than a pile of URL-protocol mocks.
+* **Remote device-to-host networking.** The suite does exercise Express end to
+  end, including a real SSE socket; `make smoke` covers the separately running
+  Compose service over the same discovery/auth/score path used by the game.

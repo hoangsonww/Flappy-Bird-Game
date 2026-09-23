@@ -63,13 +63,43 @@ final class LeaderboardScene: ListScene {
     }
 
     private func render(page: LeaderboardPage) {
+        let service = OnlineService.shared
+        let me = service.username
+        var rows: [SKNode] = []
+
+        // Make the leaderboard identity explicit. On first contact the backend
+        // creates a device-bound guest (for example `guest_ab12cd`); players can
+        // claim that same profile from Settings → Server without losing scores.
+        if let me {
+            rows.append(makeRow(
+                badge: "👤",
+                title: "Playing as @\(me)",
+                subtitle: service.isGuest
+                    ? "Guest · claim in Settings → Server"
+                    : "Account · ranked runs upload here",
+                value: "YOU",
+                valueColor: Palette.positive,
+                highlighted: true
+            ))
+        }
+
         guard !page.items.isEmpty else {
-            showStatus("No scores in this window yet.\nBe the first!")
+            guard !rows.isEmpty else {
+                showStatus("No scores in this window yet.\nBe the first!")
+                return
+            }
+
+            rows.append(makeRow(
+                badge: "🏁",
+                title: "No ranked score yet",
+                subtitle: "Finish a ranked run to join this board",
+                value: ""
+            ))
+            setRows(rows)
             return
         }
 
-        let me = OnlineService.shared.username
-        let rows = page.items.map { entry -> SKNode in
+        rows += page.items.map { entry -> SKNode in
             makeRow(
                 badge: medalBadge(for: entry.rank),
                 title: entry.displayName,

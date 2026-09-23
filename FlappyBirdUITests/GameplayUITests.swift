@@ -10,6 +10,38 @@ final class GameplayUITests: GameUITestCase {
         capture("gameplay")
     }
 
+    private func assertModeLaunch(argument: String, label: String) {
+        launch(screen: "game", mode: argument)
+        waitForLabel(containing: label)
+        let pause = waitFor("Pause")
+        XCTAssertGreaterThan(pause.frame.width, 0)
+        XCTAssertTrue(app.frame.contains(CGPoint(x: pause.frame.midX, y: pause.frame.midY)))
+    }
+
+    func testClassicModeLaunchesWithItsExpectedHUDLabel() {
+        assertModeLaunch(argument: "classic", label: "CLASSIC")
+    }
+
+    func testEndlessModeLaunchesWithItsExpectedHUDLabel() {
+        assertModeLaunch(argument: "endless", label: "ENDLESS")
+    }
+
+    func testTimeAttackModeLaunchesWithItsExpectedHUDLabel() {
+        assertModeLaunch(argument: "timeAttack", label: "TIME ATTACK")
+    }
+
+    func testHardcoreModeLaunchesWithItsExpectedHUDLabel() {
+        assertModeLaunch(argument: "hardcore", label: "HARDCORE")
+    }
+
+    func testZenModeLaunchesWithItsExpectedHUDLabel() {
+        assertModeLaunch(argument: "zen", label: "ZEN")
+    }
+
+    func testDailyModeLaunchesWithItsExpectedHUDLabel() {
+        assertModeLaunch(argument: "daily", label: "DAILY CHALLENGE")
+    }
+
     /// Run the pause tests in Zen.
     ///
     /// The overlay is the same in every mode, but in a lethal mode the bird is

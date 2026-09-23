@@ -1,3 +1,4 @@
+import SpriteKit
 import XCTest
 @testable import FlappyBird
 
@@ -140,6 +141,23 @@ final class CoreModelTests: XCTestCase {
         }
     }
 
+    func testEveryModeHasSaneGameplayMultipliersAndSelectableOrder() {
+        XCTAssertEqual(GameMode.selectable, GameMode.allCases)
+        for mode in GameMode.allCases {
+            XCTAssertGreaterThan(mode.startingPipeGap, 0)
+            XCTAssertGreaterThan(mode.scrollMultiplier, 0)
+            XCTAssertGreaterThan(mode.gravityMultiplier, 0)
+        }
+        XCTAssertTrue(GameMode.endless.ramps)
+        XCTAssertTrue(GameMode.timeAttack.ramps)
+        XCTAssertTrue(GameMode.hardcore.ramps)
+        XCTAssertTrue(GameMode.daily.ramps)
+        XCTAssertFalse(GameMode.classic.ramps)
+        XCTAssertFalse(GameMode.zen.ramps)
+        XCTAssertLessThan(GameMode.hardcore.scrollMultiplier, GameMode.classic.scrollMultiplier)
+        XCTAssertGreaterThan(GameMode.zen.scrollMultiplier, GameMode.classic.scrollMultiplier)
+    }
+
     // MARK: - Flying over the pipes
 
     /// The bird must be stopped by the ceiling, not merely notified about it.
@@ -197,5 +215,167 @@ final class CoreModelTests: XCTestCase {
             sceneHeight + 22 + 10,
             "The pipe must overlap the ceiling, leaving no way over the top"
         )
+    }
+
+    func testBirdClampsVerticalVelocityAtBothLimits() throws {
+        let bird = Bird.make(skin: .classic)
+        bird.attachPhysics()
+        let body = try XCTUnwrap(bird.physicsBody)
+
+        body.velocity = CGVector(dx: 12, dy: GameConfig.maxRiseSpeed * 2)
+        bird.clampVelocity()
+        XCTAssertEqual(body.velocity.dx, 12, accuracy: 0.001)
+        XCTAssertEqual(body.velocity.dy, GameConfig.maxRiseSpeed, accuracy: 0.001)
+
+        body.velocity = CGVector(dx: -9, dy: GameConfig.maxFallSpeed * 2)
+        bird.clampVelocity()
+        XCTAssertEqual(body.velocity.dx, -9, accuracy: 0.001)
+        XCTAssertEqual(body.velocity.dy, GameConfig.maxFallSpeed, accuracy: 0.001)
+    }
+
+    func testBirdHorizontalClampBoundsPositionAndSpeed() throws {
+        let bird = Bird.make(skin: .classic)
+        bird.attachPhysics()
+        let body = try XCTUnwrap(bird.physicsBody)
+        bird.position.x = 500
+        body.velocity = CGVector(dx: 1_000, dy: 40)
+
+        bird.clampHorizontal(anchorX: 100, maxDrift: 25, deltaTime: 1 / 60)
+
+        XCTAssertEqual(bird.position.x, 125, accuracy: 0.001)
+        XCTAssertEqual(body.velocity.dx, 0, accuracy: 0.001)
+        XCTAssertEqual(body.velocity.dy, 40, accuracy: 0.001)
+    }
+
+    func testBirdDeathStateOnlyCollidesWithTheWorld() throws {
+        let bird = Bird.make(skin: .classic)
+        bird.attachPhysics()
+        bird.enterDeathState()
+        let body = try XCTUnwrap(bird.physicsBody)
+
+        XCTAssertEqual(body.collisionBitMask, PhysicsCategory.world.rawValue)
+        XCTAssertEqual(body.contactTestBitMask, PhysicsCategory.world.rawValue)
+        XCTAssertNil(bird.action(forKey: "flap-animation"))
+    }
+
+    // MARK: - Obstacles and collectibles
+
+    func testCoinIsAPassThroughBirdSensor() throws {
+        let coin = Collectible.makeCoin()
+        let body = try XCTUnwrap(coin.physicsBody)
+
+        XCTAssertEqual(coin.name, Collectible.coinKey)
+        XCTAssertEqual(body.categoryBitMask, PhysicsCategory.coin.rawValue)
+        XCTAssertEqual(body.contactTestBitMask, PhysicsCategory.bird.rawValue)
+        XCTAssertEqual(body.collisionBitMask, 0)
+        XCTAssertFalse(body.isDynamic)
+    }
+
+    func testEveryPowerUpRoundTripsThroughNodeMetadata() throws {
+        for kind in PowerUpKind.allCases {
+            let node = Collectible.makePowerUp(kind: kind)
+            let body = try XCTUnwrap(node.physicsBody)
+            XCTAssertEqual(node.name, Collectible.powerUpKey)
+            XCTAssertEqual(Collectible.kind(from: node), kind)
+            XCTAssertEqual(body.categoryBitMask, PhysicsCategory.powerUp.rawValue)
+            XCTAssertEqual(body.contactTestBitMask, PhysicsCategory.bird.rawValue)
+            XCTAssertEqual(body.collisionBitMask, 0)
+        }
+        XCTAssertNil(Collectible.kind(from: SKNode()))
+    }
+
+    func testPipePairBuildsTwoSolidPipesAndOnePassThroughGate() {
+        let pair = PipePair.make(.init(
+            gapCentre: 400,
+            gapHeight: 170,
+            sceneHeight: 900,
+            content: .coin,
+            tint: .white,
+            tintStrength: 0,
+            moving: false
+        ))
+
+        XCTAssertEqual(pair.gapCentre, 400, accuracy: 0.001)
+        XCTAssertEqual(pair.gapHeight, 170, accuracy: 0.001)
+        let pipes = pair.children.filter {
+            $0.physicsBody?.categoryBitMask == PhysicsCategory.pipe.rawValue
+        }
+        XCTAssertEqual(pipes.count, 2)
+        let gate = pair.children.first { $0.physicsBody?.categoryBitMask == PhysicsCategory.scoreGate.rawValue }
+        XCTAssertNotNil(gate)
+        XCTAssertEqual(gate?.physicsBody?.collisionBitMask, 0)
+        XCTAssertEqual(pair.children.filter { $0.name == Collectible.coinKey }.count, 1)
+
+        XCTAssertFalse(pair.hasScored)
+        pair.markScored()
+        XCTAssertTrue(pair.hasScored)
+    }
+
+    func testMovingPipePairOwnsADriftActionAndPowerUp() {
+        let pair = PipePair.make(.init(
+            gapCentre: 300,
+            gapHeight: 150,
+            sceneHeight: 800,
+            content: .powerUp(.magnet),
+            tint: .cyan,
+            tintStrength: 0.2,
+            moving: true
+        ))
+
+        XCTAssertNotNil(pair.action(forKey: "drift"))
+        XCTAssertEqual(pair.children.compactMap(Collectible.kind(from:)), [.magnet])
+    }
+
+    // MARK: - Presentation helpers
+
+    func testTextFitPreservesShortTextAndEllipsizesLongText() {
+        let short = "Bird"
+        XCTAssertEqual(TextFit.truncate(short, toWidth: 500, fontNamed: Fonts.body, fontSize: 16), short)
+        XCTAssertEqual(TextFit.truncate(short, toWidth: 0, fontNamed: Fonts.body, fontSize: 16), "")
+
+        let truncated = TextFit.truncate(
+            "A deliberately very long player name",
+            toWidth: 40,
+            fontNamed: Fonts.body,
+            fontSize: 16
+        )
+        XCTAssertTrue(truncated.hasSuffix("…"))
+        XCTAssertLessThan(truncated.count, 36)
+    }
+
+    func testCoinCounterExposesTheRequestedAmount() {
+        let counter = CoinIcon.counter(amount: 123, radius: 9, fontSize: 20)
+        XCTAssertEqual(counter.label.text, "123")
+        XCTAssertTrue(counter.node.children.contains(counter.label))
+        XCTAssertEqual(counter.label.horizontalAlignmentMode, .left)
+    }
+
+    func testWeatherPropertiesAndReducedMotionApplication() {
+        XCTAssertEqual(Weather.clear.windForce, 0)
+        XCTAssertGreaterThan(Weather.windy.windForce, 0)
+        XCTAssertGreaterThan(Weather.rain.downdraft, 0)
+        XCTAssertGreaterThan(Weather.fog.fogAlpha, 0)
+        for weather in Weather.allCases {
+            XCTAssertFalse(weather.displayName.isEmpty)
+            XCTAssertFalse(weather.symbol.isEmpty)
+        }
+
+        let container = SKNode()
+        let system = WeatherSystem(container: container)
+        system.apply(.rain, sceneSize: CGSize(width: 400, height: 800), reduceMotion: true)
+        XCTAssertEqual(system.weather, .rain)
+        XCTAssertTrue(container.children.isEmpty)
+        XCTAssertEqual(system.update(deltaTime: 1, elapsed: 1), .zero)
+    }
+
+    func testWindTracksElapsedExposureAndResetClearsIt() {
+        let system = WeatherSystem(container: SKNode())
+        system.apply(.windy, sceneSize: CGSize(width: 400, height: 800), reduceMotion: false)
+        let first = system.update(deltaTime: 0.5, elapsed: 0)
+        XCTAssertNotEqual(first.dx, 0)
+        XCTAssertEqual(first.dy, 0)
+        XCTAssertEqual(system.secondsInWind, 0.5, accuracy: 0.001)
+        system.reset()
+        XCTAssertEqual(system.secondsInWind, 0)
     }
 }

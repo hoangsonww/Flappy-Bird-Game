@@ -11,6 +11,21 @@ final class MenuUITests: GameUITestCase {
         capture("menu")
     }
 
+    func testEveryMenuControlHasAnOnScreenAccessibilityFrame() {
+        launch()
+        let labels = ["PLAY", "LEADERBOARD", "ACHIEVEMENTS", "SHOP", "STATS", "SETTINGS", "◀", "▶"]
+        for label in labels {
+            let element = waitFor(label)
+            XCTAssertGreaterThan(element.frame.width, 0, "\(label) has no accessible width")
+            XCTAssertGreaterThan(element.frame.height, 0, "\(label) has no accessible height")
+            XCTAssertTrue(
+                app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)),
+                "\(label) is published outside the screen at \(element.frame)"
+            )
+            XCTAssertTrue(element.isEnabled, "\(label) should be actionable")
+        }
+    }
+
     /// The arrows must stay inside the card, not sit on its border.
     func testModeArrowsSitInsideTheModeCard() {
         launch()

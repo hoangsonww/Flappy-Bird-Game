@@ -19,7 +19,7 @@ flowchart TB
     Push --> BT["backend-tests<br/>node 20 & 22 × memory & postgres"]
     Push --> BS["backend-smoke<br/>compose up → smoke → seed"]
     Push --> DI["docker-image<br/>build, boot, verify the handshake"]
-    Push --> IOS["ios<br/>project check · build · 123 unit + 25 UI tests"]
+    Push --> IOS["ios<br/>project check · build · 150 unit + 39 UI tests"]
     Push --> SL["swift-lint<br/>SwiftLint"]
     Push --> SC["scripts<br/>bash -n · shellcheck"]
     Push --> ST["site<br/>index.html · links · sitemap · robots"]
@@ -44,7 +44,8 @@ of its dependencies failed or was cancelled.
 **`backend-tests`** is a 2×2 matrix: Node 20 and 22 × the in-memory and Postgres
 drivers. Running the same suite against both drivers is what keeps them
 behaviourally identical, and it has already caught real bugs the in-memory
-driver hid.
+driver hid. Each matrix cell runs all 133 backend tests, including direct
+repository-contract coverage and a real streamed SSE connection.
 
 **`backend-smoke`** brings the real Compose stack up, waits on the healthcheck,
 runs the end-to-end smoke test, seeds demo data, and dumps container logs if

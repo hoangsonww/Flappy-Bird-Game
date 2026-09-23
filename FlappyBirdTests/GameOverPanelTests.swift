@@ -10,7 +10,8 @@ final class GameOverPanelTests: XCTestCase {
     private func makeSummary(
         rank: Int? = nil,
         queuedForSync: Bool = false,
-        isPersonalBest: Bool = false
+        isPersonalBest: Bool = false,
+        medal: Medal = .silver
     ) -> GameOverPanel.Summary {
         GameOverPanel.Summary(
             score: 42,
@@ -20,7 +21,7 @@ final class GameOverPanelTests: XCTestCase {
             maxCombo: 4,
             duration: 51.2,
             mode: .classic,
-            medal: .silver,
+            medal: medal,
             isPersonalBest: isPersonalBest,
             cause: .pipe,
             rank: rank,
@@ -102,5 +103,68 @@ final class GameOverPanelTests: XCTestCase {
     func testHeightGrowsWithTheRowCount() {
         let delta = GameOverPanel.height(forRows: 5) - GameOverPanel.height(forRows: 4)
         XCTAssertEqual(delta, 24, accuracy: 0.001)
+    }
+
+    func testNoMedalDoesNotRenderAMysteryDashChip() {
+        let panel = makePanel(makeSummary(medal: .none))
+        let labels = descendantLabels(in: panel)
+
+        XCTAssertFalse(labels.contains("—"))
+        XCTAssertFalse(labels.contains(Medal.none.label.uppercased()))
+        XCTAssertTrue(labels.contains("BEST 58"))
+    }
+
+    func testButtonTitleAndEnabledStateStayAccessible() {
+        let button = ButtonNode(title: "ORIGINAL", action: {})
+        XCTAssertEqual(button.title, "ORIGINAL")
+        XCTAssertEqual(button.accessibilityLabel, "ORIGINAL")
+        XCTAssertTrue(button.accessibilityTraits.contains(.button))
+
+        button.title = "UPDATED"
+        XCTAssertEqual(button.title, "UPDATED")
+        XCTAssertEqual(button.accessibilityLabel, "UPDATED")
+
+        button.setEnabled(false)
+        XCTAssertFalse(button.isUserInteractionEnabled)
+        XCTAssertEqual(button.alpha, 0.45, accuracy: 0.001)
+        XCTAssertTrue(button.accessibilityTraits.contains(.notEnabled))
+
+        button.setEnabled(true)
+        XCTAssertTrue(button.isUserInteractionEnabled)
+        XCTAssertEqual(button.alpha, 1, accuracy: 0.001)
+        XCTAssertFalse(button.accessibilityTraits.contains(.notEnabled))
+    }
+
+    func testToggleRowPublishesItsInitialState() {
+        let on = ToggleRowNode(title: "Sound", isOn: true, onChange: { _ in })
+        let off = ToggleRowNode(title: "Music", isOn: false, onChange: { _ in })
+
+        XCTAssertEqual(on.accessibilityLabel, "Sound")
+        XCTAssertEqual(on.accessibilityValue, "on")
+        XCTAssertEqual(off.accessibilityLabel, "Music")
+        XCTAssertEqual(off.accessibilityValue, "off")
+        XCTAssertTrue(on.accessibilityTraits.contains(.button))
+    }
+
+    func testPanelContentTopAccountsForAnOptionalTitle() {
+        let size = CGSize(width: 300, height: 240)
+        let plain = PanelNode(size: size)
+        let titled = PanelNode(size: size, title: "SUMMARY")
+        XCTAssertEqual(plain.contentTop, 102, accuracy: 0.001)
+        XCTAssertEqual(titled.contentTop, 68, accuracy: 0.001)
+    }
+
+    func testStatRowCombinesLabelAndValueForVoiceOver() {
+        let row = PanelNode.statRow(label: "Score", value: "42", width: 240)
+        XCTAssertTrue(row.isAccessibilityElement)
+        XCTAssertEqual(row.accessibilityLabel, "Score, 42")
+        XCTAssertEqual(row.children.compactMap { ($0 as? SKLabelNode)?.text }, ["Score", "42"])
+    }
+
+    private func descendantLabels(in node: SKNode) -> [String] {
+        node.children.flatMap { child -> [String] in
+            let own = (child as? SKLabelNode)?.text.map { [$0] } ?? []
+            return own + descendantLabels(in: child)
+        }
     }
 }

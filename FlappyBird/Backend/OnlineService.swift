@@ -183,6 +183,15 @@ final class OnlineService {
         pushAchievements()
     }
 
+    /// Replace the generated guest identity without losing its server-side
+    /// scores, achievements or friends.
+    func upgradeGuest(username: String, password: String) async throws {
+        guard let client else { throw APIError.offline }
+        _ = try await client.upgradeGuest(username: username, password: password)
+        flushQueue()
+        pushAchievements()
+    }
+
     // MARK: - Score submission
 
     /// Result surfaced on the game-over panel.

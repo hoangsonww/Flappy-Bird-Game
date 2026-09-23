@@ -121,6 +121,40 @@ the arrows.
 keeping the four progress screens visually grouped while making configuration
 easy to find.
 
+**PLAY is opaque.** It is the one primary action on the screen and uses the
+solid positive colour; sky, clouds and pipes cannot show through it or make it
+look disabled.
+
+### Leaderboard identity
+
+When online, the first row states **Playing as @username**. A fresh installation
+receives a device-bound guest name from the backend automatically, and the row
+points guest players to **Settings → Server** to claim that same profile. Ranked
+non-Zen runs upload at game over; the backend selects each account's best
+eligible run for the board. If a leaderboard window is still empty, a second
+row says **Finish a ranked run to join this board** instead of hiding the
+player's identity behind a generic empty state.
+
+### Settings forms
+
+<div align="center">
+  <img src="../img/screens/account-form.png" alt="The editable account-claim sheet" width="260" />
+  <br/>
+  <sub>Real UIKit fields above the SpriteKit settings screen.</sub>
+</div>
+
+The Server tab keeps every row's copy inside the space to the left of its
+trailing button, so URLs, sync status and account instructions never draw under
+EDIT, RUN, SYNC or UPGRADE. Long values are truncated visually while the full
+sentence remains available to VoiceOver.
+
+Account claiming and sign-in use a keyboard-safe UIKit sheet above the
+SpriteKit view. It focuses a real username field, validates the same 3–20
+character username and 8–128 character password rules as the backend, keeps
+errors inline, disables the form while a request is running, and preserves the
+Settings screen behind it. The backend URL editor uses the same sheet pattern
+with explicit **Save and reconnect** and **Use auto-detect** actions.
+
 ---
 
 ## The game screen
@@ -166,7 +200,7 @@ summary panel appears.
 flowchart TB
     Title["GAME OVER · or · NEW BEST!"] --> Cause["cause of death"]
     Cause --> Score["the score, large"]
-    Score --> Medal["medal chip &nbsp;·&nbsp; BEST n"]
+    Score --> Medal["earned medal chip (if any) &nbsp;·&nbsp; BEST n"]
     Medal --> Rows["pipes · coins · combo · time<br/>+ rank or sync state"]
     Rows --> Retry["PLAY AGAIN"]
     Retry --> Sec["MENU &nbsp; SHARE"]
@@ -176,6 +210,10 @@ The panel **sizes itself from its row count**. It used to be a hardcoded 372 or
 400 points, which was about 26 pt short of the content — the MENU/SHARE row
 rendered two points *below* the card's own bottom edge. `height(forRows:)`
 derives it now, and `GameOverPanelTests` pins every variant.
+
+The medal chip is conditional. Scores below Bronze show a centred **BEST** value
+with no placeholder ring; the old em dash looked like an unexplained minus
+button and carried no information.
 
 ---
 

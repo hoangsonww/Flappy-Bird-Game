@@ -195,6 +195,64 @@ final class BackendClientTests: XCTestCase {
         XCTAssertFalse(page.hasMore)
     }
 
+    func testOwnRankResponseDecodesRankedAndUnrankedStates() throws {
+        let ranked = try JSONDecoder().decode(OwnRankResponse.self, from: Data("""
+        {
+          "window": "weekly", "rank": 2, "total": 10,
+          "entry": {
+            "rank": 2, "userId": "u1", "username": "swiftbird",
+            "displayName": "Swift Bird", "avatarSkin": "classic", "country": null,
+            "score": 54, "mode": "classic", "achievedAt": "2026-09-20T12:00:00.000Z"
+          },
+          "neighbours": []
+        }
+        """.utf8))
+        XCTAssertEqual(ranked.rank, 2)
+        XCTAssertEqual(ranked.entry?.id, "2-u1")
+
+        let unranked = try JSONDecoder().decode(OwnRankResponse.self, from: Data("""
+        { "window": "all", "rank": null, "total": 0, "entry": null, "neighbours": [] }
+        """.utf8))
+        XCTAssertNil(unranked.rank)
+        XCTAssertNil(unranked.entry)
+        XCTAssertTrue(unranked.neighbours.isEmpty)
+    }
+
+    func testAchievementSyncResponseDecodesProgressAndUnlocks() throws {
+        let response = try JSONDecoder().decode(AchievementSyncResponse.self, from: Data("""
+        {
+          "items": [
+            { "code": "first_flight", "progress": 1, "unlockedAt": "2026-09-20T12:00:00.000Z" },
+            { "code": "century", "progress": 42, "unlockedAt": null }
+          ],
+          "synced": 2
+        }
+        """.utf8))
+        XCTAssertEqual(response.synced, 2)
+        XCTAssertEqual(response.items.first?.code, "first_flight")
+        XCTAssertNotNil(response.items.first?.unlockedAt)
+        XCTAssertNil(response.items.last?.unlockedAt)
+    }
+
+    func testDailyChallengeResponseDecodesEveryModifier() throws {
+        let response = try JSONDecoder().decode(DailyChallengeResponse.self, from: Data("""
+        {
+          "challenge": {
+            "date": "2026-09-22", "seed": "daily-seed", "mode": "daily",
+            "pipeGap": 148, "gravityScale": 1.05, "speedScale": 1.12,
+            "modifier": "windy", "description": "A gusty daily run"
+          },
+          "rollsOverAt": "2026-09-23T00:00:00.000Z"
+        }
+        """.utf8))
+        XCTAssertEqual(response.challenge.date, "2026-09-22")
+        XCTAssertEqual(response.challenge.pipeGap, 148)
+        XCTAssertEqual(response.challenge.gravityScale, 1.05, accuracy: 0.001)
+        XCTAssertEqual(response.challenge.speedScale, 1.12, accuracy: 0.001)
+        XCTAssertEqual(response.challenge.modifier, "windy")
+        XCTAssertEqual(response.rollsOverAt, "2026-09-23T00:00:00.000Z")
+    }
+
     func testErrorEnvelopeDecodes() throws {
         let json = """
         { "error": { "code": "validation_failed", "message": "Invalid request body", "requestId": "abc" } }
@@ -253,6 +311,119 @@ final class BackendClientTests: XCTestCase {
         XCTAssertEqual(submission.durationMs, 61_500)
         XCTAssertEqual(submission.seed, "a1b2c3d4")
     }
+
+    func testScoreSubmissionEncodesTheCompleteBackendContract() throws {
+        let record = RunRecord(
+            score: 7,
+            mode: .hardcore,
+            coins: 3,
+            pipesPassed: 7,
+            durationMs: 12_345,
+            maxCombo: 3,
+            powerUpsUsed: 0,
+            seed: "contract-seed"
+        )
+        let submission = ScoreSubmission(
+            run: record,
+            clientVersion: "1.3.0",
+            deviceModel: "iPhone",
+            signature: "signed"
+        )
+        let object = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(submission)) as? [String: Any]
+        )
+
+        XCTAssertEqual(object["score"] as? Int, 7)
+        XCTAssertEqual(object["mode"] as? String, "hardcore")
+        XCTAssertEqual(object["coins"] as? Int, 3)
+        XCTAssertEqual(object["pipesPassed"] as? Int, 7)
+        XCTAssertEqual(object["durationMs"] as? Int, 12_345)
+        XCTAssertEqual(object["maxCombo"] as? Int, 3)
+        XCTAssertEqual(object["powerUpsUsed"] as? Int, 0)
+        XCTAssertEqual(object["seed"] as? String, "contract-seed")
+        XCTAssertEqual(object["clientVersion"] as? String, "1.3.0")
+        XCTAssertEqual(object["deviceModel"] as? String, "iPhone")
+        XCTAssertEqual(object["signature"] as? String, "signed")
+    }
+
+    func testGuestUpgradeUsesTheAuthenticatedUpgradeEndpointAndStoresTheClaimedIdentity() async throws {
+        let authStore = AuthStore(defaults: TestSupport.isolatedDefaults())
+        authStore.clear()
+        defer {
+            authStore.clear()
+            RequestStubURLProtocol.handler = nil
+        }
+
+        authStore.store(session: AuthSession(
+            user: APIUser(
+                id: "guest-id",
+                username: "guest_ab12cd",
+                displayName: "Guest Flapper",
+                country: "US",
+                avatarSkin: "classic",
+                isGuest: true,
+                email: nil,
+                role: "player"
+            ),
+            tokens: TokenPair(
+                accessToken: "guest-access-token",
+                refreshToken: "guest-refresh-token",
+                tokenType: "Bearer",
+                expiresIn: 900,
+                refreshExpiresAt: "2026-12-31T00:00:00.000Z"
+            )
+        ))
+
+        RequestStubURLProtocol.handler = { request in
+            let url = try XCTUnwrap(request.url)
+            XCTAssertEqual(request.httpMethod, "POST")
+            XCTAssertEqual(url.path, "/v1/auth/upgrade")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer guest-access-token")
+            let body = try XCTUnwrap(
+                JSONSerialization.jsonObject(
+                    with: RequestStubURLProtocol.bodyData(from: request)
+                ) as? [String: String]
+            )
+            XCTAssertEqual(body, ["username": "skyhopper", "password": "strongpassword"])
+
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: "HTTP/1.1",
+                headerFields: ["Content-Type": "application/json"]
+            ))
+            let json = """
+            {
+              "user": {
+                "id": "guest-id", "username": "skyhopper", "displayName": "skyhopper",
+                "country": "US", "avatarSkin": "classic", "isGuest": false,
+                "email": null, "role": "player"
+              },
+              "tokens": {
+                "accessToken": "claimed-access-token", "refreshToken": "claimed-refresh-token",
+                "tokenType": "Bearer", "expiresIn": 900,
+                "refreshExpiresAt": "2026-12-31T00:00:00.000Z"
+              }
+            }
+            """
+            return (response, Data(json.utf8))
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [RequestStubURLProtocol.self]
+        let client = APIClient(
+            baseURL: try XCTUnwrap(URL(string: "https://api.example.test")),
+            authStore: authStore,
+            session: URLSession(configuration: configuration)
+        )
+
+        let claimed = try await client.upgradeGuest(username: "skyhopper", password: "strongpassword")
+        XCTAssertEqual(claimed.user.id, "guest-id", "Claiming must preserve the guest identity")
+        XCTAssertFalse(claimed.user.isGuest)
+        XCTAssertEqual(authStore.username, "skyhopper")
+        XCTAssertFalse(authStore.isGuest)
+        XCTAssertEqual(authStore.accessToken, "claimed-access-token")
+    }
 }
 
 private extension ScoreSubmission {
@@ -260,4 +431,52 @@ private extension ScoreSubmission {
     init(record: RunRecord) {
         self.init(run: record, clientVersion: "test", deviceModel: "test")
     }
+}
+
+private final class RequestStubURLProtocol: URLProtocol {
+    static var handler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
+
+    static func bodyData(from request: URLRequest) throws -> Data {
+        if let body = request.httpBody {
+            return body
+        }
+
+        guard let stream = request.httpBodyStream else {
+            return Data()
+        }
+
+        stream.open()
+        defer { stream.close() }
+
+        var body = Data()
+        var buffer = [UInt8](repeating: 0, count: 1_024)
+        while true {
+            let count = stream.read(&buffer, maxLength: buffer.count)
+            if count < 0 {
+                throw stream.streamError ?? URLError(.cannotDecodeRawData)
+            }
+            if count == 0 {
+                return body
+            }
+            body.append(buffer, count: count)
+        }
+    }
+
+    override static func canInit(with request: URLRequest) -> Bool { true }
+
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+    override func startLoading() {
+        do {
+            let handler = try XCTUnwrap(Self.handler)
+            let (response, data) = try handler(request)
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: data)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+    }
+
+    override func stopLoading() {}
 }

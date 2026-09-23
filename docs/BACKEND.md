@@ -4,7 +4,7 @@ Optional companion service for accounts, leaderboards, achievements and the
 daily challenge. **The game never needs it.**
 
 - Node.js 20+ · TypeScript · Express 5 · Zod · PostgreSQL 16
-- 108 tests, run against **both** storage drivers in CI
+- 133 tests, run against **both** storage drivers in CI
 - OpenAPI 3.1 with Swagger UI bundled locally (works offline)
 
 ## Run it
@@ -249,7 +249,7 @@ backend/
 ├── migrations/             forward-only SQL with checksums
 ├── openapi/openapi.yaml    the contract (46 paths, 49 operations)
 ├── scripts/                spec validation, smoke test
-└── tests/                  108 tests
+└── tests/                  133 unit, integration, contract and SSE tests
 ```
 
 ## Next

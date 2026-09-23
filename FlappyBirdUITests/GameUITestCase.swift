@@ -44,7 +44,8 @@ class GameUITestCase: XCTestCase {
         segment: Int? = nil,
         mode: String? = nil,
         seedDemoData: Bool = true,
-        autoPilot seconds: TimeInterval? = nil
+        autoPilot seconds: TimeInterval? = nil,
+        extraArguments: [String] = []
     ) -> XCUIApplication {
         var arguments: [String] = ["-ui-testing"]
         if seedDemoData { arguments.append("-seed-demo") }
@@ -52,6 +53,7 @@ class GameUITestCase: XCTestCase {
         if let segment { arguments += ["-segment", String(segment)] }
         if let mode { arguments += ["-mode", mode] }
         if let seconds { arguments += ["-demo", "-demo-die", String(Int(seconds))] }
+        arguments += extraArguments
         app.launchArguments = arguments
         app.launch()
         return app
