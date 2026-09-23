@@ -17,6 +17,12 @@ final class SettingsScene: ListScene {
             guard self?.selectedSegment == 2 else { return }
             self?.buildContent()
         }
+
+        if LaunchOptions.showsAccountFormForUITesting {
+            DispatchQueue.main.async { [weak self] in
+                self?.promptForAccount(upgrade: true)
+            }
+        }
     }
 
     override func willMove(from view: SKView) {
@@ -54,7 +60,7 @@ final class SettingsScene: ListScene {
         rows.append(actionRow(
             badge: "🗑",
             title: "Reset local progress",
-            subtitle: "Scores, coins, skins and achievements",
+            subtitle: "Clears all on-device progress",
             buttonTitle: "RESET",
             destructive: true
         ) { [weak self] in
@@ -135,7 +141,7 @@ final class SettingsScene: ListScene {
         rows.append(actionRow(
             badge: "🔄",
             title: "Reconnect",
-            subtitle: "Re-run discovery and sign in again",
+            subtitle: "Find server and sign in again",
             buttonTitle: "RUN"
         ) {
             OnlineService.shared.reconnect()
@@ -168,7 +174,7 @@ final class SettingsScene: ListScene {
             rows.append(actionRow(
                 badge: "👤",
                 title: service.username ?? "Signed in",
-                subtitle: service.isGuest ? "Guest account — create one to keep your scores" : "Signed in",
+                subtitle: service.isGuest ? "Claim guest to keep scores" : "Signed in",
                 buttonTitle: service.isGuest ? "UPGRADE" : "SIGN OUT"
             ) { [weak self] in
                 if service.isGuest {
@@ -184,7 +190,7 @@ final class SettingsScene: ListScene {
             rows.append(actionRow(
                 badge: "👤",
                 title: "Create an account",
-                subtitle: "Needed for leaderboards and cloud saves",
+                subtitle: "Leaderboards and cloud saves",
                 buttonTitle: "SIGN IN"
             ) { [weak self] in
                 self?.promptForAccount(upgrade: false)
@@ -194,7 +200,7 @@ final class SettingsScene: ListScene {
         rows.append(makeRow(
             badge: "📖",
             title: "Backend is optional",
-            subtitle: "The game is fully playable with no server at all",
+            subtitle: "Everything works without a server",
             value: "",
             valueColor: Palette.secondaryText
         ))
@@ -249,24 +255,6 @@ final class SettingsScene: ListScene {
         badgeLabel.position = CGPoint(x: left, y: 0)
         row.addChild(badgeLabel)
 
-        let titleLabel = SKLabelNode(fontNamed: Fonts.display)
-        titleLabel.text = title
-        titleLabel.fontSize = 14
-        titleLabel.fontColor = destructive ? Palette.negative : Palette.primaryText
-        titleLabel.horizontalAlignmentMode = .left
-        titleLabel.verticalAlignmentMode = .center
-        titleLabel.position = CGPoint(x: left + 32, y: 8)
-        row.addChild(titleLabel)
-
-        let subtitleLabel = SKLabelNode(fontNamed: Fonts.body)
-        subtitleLabel.text = subtitle
-        subtitleLabel.fontSize = 10
-        subtitleLabel.fontColor = Palette.secondaryText
-        subtitleLabel.horizontalAlignmentMode = .left
-        subtitleLabel.verticalAlignmentMode = .center
-        subtitleLabel.position = CGPoint(x: left + 32, y: -9)
-        row.addChild(subtitleLabel)
-
         let button = ButtonNode(
             title: buttonTitle,
             size: CGSize(width: 82, height: 32),
@@ -276,6 +264,31 @@ final class SettingsScene: ListScene {
         )
         button.position = CGPoint(x: (contentWidth - 8) / 2 - 56, y: 0)
         row.addChild(button)
+
+        // The labels and button share a row. Give text the exact space to the
+        // left of the button so long server URLs and explanations truncate
+        // before the control instead of drawing underneath it.
+        let textStart = left + 32
+        let buttonLeft = button.position.x - button.size.width / 2
+        let textWidth = max(0, buttonLeft - 10 - textStart)
+
+        let titleLabel = SKLabelNode(fontNamed: Fonts.display)
+        titleLabel.text = TextFit.truncate(title, toWidth: textWidth, fontNamed: Fonts.display, fontSize: 14)
+        titleLabel.fontSize = 14
+        titleLabel.fontColor = destructive ? Palette.negative : Palette.primaryText
+        titleLabel.horizontalAlignmentMode = .left
+        titleLabel.verticalAlignmentMode = .center
+        titleLabel.position = CGPoint(x: textStart, y: 8)
+        row.addChild(titleLabel)
+
+        let subtitleLabel = SKLabelNode(fontNamed: Fonts.body)
+        subtitleLabel.text = TextFit.truncate(subtitle, toWidth: textWidth, fontNamed: Fonts.body, fontSize: 10)
+        subtitleLabel.fontSize = 10
+        subtitleLabel.fontColor = Palette.secondaryText
+        subtitleLabel.horizontalAlignmentMode = .left
+        subtitleLabel.verticalAlignmentMode = .center
+        subtitleLabel.position = CGPoint(x: textStart, y: -9)
+        row.addChild(subtitleLabel)
 
         describeRowText(accessibilitySentence(badge, title, subtitle), in: row, leftOf: button)
 
@@ -291,85 +304,49 @@ final class SettingsScene: ListScene {
     private func promptForServerURL() {
         guard let presenter else { return }
 
-        let alert = UIAlertController(
-            title: "Backend URL",
-            message: "Leave empty to auto-detect a server on localhost:4000.",
-            preferredStyle: .alert
-        )
-        alert.addTextField { field in
-            field.placeholder = "http://192.168.1.20:4000"
-            field.text = Settings.shared.backendURLOverride
-            field.keyboardType = .URL
-            field.autocorrectionType = .no
-            field.autocapitalizationType = .none
-            field.clearButtonMode = .whileEditing
-        }
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak self] _ in
-            let raw = alert.textFields?.first?.text ?? ""
-            let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-
-            if trimmed.isEmpty {
-                Settings.shared.backendURLOverride = nil
-            } else if let url = BackendDiscovery.normalise(trimmed) {
-                Settings.shared.backendURLOverride = url.absoluteString
-            } else {
-                self?.showStatus("That does not look like a URL.")
-                return
-            }
+        let form = ServerURLFormViewController(
+            currentURL: settings.backendURLOverride
+        ) { [weak self] value in
+            Settings.shared.backendURLOverride = value
             OnlineService.shared.reconnect()
             self?.buildContent()
-        })
-        presenter.present(alert, animated: true)
+        }
+        presentForm(form, from: presenter)
     }
 
     private func promptForAccount(upgrade: Bool) {
         guard let presenter else { return }
 
-        let alert = UIAlertController(
-            title: upgrade ? "Claim your account" : "Sign in or register",
-            message: "Usernames are 3–20 characters. Passwords need at least 8.",
-            preferredStyle: .alert
-        )
-        alert.addTextField { field in
-            field.placeholder = "username"
-            field.autocorrectionType = .no
-            field.autocapitalizationType = .none
-        }
-        alert.addTextField { field in
-            field.placeholder = "password"
-            field.isSecureTextEntry = true
-        }
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-        let submit: (Bool) -> UIAlertAction = { [weak self] isRegistration in
-            let title = upgrade && isRegistration ? "Claim" : isRegistration ? "Register" : "Sign in"
-            return UIAlertAction(title: title, style: .default) { _ in
-                let username = alert.textFields?.first?.text ?? ""
-                let password = alert.textFields?.last?.text ?? ""
-
-                Task { @MainActor in
-                    do {
-                        if upgrade && isRegistration {
-                            try await OnlineService.shared.upgradeGuest(username: username, password: password)
-                        } else if isRegistration {
-                            try await OnlineService.shared.register(username: username, password: password)
-                        } else {
-                            try await OnlineService.shared.signIn(username: username, password: password)
-                        }
-                        self?.buildContent()
-                    } catch {
-                        let message = (error as? APIError)?.errorDescription ?? error.localizedDescription
-                        self?.showStatus(message)
-                    }
+        let form = AccountFormViewController(
+            isClaimingGuest: upgrade,
+            submit: { action, username, password in
+                switch action {
+                case .claim:
+                    try await OnlineService.shared.upgradeGuest(username: username, password: password)
+                case .register:
+                    try await OnlineService.shared.register(username: username, password: password)
+                case .signIn:
+                    try await OnlineService.shared.signIn(username: username, password: password)
                 }
+            },
+            onSuccess: { [weak self] in
+                self?.buildContent()
             }
-        }
+        )
+        presentForm(form, from: presenter)
+    }
 
-        alert.addAction(submit(true))
-        alert.addAction(submit(false))
-        presenter.present(alert, animated: true)
+    private func presentForm(_ form: UIViewController, from presenter: UIViewController) {
+        guard presenter.presentedViewController == nil else { return }
+
+        let navigation = UINavigationController(rootViewController: form)
+        navigation.modalPresentationStyle = .pageSheet
+        if let sheet = navigation.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 28
+        }
+        presenter.present(navigation, animated: true)
     }
 
     private func confirmReset() {

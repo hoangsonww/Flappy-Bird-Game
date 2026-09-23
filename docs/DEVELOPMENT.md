@@ -174,8 +174,8 @@ project's core promise.
 
 ```
 FlappyBird/          the game
-FlappyBirdTests/     145 Swift unit tests
-FlappyBirdUITests/   38 Swift UI tests
+FlappyBirdTests/     150 Swift unit tests
+FlappyBirdUITests/   39 Swift UI tests
 backend/             the optional API (133 tests × 2 storage drivers)
 docs/                these guides
 scripts/             project generation, xcodebuild wrappers, capture, release

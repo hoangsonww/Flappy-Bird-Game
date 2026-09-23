@@ -74,6 +74,32 @@ final class SettingsUITests: GameUITestCase {
         capture("settings-server")
     }
 
+    func testAccountSheetAcceptsTypingAndKeepsValidationInline() {
+        launch(
+            screen: "settings",
+            segment: 2,
+            extraArguments: ["-show-account-form"]
+        )
+
+        let username = app.textFields["Username"]
+        XCTAssertTrue(username.waitForExistence(timeout: GameUITestCase.uiTimeout))
+        username.tap()
+        username.typeText("ab")
+
+        let password = app.secureTextFields["Password"]
+        XCTAssertTrue(password.waitForExistence(timeout: GameUITestCase.uiTimeout))
+        password.tap()
+        password.typeText("1234567")
+
+        XCTAssertEqual(username.value as? String, "ab")
+        XCTAssertEqual(password.value as? String, "•••••••")
+
+        app.buttons["Claim account"].tap()
+        XCTAssertTrue(app.staticTexts["Username must be 3–20 characters."].waitForExistence(timeout: 2))
+        XCTAssertTrue(username.exists, "Validation must stay inside the form instead of replacing Settings")
+        capture("settings-account-form-validation")
+    }
+
     func testSettingsReturnsToTheMenu() {
         launch(screen: "settings")
         tap("‹")

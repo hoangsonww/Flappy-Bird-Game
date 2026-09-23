@@ -1,6 +1,6 @@
 # Testing
 
-316 tests: **145 Swift unit**, **38 Swift UI** and **133 backend**. CI runs the
+322 tests: **150 Swift unit**, **39 Swift UI** and **133 backend**. CI runs the
 entire backend suite against both the in-memory and PostgreSQL drivers, so its
 133 cases produce 266 storage-backed executions per Node.js version.
 
@@ -42,6 +42,7 @@ state or the simulator's real save file.
 | `AuthStoreTests` | Session storage when the Keychain is unavailable |
 | `ThemeTests` | Skins, time-of-day cycle, weather weighting, font fallback |
 | `GameOverPanelTests` | Summary geometry, empty-medal behavior, button, toggle, panel and VoiceOver contracts |
+| `SettingsFormTests` | Account-field boundaries and exact backend-compatible username/password rules |
 
 Two of these are contract tests rather than unit tests:
 
@@ -72,7 +73,7 @@ test. If VoiceOver cannot reach a control, neither can the suite, and it fails.
 | `GameplayUITests` | All six modes, pause/restart/menu, summary routes and Zen's no-death rule |
 | `ListScreenUITests` | Every filter plus real seeded/online leaderboard, achievement and stats rows |
 | `ShopUITests` | Buying, equipping, enabled affordable actions and disabled unaffordable actions |
-| `SettingsUITests` | All tabs, toggle values, optional-backend copy and on-screen controls |
+| `SettingsUITests` | All tabs, toggle values, action-row bounds, editable account fields, inline validation and accessibility |
 
 Every read of the accessibility tree goes through `waitForLabels`. A bare
 `allElementsBoundByIndex` is a *snapshot*, and the window in which the tree is
@@ -198,10 +199,10 @@ and utilities **97.74%**. PostgreSQL is verified separately by executing the
 same 133 cases against a real PostgreSQL 16 schema; a memory-only V8 report
 naturally does not credit those SQL adapter lines.
 
-The 145 Swift unit tests report app line coverage through
+The 150 Swift unit tests report app line coverage through
 `xccov`. That number includes every SpriteKit scene and rendering path in the
 app target, even though simulator-driven behavior and accessibility are tested
-by the separate 38-case UI suite. Treat coverage as a map for missing behavior,
+by the separate 39-case UI suite. Treat coverage as a map for missing behavior,
 not as a substitute for the cross-layer contract and UI assertions above.
 
 ## What is deliberately not tested

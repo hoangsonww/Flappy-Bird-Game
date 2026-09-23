@@ -792,8 +792,8 @@ make up && make smoke
 
 | Suite | Approx. count | Notable contracts |
 |-------|--------------:|-------------------|
-| `FlappyBirdTests` | 145 | Daily seed parity with TS · entity physics · DTO/HTTP contracts · AuthStore fallback · difficulty floors |
-| `FlappyBirdUITests` | 38 | Six modes · menu destinations · real list content · pause/summary · shop states · Settings accessibility |
+| `FlappyBirdTests` | 150 | Daily seed parity with TS · entity physics · DTO/HTTP contracts · form validation · difficulty floors |
+| `FlappyBirdUITests` | 39 | Six modes · menu destinations · real list content · pause/summary · shop states · Settings forms/accessibility |
 | Backend Vitest | 133 × 2 drivers | HTTP/SSE contracts · repository parity · auth rotation · anti-cheat · OpenAPI ↔ router inventory |
 
 Swift UI tests **are** accessibility tests: every control is reached through

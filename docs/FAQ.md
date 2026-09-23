@@ -29,7 +29,10 @@ that account immediately or from the retry queue when the server returns.
 
 To choose a permanent username without losing the guest's server-side history,
 open **Settings → Server → UPGRADE**, enter a username and password, and tap
-**Claim**. This calls `/v1/auth/upgrade`; it does not create a second profile.
+**Claim account**. This calls `/v1/auth/upgrade`; it does not create a second profile.
+The account sheet focuses the username field automatically and reports invalid
+usernames, short passwords, conflicts and server failures directly beneath the
+fields, so the form stays editable until the request succeeds.
 
 ### Why is there an in-memory storage driver?
 

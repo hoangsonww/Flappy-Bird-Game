@@ -135,6 +135,26 @@ eligible run for the board. If a leaderboard window is still empty, a second
 row says **Finish a ranked run to join this board** instead of hiding the
 player's identity behind a generic empty state.
 
+### Settings forms
+
+<div align="center">
+  <img src="../img/screens/account-form.png" alt="The editable account-claim sheet" width="260" />
+  <br/>
+  <sub>Real UIKit fields above the SpriteKit settings screen.</sub>
+</div>
+
+The Server tab keeps every row's copy inside the space to the left of its
+trailing button, so URLs, sync status and account instructions never draw under
+EDIT, RUN, SYNC or UPGRADE. Long values are truncated visually while the full
+sentence remains available to VoiceOver.
+
+Account claiming and sign-in use a keyboard-safe UIKit sheet above the
+SpriteKit view. It focuses a real username field, validates the same 3–20
+character username and 8–128 character password rules as the backend, keeps
+errors inline, disables the form while a request is running, and preserves the
+Settings screen behind it. The backend URL editor uses the same sheet pattern
+with explicit **Save and reconnect** and **Use auto-detect** actions.
+
 ---
 
 ## The game screen

@@ -66,6 +66,12 @@ enum LaunchOptions {
         return Int(arguments[index + 1])
     }
 
+    /// Open the account sheet directly so XCUITest can verify real keyboard
+    /// entry without requiring a live backend to manufacture a guest first.
+    static var showsAccountFormForUITesting: Bool {
+        arguments.contains("-ui-testing") && arguments.contains("-show-account-form")
+    }
+
     enum Screen: String {
         case menu
         case game
@@ -136,6 +142,7 @@ enum LaunchOptions {
         // capture script show, and that should be the yellow bird the game
         // ships with, not one of the unlocked recolours.
         settings.selectedSkin = .classic
+        settings.showFPS = false
         // The selected mode survives in `UserDefaults` across launches, so
         // without this a seeded launch inherits whatever the *last* launch left
         // behind — a UI test that ran with `-mode zen`, or a mode-cycling test

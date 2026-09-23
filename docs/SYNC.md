@@ -93,6 +93,12 @@ When a session and server are available, `POST /v1/scores` stores the run and
 the server recomputes the leaderboard from each player's best eligible score.
 That is how a player gets an entry; the client never sends or chooses its rank.
 
+The claim/sign-in UI is a native, keyboard-safe sheet rather than a text-field
+alert layered over SpriteKit. Client-side validation mirrors the backend's
+username and password constraints, and request failures stay inline in the
+sheet with actionable text; they never replace the entire Server tab with a
+contextless error message.
+
 ### Tokens, and the Keychain trap
 
 Access tokens are short-lived; the refresh token is the durable credential and
