@@ -19,6 +19,18 @@ blocks on this; discovery runs in the background.
 They queue locally (up to 200 runs) and upload when a server reappears. Zen runs
 never upload — a mode you cannot lose would flatten the leaderboards.
 
+### Where does my leaderboard name come from?
+
+When the app discovers a compatible backend, it automatically creates or
+resumes a device-bound guest account. The backend assigns a generated username
+such as `guest_ab12cd`; the leaderboard shows that identity in a **Playing as**
+row. Every ranked non-Zen run is saved locally at game over, then uploaded under
+that account immediately or from the retry queue when the server returns.
+
+To choose a permanent username without losing the guest's server-side history,
+open **Settings → Server → UPGRADE**, enter a username and password, and tap
+**Claim**. This calls `/v1/auth/upgrade`; it does not create a second profile.
+
 ### Why is there an in-memory storage driver?
 
 So `npm run dev` works with no Docker and no Postgres. It implements the same

@@ -121,6 +121,20 @@ the arrows.
 keeping the four progress screens visually grouped while making configuration
 easy to find.
 
+**PLAY is opaque.** It is the one primary action on the screen and uses the
+solid positive colour; sky, clouds and pipes cannot show through it or make it
+look disabled.
+
+### Leaderboard identity
+
+When online, the first row states **Playing as @username**. A fresh installation
+receives a device-bound guest name from the backend automatically, and the row
+points guest players to **Settings → Server** to claim that same profile. Ranked
+non-Zen runs upload at game over; the backend selects each account's best
+eligible run for the board. If a leaderboard window is still empty, a second
+row says **Finish a ranked run to join this board** instead of hiding the
+player's identity behind a generic empty state.
+
 ---
 
 ## The game screen
@@ -166,7 +180,7 @@ summary panel appears.
 flowchart TB
     Title["GAME OVER · or · NEW BEST!"] --> Cause["cause of death"]
     Cause --> Score["the score, large"]
-    Score --> Medal["medal chip &nbsp;·&nbsp; BEST n"]
+    Score --> Medal["earned medal chip (if any) &nbsp;·&nbsp; BEST n"]
     Medal --> Rows["pipes · coins · combo · time<br/>+ rank or sync state"]
     Rows --> Retry["PLAY AGAIN"]
     Retry --> Sec["MENU &nbsp; SHARE"]
@@ -176,6 +190,10 @@ The panel **sizes itself from its row count**. It used to be a hardcoded 372 or
 400 points, which was about 26 pt short of the content — the MENU/SHARE row
 rendered two points *below* the card's own bottom edge. `height(forRows:)`
 derives it now, and `GameOverPanelTests` pins every variant.
+
+The medal chip is conditional. Scores below Bronze show a centred **BEST** value
+with no placeholder ring; the old em dash looked like an unexplained minus
+button and carried no information.
 
 ---
 

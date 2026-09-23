@@ -10,7 +10,8 @@ final class GameOverPanelTests: XCTestCase {
     private func makeSummary(
         rank: Int? = nil,
         queuedForSync: Bool = false,
-        isPersonalBest: Bool = false
+        isPersonalBest: Bool = false,
+        medal: Medal = .silver
     ) -> GameOverPanel.Summary {
         GameOverPanel.Summary(
             score: 42,
@@ -20,7 +21,7 @@ final class GameOverPanelTests: XCTestCase {
             maxCombo: 4,
             duration: 51.2,
             mode: .classic,
-            medal: .silver,
+            medal: medal,
             isPersonalBest: isPersonalBest,
             cause: .pipe,
             rank: rank,
@@ -104,6 +105,15 @@ final class GameOverPanelTests: XCTestCase {
         XCTAssertEqual(delta, 24, accuracy: 0.001)
     }
 
+    func testNoMedalDoesNotRenderAMysteryDashChip() {
+        let panel = makePanel(makeSummary(medal: .none))
+        let labels = descendantLabels(in: panel)
+
+        XCTAssertFalse(labels.contains("—"))
+        XCTAssertFalse(labels.contains(Medal.none.label.uppercased()))
+        XCTAssertTrue(labels.contains("BEST 58"))
+    }
+
     func testButtonTitleAndEnabledStateStayAccessible() {
         let button = ButtonNode(title: "ORIGINAL", action: {})
         XCTAssertEqual(button.title, "ORIGINAL")
@@ -149,5 +159,12 @@ final class GameOverPanelTests: XCTestCase {
         XCTAssertTrue(row.isAccessibilityElement)
         XCTAssertEqual(row.accessibilityLabel, "Score, 42")
         XCTAssertEqual(row.children.compactMap { ($0 as? SKLabelNode)?.text }, ["Score", "42"])
+    }
+
+    private func descendantLabels(in node: SKNode) -> [String] {
+        node.children.flatMap { child -> [String] in
+            let own = (child as? SKLabelNode)?.text.map { [$0] } ?? []
+            return own + descendantLabels(in: child)
+        }
     }
 }

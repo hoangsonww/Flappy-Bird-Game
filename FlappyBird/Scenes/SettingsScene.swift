@@ -344,13 +344,16 @@ final class SettingsScene: ListScene {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
         let submit: (Bool) -> UIAlertAction = { [weak self] isRegistration in
-            UIAlertAction(title: isRegistration ? "Register" : "Sign in", style: .default) { _ in
+            let title = upgrade && isRegistration ? "Claim" : isRegistration ? "Register" : "Sign in"
+            return UIAlertAction(title: title, style: .default) { _ in
                 let username = alert.textFields?.first?.text ?? ""
                 let password = alert.textFields?.last?.text ?? ""
 
                 Task { @MainActor in
                     do {
-                        if isRegistration {
+                        if upgrade && isRegistration {
+                            try await OnlineService.shared.upgradeGuest(username: username, password: password)
+                        } else if isRegistration {
                             try await OnlineService.shared.register(username: username, password: password)
                         } else {
                             try await OnlineService.shared.signIn(username: username, password: password)

@@ -248,7 +248,10 @@ final class MenuScene: SKScene {
             title: "PLAY",
             size: CGSize(width: panelWidth, height: 54),
             fontSize: 26,
-            fillColor: Palette.positive.withAlphaComponent(0.25),
+            // The primary action must read as a solid button over every sky
+            // palette. The old 25%-alpha fill let pipes and clouds show through
+            // it, making PLAY look disabled on brighter backgrounds.
+            fillColor: Palette.positive,
             borderColor: Palette.positive
         ) { [weak self] in
             self?.startGame()

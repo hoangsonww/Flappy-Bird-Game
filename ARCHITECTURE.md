@@ -792,7 +792,7 @@ make up && make smoke
 
 | Suite | Approx. count | Notable contracts |
 |-------|--------------:|-------------------|
-| `FlappyBirdTests` | 143 | Daily seed parity with TS · entity physics · DTO contracts · AuthStore fallback · difficulty floors |
+| `FlappyBirdTests` | 145 | Daily seed parity with TS · entity physics · DTO/HTTP contracts · AuthStore fallback · difficulty floors |
 | `FlappyBirdUITests` | 38 | Six modes · menu destinations · real list content · pause/summary · shop states · Settings accessibility |
 | Backend Vitest | 133 × 2 drivers | HTTP/SSE contracts · repository parity · auth rotation · anti-cheat · OpenAPI ↔ router inventory |
 

@@ -34,7 +34,7 @@
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?style=flat-square&logo=openapiinitiative&logoColor=white)](backend/openapi/openapi.yaml)
 [![Swagger UI](https://img.shields.io/badge/Swagger%20UI-self--hosted-85EA2D?style=flat-square&logo=swagger&logoColor=black)](docs/API.md)
 [![REST](https://img.shields.io/badge/REST-JSON-005571?style=flat-square&logo=json&logoColor=white)](docs/API.md)
-[![XCTest](https://img.shields.io/badge/XCTest-143%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
+[![XCTest](https://img.shields.io/badge/XCTest-145%20unit-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![XCUITest](https://img.shields.io/badge/XCUITest-38%20UI-1575F9?style=flat-square&logo=swift&logoColor=white)](docs/TESTING.md)
 [![Vitest](https://img.shields.io/badge/Vitest-133%20backend-6E9F18?style=flat-square&logo=vitest&logoColor=white)](docs/TESTING.md)
 [![SuperTest](https://img.shields.io/badge/SuperTest-HTTP%20assertions-4B32C3?style=flat-square&logo=nodedotjs&logoColor=white)](https://github.com/ladjs/supertest)
@@ -144,8 +144,8 @@ and lets the bird fly itself.*
 
 ### ☁️ Backend *(optional)*
 
-- **Accounts** — password or instant device-bound guest
-- **Leaderboards** — global, daily, weekly, monthly, friends-only
+- **Accounts** — an instant device-bound guest, claimable later with a username and password
+- **Leaderboards** — ranked runs upload at game over under the identity shown on the board
 - **Live updates** over Server-Sent Events
 - **Achievement sync** that merges offline unlocks
 - **Daily challenge** board, identical for everyone
@@ -161,7 +161,7 @@ and lets the bird fly itself.*
 ### 🛠 And the boring parts done properly
 
 `make doctor` · a generated Xcode project that never conflicts · Docker Compose
-with observability profiles · a dev container · 314 tests run on every push ·
+with observability profiles · a dev container · 316 tests run on every push ·
 automatic releases from Conventional Commits · reproducible screenshots.
 
 ---
@@ -173,7 +173,7 @@ automatic releases from Conventional Commits · reproducible screenshots.
 ```bash
 make run      # build, install and launch in a simulator
 make demo     # the same, in self-playing attract mode
-make test     # 143 Swift unit tests
+make test     # 145 Swift unit tests
 make test-ui  # 38 Swift UI tests, driven on a simulator
 ```
 

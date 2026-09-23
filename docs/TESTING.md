@@ -1,6 +1,6 @@
 # Testing
 
-314 tests: **143 Swift unit**, **38 Swift UI** and **133 backend**. CI runs the
+316 tests: **145 Swift unit**, **38 Swift UI** and **133 backend**. CI runs the
 entire backend suite against both the in-memory and PostgreSQL drivers, so its
 133 cases produce 266 storage-backed executions per Node.js version.
 
@@ -38,10 +38,10 @@ state or the simulator's real save file.
 | `PersistenceTests` | Runs, wallet, skins, achievements, reset |
 | `AchievementSystemTests` | Every unlock path, including the client-only ones |
 | `DailyChallengeHelperTests` | **Byte-for-byte parity with the server** |
-| `BackendClientTests` | URL normalisation, discovery order, all API DTOs, request encoding, error semantics |
+| `BackendClientTests` | URL normalisation, discovery, all API DTOs, request encoding, guest-upgrade HTTP contract, errors |
 | `AuthStoreTests` | Session storage when the Keychain is unavailable |
 | `ThemeTests` | Skins, time-of-day cycle, weather weighting, font fallback |
-| `GameOverPanelTests` | Summary geometry plus button, toggle, panel and VoiceOver contracts |
+| `GameOverPanelTests` | Summary geometry, empty-medal behavior, button, toggle, panel and VoiceOver contracts |
 
 Two of these are contract tests rather than unit tests:
 
@@ -198,7 +198,7 @@ and utilities **97.74%**. PostgreSQL is verified separately by executing the
 same 133 cases against a real PostgreSQL 16 schema; a memory-only V8 report
 naturally does not credit those SQL adapter lines.
 
-The 143 Swift unit tests currently report **41.58% app line coverage** through
+The 145 Swift unit tests report app line coverage through
 `xccov`. That number includes every SpriteKit scene and rendering path in the
 app target, even though simulator-driven behavior and accessibility are tested
 by the separate 38-case UI suite. Treat coverage as a map for missing behavior,

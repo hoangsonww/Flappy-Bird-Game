@@ -74,8 +74,9 @@ slashes and trims whitespace, so all of those work.
 ## Sessions
 
 A guest account is created automatically the first time a server is reached, so
-leaderboards work without anyone filling in a form. Registering later upgrades
-the same account rather than starting over.
+leaderboards work without anyone filling in a form. The backend assigns a name
+such as `guest_ab12cd`, and the leaderboard publishes it in a **Playing as** row.
+Claiming the profile later upgrades the same account rather than starting over.
 
 ```mermaid
 flowchart LR
@@ -83,9 +84,14 @@ flowchart LR
     Guest --> Tokens["access + refresh"]
     Tokens --> KC["Keychain"]
 
-    Later["Player registers"] --> Upgrade["POST /v1/auth/register"]
+    Later["Settings → Server → UPGRADE"] --> Upgrade["POST /v1/auth/upgrade"]
     Upgrade --> Same["same account, real username"]
 ```
+
+The app adds every ranked non-Zen run to its local upload queue at game over.
+When a session and server are available, `POST /v1/scores` stores the run and
+the server recomputes the leaderboard from each player's best eligible score.
+That is how a player gets an entry; the client never sends or chooses its rank.
 
 ### Tokens, and the Keychain trap
 

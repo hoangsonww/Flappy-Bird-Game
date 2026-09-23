@@ -68,18 +68,23 @@ final class GameOverPanel: PanelNode {
         addChild(scoreLabel)
         y -= 58
 
-        // Medal chip.
-        let medal = MedalNode(medal: summary.medal)
-        medal.position = CGPoint(x: -contentWidth / 2 + 38, y: y + 6)
-        addChild(medal)
+        // Do not draw an empty medal. The old `.none` variant rendered a ring
+        // containing "—", which looked like an unexplained minus button on the
+        // game-over panel. A medal is celebratory UI, so it only exists once a
+        // tier has actually been earned.
+        if summary.medal != .none {
+            let medal = MedalNode(medal: summary.medal)
+            medal.position = CGPoint(x: -contentWidth / 2 + 38, y: y + 6)
+            addChild(medal)
+        }
 
         let bestLabel = SKLabelNode(fontNamed: Fonts.body)
         bestLabel.text = "BEST \(summary.best)"
         bestLabel.fontSize = 14
         bestLabel.fontColor = Palette.secondaryText
-        bestLabel.horizontalAlignmentMode = .right
+        bestLabel.horizontalAlignmentMode = summary.medal == .none ? .center : .right
         bestLabel.verticalAlignmentMode = .center
-        bestLabel.position = CGPoint(x: contentWidth / 2, y: y + 6)
+        bestLabel.position = CGPoint(x: summary.medal == .none ? 0 : contentWidth / 2, y: y + 6)
         addChild(bestLabel)
         y -= 36
 
@@ -180,7 +185,7 @@ final class MedalNode: SKNode {
         addChild(ring)
 
         let label = SKLabelNode(fontNamed: Fonts.body)
-        label.text = medal == .none ? "—" : String(medal.label.prefix(1))
+        label.text = String(medal.label.prefix(1))
         label.fontSize = 22
         label.fontColor = medal.color
         label.verticalAlignmentMode = .center
